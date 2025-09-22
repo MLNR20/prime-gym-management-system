@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    /* File Layout */
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    /* Environment Settings */
+    "module": "CommonJS",
+    "target": "ESNext",
+    "lib": ["ES2020"],
+    "types": ["node"],
+
+    /* Node.js interop */
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+
+    /* Output */
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    /* Strictness */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+
+    /* React support (only needed if this is also for frontend) */
+    "jsx": "react-jsx",
+
+    /* Style / Safety */
+    "verbatimModuleSyntax": false,
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force",
+    "skipLibCheck": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}
