@@ -1,18 +1,17 @@
 import { Schema, model, Document } from "mongoose";
 
 export interface ILogs {
-   logs:string,
-   admin_id: string;
-   createdAt: Date,
+  admin_id: string;
+  logs: string;
+  createdAt: Date;
 }
 
 export interface ILogsDocument extends ILogs, Document {}
 
-
 const logsSchema = new Schema<ILogsDocument>(
   {
+    admin_id: { type: String, trim: true },
     logs: { type: String, required: true, trim: true },
-    admin_id:{type:String, required:true, trim:true},
     createdAt: { type: Date, default: Date.now },
   },
   { collection: "Logs" }

@@ -1,6 +1,5 @@
 import express from "express";
 import CustomerRepository from "../repository/customerRepository";
-import logsRepository from "../repository/logsRepository";
 
 const customerRouter = express.Router();
 
@@ -11,6 +10,7 @@ customerRouter.post("/", async (request, response) => {
       first_name: request.body.first_name,
       last_name: request.body.last_name,
       amount_paid: request.body.amount_paid,
+      status: request.body.status,
       contact_no:request.body.contact_no,
       subscription_type: request.body.subscription_type
     };
