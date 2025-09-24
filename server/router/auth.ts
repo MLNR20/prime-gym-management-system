@@ -23,7 +23,11 @@ authRouter.post("/login", async (req: Request, res: Response) => {
     const { username, password } = req.body;
     const token = await authService.login(username, password);
 
-    if (!token) return res.status(401).json({ error: "Invalid credentials" });
+    if (!token)
+    { 
+    
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
     res.json({ token });
   } catch (err) {
     res.status(500).json({ error: "Login failed" });

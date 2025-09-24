@@ -11,28 +11,25 @@ export class AuthService {
     this.authRepository = authRepository;
   }
 
-  async register(
-    first_name: string,
-    last_name: string,
-    password: string,
-    username: string
-  ): Promise<IAdmin> {
+  async register(first_name: string, last_name: string, password: string, username: string): Promise<IAdmin> 
+  {
     await LogsRepository.logAction(
       "",
       `User ${first_name} ${last_name} created an account at ${new Date().toISOString()}`
     );
 
-    return this.authRepository.createUser(
-      first_name,
-      last_name,
-      password,
-      username
-    );
+    return this.authRepository.createUser(first_name, last_name, password, username);
   }
 
-  async login(username: string, password: string): Promise<string | null> {
+  async login(username: string, password: string): Promise<string | null> 
+  {
     const admin = await this.authRepository.verifyCredentials(username, password);
-    if (!admin) return null;
+
+    if (!admin) 
+    {
+      await LogsRepository.logAction("", `Failed login attempt at  ${new Date().toISOString()}`);
+      return null;
+    }
 
     const token = jwt.sign(
       {

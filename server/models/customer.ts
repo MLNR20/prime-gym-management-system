@@ -6,6 +6,7 @@ export interface ICustomer {
   amount_paid: number;
   contact_no:string;
   status: string;
+  payment_option: string;
   subscription_type: string;
   payment_Date:Date;
   expiration_Date:Date;
@@ -25,6 +26,12 @@ enum SubscriptionType {
   trainingRegular = "Monthly with Coaching"
 }
 
+enum paymentModel
+{
+  gcash = "GCash",
+  cash = "Cash"
+}
+
 export interface ICustomerDocument extends ICustomer, Document {}
 
 
@@ -35,6 +42,7 @@ const customerSchema = new Schema<ICustomerDocument>(
     amount_paid:{type:Number, required:true},
     contact_no:{type:String, required:true, trim:true},
     status: {type:String, enum: Object.values(SubscriptionStatus),  default:SubscriptionStatus.Paid,required:true},
+    payment_option:{type:String, enum:Object.values(paymentModel), trim:true },
     subscription_type: {type:String, enum:Object.values(SubscriptionType), default: SubscriptionType.regular, trim:true, required:true},
     payment_Date:{type:Date, default: Date.now, required:true, trim:true},
     expiration_Date: {type:Date, default: () => {

@@ -19,7 +19,6 @@ export class AuthRepository implements IAuthRepository {
   async verifyCredentials(username: string, password: string): Promise<IAdmin | null> {
     const admin = await Admin.findOne({ username }).exec();
     if (!admin) return null;
-
     const isMatch = await bcrypt.compare(password, admin.password);
     return isMatch ? admin : null;
   }
