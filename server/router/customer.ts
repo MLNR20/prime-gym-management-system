@@ -1,7 +1,10 @@
 import express from "express";
 import CustomerRepository from "../repository/customerRepository";
+import LogsRepository from "../repository/logsRepository";
+import {CustomerService} from "../repository/services/customerService";
 
 const customerRouter = express.Router();
+const customerService = new CustomerService(CustomerRepository);
 
 // CREATE
 customerRouter.post("/", async (request, response) => {
@@ -12,8 +15,10 @@ customerRouter.post("/", async (request, response) => {
       amount_paid: request.body.amount_paid,
       status: request.body.status,
       contact_no:request.body.contact_no,
-      subscription_type: request.body.subscription_type
+      subscription_type: request.body.subscription_type,
+      payment_option: request.body.payment_option
     };
+
 
     const createNewEmployee = await CustomerRepository.create(newCustomer);
     return response.status(200).send(createNewEmployee);
@@ -27,6 +32,29 @@ customerRouter.post("/", async (request, response) => {
 customerRouter.get("/", async (request, response) => {
   try {
     const customers = await CustomerRepository.findAll();
+    response.json(customers);
+  } catch (error) {
+    console.error(error);
+    response.status(500).json({ message: "Error fetching customers" });
+  }
+});
+
+// RETRIEVE PAID SUBSCRIPTIONS
+customerRouter.get("/status/paid", async (request, response) => {
+  try {
+    const customers = await customerService.getPaidCustomers();
+    response.json(customers);
+  } catch (error) {
+    console.error(error);
+    response.status(500).json({ message: "Error fetching customers" });
+  }
+});
+
+
+// RETRIEVE EXPIRED SUBSCRIPTIONS
+customerRouter.get("/status/expired", async (request, response) => {
+  try {
+    const customers = await customerService.getExpiredCustomers();
     response.json(customers);
   } catch (error) {
     console.error(error);
