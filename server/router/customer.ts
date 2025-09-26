@@ -2,6 +2,7 @@ import express from "express";
 import CustomerRepository from "../repository/customerRepository";
 import LogsRepository from "../repository/logsRepository";
 import {CustomerService} from "../repository/services/customerService";
+import logsRepository from "../repository/logsRepository";
 
 const customerRouter = express.Router();
 const customerService = new CustomerService(CustomerRepository);
@@ -19,8 +20,8 @@ customerRouter.post("/", async (request, response) => {
       payment_option: request.body.payment_option
     };
 
-
     const createNewEmployee = await CustomerRepository.create(newCustomer);
+    await LogsRepository.logAction(createNewEmployee._id!.toString(), "New user created at " + new Date().toISOString());
     return response.status(200).send(createNewEmployee);
 
   } catch (error) {
