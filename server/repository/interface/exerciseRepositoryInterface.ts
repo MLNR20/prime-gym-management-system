@@ -1,7 +1,11 @@
 import { IExercise } from "../../models/exercise";
-
+import { IProgram } from "../../models/program";
 export interface IExerciseRepository {
-  assignExercise(customer_id:string, exercise:{}): Promise<IExercise | null>;
-  createUser(first_name:string, last_name:string, password: string, username: string): Promise<IExercise>;
+  
+
+  //method assign exercises to program
+
+  //method assign programs to users
+  assignProgram(customer_id:string, exercise:{}): Promise<IExercise | null>;
   verifyCredentials(first_name: string, password: string): Promise<IExercise | null>;
 }
