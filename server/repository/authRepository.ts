@@ -16,6 +16,11 @@ export class AuthRepository implements IAuthRepository {
     return await admin.save();
   }
 
+  async findById(admin_id:string): Promise<IAdmin | null>{
+    const admin = await Admin.findById(admin_id).exec();
+    return admin;
+  }
+
   async verifyCredentials(username: string, password: string): Promise<IAdmin | null> {
     const admin = await Admin.findOne({ username }).exec();
     if (!admin) return null;
