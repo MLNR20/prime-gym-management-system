@@ -7,32 +7,50 @@ class GenericRepository<T> {
     this.model = model;
   }
 
-  /** Create a single document */
   async create(data: Partial<T>): Promise<HydratedDocument<T>> {
     return this.model.create(data);
   }
 
-  /** Create many documents */
   async createMany(data: Partial<T>[]): Promise<HydratedDocument<T>[]> {
     return (await this.model.insertMany(data)) as HydratedDocument<T>[];
   }
 
-  /** Find all documents */
+  async deleteMany(data: Partial<T>[]): Promise<HydratedDocument<T>[]> {
+    const docs = await this.model.find({ $or: data });
+    await this.model.deleteMany({ $or: data });
+    return docs;
+  }
+
+  /**
+   * @param data Array of { filter, update } objects
+   */
+  async updateMany(data: { filter: Partial<T>; update: Partial<T> }[]): Promise<HydratedDocument<T>[]> 
+  {
+      const updatedDocs: HydratedDocument<T>[] = [];
+
+      for (const item of data) {
+        const doc = await this.model.findOneAndUpdate(
+          item.filter,
+          item.update,
+          { new: true } // return the updated document
+        );
+        if (doc) updatedDocs.push(doc);
+      }
+
+      return updatedDocs;
+    }
   async findAll(): Promise<HydratedDocument<T>[]> {
     return this.model.find();
   }
 
-  /** Find document by ID */
   async findById(id: string): Promise<HydratedDocument<T> | null> {
     return this.model.findById(id);
   }
 
-  /** Update document by ID */
   async update(id: string, data: Partial<T>): Promise<HydratedDocument<T> | null> {
     return this.model.findByIdAndUpdate(id, data, { new: true });
   }
 
-  /** Delete document by ID */
   async delete(id: string): Promise<HydratedDocument<T> | null> {
     return this.model.findByIdAndDelete(id);
   }

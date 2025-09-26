@@ -1,12 +1,11 @@
 import Exercise, { IExerciseDocument } from "../models/exercise";
 import GenericRepository from "./genericRepository";
+import  { IExerciseRepository } from "./interface/exerciseRepositoryInterface"; 
 
-
-class ExerciseRepository extends GenericRepository<IExerciseDocument>
+export class ExerciseRepository extends GenericRepository<IExerciseDocument> 
 {
-    async findByFirstName(first_name: string): Promise<IExerciseDocument | null> {
-         return this.model.findOne({ first_name });
-    }
+    
 }
+
 
 export default new ExerciseRepository(Exercise);

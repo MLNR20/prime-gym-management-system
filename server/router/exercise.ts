@@ -34,6 +34,38 @@ exerciseRouter.get("/", async (request, response) => {
   }
 });
 
+// UPDATE
+exerciseRouter.put("/:id", async (request, response) => {
+  try {
+    const updatedCustomer = await ExerciseRepository.update(
+      request.params.id,
+      request.body
+    );
+    if (!updatedCustomer) {
+      return response.status(404).json({ message: "Exercise not found" });
+    }
+    response.json(updatedCustomer);
+  } catch (error) {
+    console.error(error);
+    response.status(500).json({ message: "Error updating customer" });
+  }
+});
+
+// DELETE
+exerciseRouter.delete("/:id", async (request, response) => {
+  try {
+    const deletedCustomer = await ExerciseRepository.delete(request.params.id);
+    if (!deletedCustomer) {
+      return response.status(404).json({ message: "Customer not found" });
+    }
+    response.json({ message: "Exercise deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    response.status(500).json({ message: "Error deleting customer" });
+  }
+});
+
+
 
 exerciseRouter.post("/many/", async (req, res) => {
   try {
