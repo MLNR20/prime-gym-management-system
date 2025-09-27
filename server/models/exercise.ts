@@ -38,7 +38,7 @@ const exerciseSchema = new Schema<IExerciseDocument>(
     createdAt: { type: Date, default: Date.now },
     updatedAt: {type:Date, default: Date.now}
   },
-  { collection: "exercise" }
+  { collection: "Exercise" }
 );
 
 const Exercise = model<IExerciseDocument>("Exercise", exerciseSchema);

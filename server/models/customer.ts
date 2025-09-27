@@ -11,7 +11,8 @@ export interface ICustomer {
   payment_Date:Date;
   expiration_Date:Date;
   createdAt: Date;
-  updatedAt: Date
+  updatedAt: Date;
+  isDeleted: Boolean;
 }
 
 enum SubscriptionStatus {
@@ -52,7 +53,8 @@ const customerSchema = new Schema<ICustomerDocument>(
        }
     },
     createdAt: { type: Date, default: Date.now },
-    updatedAt: {type:Date, default: Date.now}
+    updatedAt: {type:Date, default: Date.now},
+    isDeleted: {type:Boolean, default:false}
   },
   { collection: "Customer" }
 );
