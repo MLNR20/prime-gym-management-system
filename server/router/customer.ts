@@ -2,13 +2,12 @@ import express from "express";
 import CustomerRepository from "../repository/customerRepository";
 import LogsRepository from "../repository/logsRepository";
 import {CustomerService} from "../repository/services/customerService";
-import logsRepository from "../repository/logsRepository";
-
+import { authMiddleware } from "../middleware/middleware";
 const customerRouter = express.Router();
 const customerService = new CustomerService(CustomerRepository);
 
 // CREATE
-customerRouter.post("/", async (request, response) => {
+customerRouter.post("/", authMiddleware, async (request, response) => {
   try {
     const newCustomer = {
       first_name: request.body.first_name,
@@ -30,7 +29,7 @@ customerRouter.post("/", async (request, response) => {
 });
 
 // READ ALL
-customerRouter.get("/", async (request, response) => {
+customerRouter.get("/", authMiddleware, async (request, response) => {
   try {
     const customers = await CustomerRepository.findAll();
     response.json(customers);
@@ -41,7 +40,7 @@ customerRouter.get("/", async (request, response) => {
 });
 
 // RETRIEVE PAID SUBSCRIPTIONS
-customerRouter.get("/status/paid", async (request, response) => {
+customerRouter.get("/status/paid", authMiddleware, async (request, response) => {
   try {
     const customers = await customerService.getPaidCustomers();
     response.json(customers);
@@ -53,7 +52,7 @@ customerRouter.get("/status/paid", async (request, response) => {
 
 
 // RETRIEVE EXPIRED SUBSCRIPTIONS
-customerRouter.get("/status/expired", async (request, response) => {
+customerRouter.get("/status/expired", authMiddleware, async (request, response) => {
   try {
     const customers = await customerService.getExpiredCustomers();
     response.json(customers);
@@ -64,9 +63,9 @@ customerRouter.get("/status/expired", async (request, response) => {
 });
 
 // READ ONE
-customerRouter.get("/:id", async (request, response) => {
+customerRouter.get("/:id", authMiddleware, async (request, response) => {
   try {
-    const customer = await CustomerRepository.findById(request.params.id);
+    const customer = await CustomerRepository.findById(request.params.id!);
     if (!customer) {
       return response.status(404).json({ message: "Customer not found" });
     }
@@ -79,10 +78,10 @@ customerRouter.get("/:id", async (request, response) => {
 
 
 // UPDATE
-customerRouter.put("/:id", async (request, response) => {
+customerRouter.put("/:id", authMiddleware, async (request, response) => {
   try {
     const updatedCustomer = await CustomerRepository.update(
-      request.params.id,
+      request.params.id!,
       request.body
     );
     if (!updatedCustomer) {
@@ -96,9 +95,9 @@ customerRouter.put("/:id", async (request, response) => {
 });
 
 // DELETE
-customerRouter.delete("/:id", async (request, response) => {
+customerRouter.delete("/:id", authMiddleware, async (request, response) => {
   try {
-    const deletedCustomer = await CustomerRepository.delete(request.params.id);
+    const deletedCustomer = await CustomerRepository.delete(request.params.id!);
     if (!deletedCustomer) {
       return response.status(404).json({ message: "Customer not found" });
     }

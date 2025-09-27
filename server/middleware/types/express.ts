@@ -3,8 +3,8 @@ import { Types } from "mongoose";
 
 export interface RequestWithUser extends Request {
   admin?: {
-    _id: Types.ObjectId;  // admin id
-    email: string;
-    role: string;
+    _id: string;  
+    first_name: string;
+    last_name: string;
   };
 }
