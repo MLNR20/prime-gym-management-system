@@ -3,11 +3,12 @@ import CustomerRepository from "../repository/customerRepository";
 import LogsRepository from "../repository/logsRepository";
 import {CustomerService} from "../repository/services/customerService";
 import { authMiddleware } from "../middleware/middleware";
+import { RequestWithUser } from "../middleware/types/express";
 const customerRouter = express.Router();
 const customerService = new CustomerService(CustomerRepository);
 
 // CREATE
-customerRouter.post("/", authMiddleware, async (request, response) => {
+customerRouter.post("/", authMiddleware, async (request: RequestWithUser, response) => {
   try {
     const newCustomer = {
       first_name: request.body.first_name,
@@ -20,7 +21,9 @@ customerRouter.post("/", authMiddleware, async (request, response) => {
     };
 
     const createNewEmployee = await CustomerRepository.create(newCustomer);
-    await LogsRepository.logAction(createNewEmployee._id!.toString(), "New user created at " + new Date().toISOString());
+    const admin = request.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created new user at ${new Date().toISOString()}`);
+
     return response.status(200).send(createNewEmployee);
 
   } catch (error) {
