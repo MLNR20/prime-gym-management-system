@@ -32,9 +32,12 @@ customerRouter.post("/", authMiddleware, async (request: RequestWithUser, respon
 });
 
 // READ ALL
-customerRouter.get("/", authMiddleware, async (request, response) => {
+customerRouter.get("/", authMiddleware, async (request: RequestWithUser, response) => {
   try {
     const customers = await CustomerRepository.findAll();
+    const admin = request.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} accessed customers list at ${new Date().toISOString()}`);
+
     response.json(customers);
   } catch (error) {
     console.error(error);
