@@ -3,11 +3,12 @@ import CustomerRepository from "../repository/customerRepository";
 import LogsRepository from "../repository/logsRepository";
 import {CustomerService} from "../repository/services/customerService";
 import { authMiddleware } from "../middleware/middleware";
+import { RequestWithUser } from "../middleware/types/express";
 const customerRouter = express.Router();
 const customerService = new CustomerService(CustomerRepository);
 
 // CREATE
-customerRouter.post("/", authMiddleware, async (request, response) => {
+customerRouter.post("/", authMiddleware, async (request: RequestWithUser, response) => {
   try {
     const newCustomer = {
       first_name: request.body.first_name,
@@ -20,7 +21,9 @@ customerRouter.post("/", authMiddleware, async (request, response) => {
     };
 
     const createNewEmployee = await CustomerRepository.create(newCustomer);
-    await LogsRepository.logAction(createNewEmployee._id!.toString(), "New user created at " + new Date().toISOString());
+    const admin = request.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created new user at ${new Date().toISOString()}`);
+
     return response.status(200).send(createNewEmployee);
 
   } catch (error) {
@@ -29,9 +32,12 @@ customerRouter.post("/", authMiddleware, async (request, response) => {
 });
 
 // READ ALL
-customerRouter.get("/", authMiddleware, async (request, response) => {
+customerRouter.get("/", authMiddleware, async (request: RequestWithUser, response) => {
   try {
     const customers = await CustomerRepository.findAll();
+    const admin = request.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} accessed customers list at ${new Date().toISOString()}`);
+
     response.json(customers);
   } catch (error) {
     console.error(error);
@@ -40,9 +46,12 @@ customerRouter.get("/", authMiddleware, async (request, response) => {
 });
 
 // RETRIEVE PAID SUBSCRIPTIONS
-customerRouter.get("/status/paid", authMiddleware, async (request, response) => {
+customerRouter.get("/status/paid", authMiddleware, async (request: RequestWithUser, response) => {
   try {
     const customers = await customerService.getPaidCustomers();
+    const admin = request.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} accessed paid customers list at ${new Date().toISOString()}`);
+
     response.json(customers);
   } catch (error) {
     console.error(error);
@@ -52,9 +61,11 @@ customerRouter.get("/status/paid", authMiddleware, async (request, response) => 
 
 
 // RETRIEVE EXPIRED SUBSCRIPTIONS
-customerRouter.get("/status/expired", authMiddleware, async (request, response) => {
+customerRouter.get("/status/expired", authMiddleware, async (request: RequestWithUser, response) => {
   try {
     const customers = await customerService.getExpiredCustomers();
+    const admin = request.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} accessed expired customers list at ${new Date().toISOString()}`);
     response.json(customers);
   } catch (error) {
     console.error(error);
@@ -63,12 +74,17 @@ customerRouter.get("/status/expired", authMiddleware, async (request, response) 
 });
 
 // READ ONE
-customerRouter.get("/:id", authMiddleware, async (request, response) => {
+customerRouter.get("/:id", authMiddleware, async (request: RequestWithUser, response) => {
   try {
     const customer = await CustomerRepository.findById(request.params.id!);
+    
     if (!customer) {
       return response.status(404).json({ message: "Customer not found" });
     }
+
+    const admin = request.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} retrieved ${customer.first_name} ${customer.last_name}'s customer details at ${new Date().toISOString()}`);
+
     response.json(customer);
   } catch (error) {
     console.error(error);
