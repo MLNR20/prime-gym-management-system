@@ -46,9 +46,12 @@ customerRouter.get("/", authMiddleware, async (request: RequestWithUser, respons
 });
 
 // RETRIEVE PAID SUBSCRIPTIONS
-customerRouter.get("/status/paid", authMiddleware, async (request, response) => {
+customerRouter.get("/status/paid", authMiddleware, async (request: RequestWithUser, response) => {
   try {
     const customers = await customerService.getPaidCustomers();
+    const admin = request.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} accessed paid customers list at ${new Date().toISOString()}`);
+
     response.json(customers);
   } catch (error) {
     console.error(error);
@@ -58,9 +61,11 @@ customerRouter.get("/status/paid", authMiddleware, async (request, response) => 
 
 
 // RETRIEVE EXPIRED SUBSCRIPTIONS
-customerRouter.get("/status/expired", authMiddleware, async (request, response) => {
+customerRouter.get("/status/expired", authMiddleware, async (request: RequestWithUser, response) => {
   try {
     const customers = await customerService.getExpiredCustomers();
+    const admin = request.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} accessed expired customers list at ${new Date().toISOString()}`);
     response.json(customers);
   } catch (error) {
     console.error(error);
@@ -69,12 +74,17 @@ customerRouter.get("/status/expired", authMiddleware, async (request, response) 
 });
 
 // READ ONE
-customerRouter.get("/:id", authMiddleware, async (request, response) => {
+customerRouter.get("/:id", authMiddleware, async (request: RequestWithUser, response) => {
   try {
     const customer = await CustomerRepository.findById(request.params.id!);
+    
     if (!customer) {
       return response.status(404).json({ message: "Customer not found" });
     }
+
+    const admin = request.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} retrieved ${customer.first_name} ${customer.last_name}'s customer details at ${new Date().toISOString()}`);
+
     response.json(customer);
   } catch (error) {
     console.error(error);
