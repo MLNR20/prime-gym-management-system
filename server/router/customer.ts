@@ -94,12 +94,16 @@ customerRouter.get("/:id", authMiddleware, async (request: RequestWithUser, resp
 
 
 // UPDATE
-customerRouter.put("/:id", authMiddleware, async (request, response) => {
+customerRouter.put("/:id", authMiddleware, async (request: RequestWithUser, response) => {
   try {
     const updatedCustomer = await CustomerRepository.update(
       request.params.id!,
       request.body
     );
+
+    const admin = request.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} updated ${updatedCustomer!.first_name} ${updatedCustomer!.first_name}'s customer details at ${new Date().toISOString()}`);
+
     if (!updatedCustomer) {
       return response.status(404).json({ message: "Customer not found" });
     }
