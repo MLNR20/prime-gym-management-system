@@ -4,6 +4,7 @@ import LogsRepository from "../repository/logsRepository";
 import {CustomerService} from "../repository/services/customerService";
 import { authMiddleware } from "../middleware/middleware";
 import { RequestWithUser } from "../middleware/types/express";
+import customerRepository from "../repository/customerRepository";
 const customerRouter = express.Router();
 const customerService = new CustomerService(CustomerRepository);
 
@@ -89,6 +90,20 @@ customerRouter.get("/:id", authMiddleware, async (request: RequestWithUser, resp
   } catch (error) {
     console.error(error);
     response.status(500).json({ message: "Error fetching customer" });
+  }
+});
+
+// SOFT DELETE
+customerRouter.patch("/:id", async (request, response) => {
+  try {
+    const deletedCustomer = await customerRepository.softDelete(request.params.id, true);
+    if (!deletedCustomer) {
+      return response.status(404).json({ message: "Customer not found" });
+    }
+    response.json({ message: "Customer deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    response.status(500).json({ message: "Error deleting customer" });
   }
 });
 

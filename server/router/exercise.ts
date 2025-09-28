@@ -2,6 +2,7 @@ import express from "express";
 import ExerciseRepository from "../repository/exerciseRepository";
 import LogsRepository from "../repository/logsRepository";
 import { CustomerService } from "../repository/services/customerService";
+import exerciseRepository from "../repository/exerciseRepository";
 
 const exerciseRouter = express.Router();
 //const customerService = new CustomerService(CustomerRepository);
@@ -51,7 +52,8 @@ exerciseRouter.put("/:id", async (request, response) => {
   }
 });
 
-// DELETE
+
+//DELETE
 exerciseRouter.delete("/:id", async (request, response) => {
   try {
     const deletedCustomer = await ExerciseRepository.delete(request.params.id);
@@ -64,6 +66,22 @@ exerciseRouter.delete("/:id", async (request, response) => {
     response.status(500).json({ message: "Error deleting customer" });
   }
 });
+
+
+// SOFT DELETE
+exerciseRouter.patch("/:id", async (request, response) => {
+  try {
+    const deletedCustomer = await exerciseRepository.softDelete(request.params.id, true);
+    if (!deletedCustomer) {
+      return response.status(404).json({ message: "Customer not found" });
+    }
+    response.json({ message: "Exercise deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    response.status(500).json({ message: "Error deleting customer" });
+  }
+});
+
 
 
 

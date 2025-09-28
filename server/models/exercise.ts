@@ -6,7 +6,8 @@ export interface IExercise {
  reps: Number,
  sets: Number,
  createdAt: Date,
- updatedAt: Date
+ updatedAt: Date,
+ isDeleted: Boolean
 }
 
 enum TargetArea {
@@ -36,7 +37,8 @@ const exerciseSchema = new Schema<IExerciseDocument>(
     reps: {type: Number, required:true, default:5},
     sets: {type:Number, required:true, default:1},
     createdAt: { type: Date, default: Date.now },
-    updatedAt: {type:Date, default: Date.now}
+    updatedAt: {type:Date, default: Date.now},
+    isDeleted: {type:Boolean, default:false}
   },
   { collection: "Exercise" }
 );
