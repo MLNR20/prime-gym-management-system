@@ -21,6 +21,9 @@ exerciseRouter.post("/", authMiddleware, async (request:RequestWithUser, respons
     };
 
     const createNewExercise = await ExerciseRepository.create(newExercise);
+    //const admin = request.admin; 
+    //await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created new user at ${new Date().toISOString()}`);
+    
     return response.status(200).send(createNewExercise);
   } catch (error) {
     console.log(error);
@@ -32,6 +35,10 @@ exerciseRouter.get("/", authMiddleware, async (request:RequestWithUser, response
   try {
     const exercises = await ExerciseRepository.findAll();
     response.json(exercises);
+
+    //const admin = request.admin; 
+    //await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created new user at ${new Date().toISOString()}`);
+
   } catch (error) {
     console.error(error);
     response.status(500).json({ message: "Error fetching exercises" });
@@ -48,6 +55,10 @@ exerciseRouter.put("/:id", authMiddleware, async (request:RequestWithUser, respo
     if (!updatedCustomer) {
       return response.status(404).json({ message: "Exercise not found" });
     }
+
+    //const admin = request.admin; 
+    //await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created new user at ${new Date().toISOString()}`);
+
     response.json(updatedCustomer);
   } catch (error) {
     console.error(error);
@@ -63,6 +74,10 @@ exerciseRouter.delete("/:id", authMiddleware, async (request:RequestWithUser, re
     if (!deletedCustomer) {
       return response.status(404).json({ message: "Customer not found" });
     }
+
+    //const admin = request.admin; 
+    //await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created new user at ${new Date().toISOString()}`);
+
     response.json({ message: "Exercise deleted successfully" });
   } catch (error) {
     console.error(error);
@@ -78,6 +93,10 @@ exerciseRouter.patch("/:id", authMiddleware, async (request:RequestWithUser, res
     if (!deletedCustomer) {
       return response.status(404).json({ message: "Customer not found" });
     }
+
+    //const admin = request.admin; 
+    //await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created new user at ${new Date().toISOString()}`);
+
     response.json({ message: "Exercise deleted successfully" });
   } catch (error) {
     console.error(error);
@@ -88,8 +107,8 @@ exerciseRouter.patch("/:id", authMiddleware, async (request:RequestWithUser, res
 
 exerciseRouter.post("/many/", authMiddleware, async (request: RequestWithUser, response) => {
   try {
-    const docs = await ExerciseRepository.createMany(request.body); // expects array of exercises
-    response.status(201).json(docs);
+    const docs = await ExerciseRepository.createMany(req.body); // expects array of exercises
+    res.status(201).json(docs);
   } catch (err: any) {
     response.status(400).json({ error: err.message });
   }

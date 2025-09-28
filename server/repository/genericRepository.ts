@@ -32,7 +32,7 @@ class GenericRepository<T> {
         const doc = await this.model.findOneAndUpdate(
           item.filter,
           item.update,
-          { new: true } // return the updated document
+          { new: true }
         );
         if (doc) updatedDocs.push(doc);
       }
