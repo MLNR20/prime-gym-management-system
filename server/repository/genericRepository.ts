@@ -38,9 +38,15 @@ class GenericRepository<T> {
       }
 
       return updatedDocs;
-    }
+  }
+
   async findAll(): Promise<HydratedDocument<T>[]> {
     return this.model.find();
+  }
+
+  async softDelete(id: string, status: Boolean): Promise<HydratedDocument<T>| null>
+  {
+    return this.model.findOneAndUpdate({_id: id},  { $set: { isDeleted: status } });
   }
 
   async findById(id: string): Promise<HydratedDocument<T> | null> {

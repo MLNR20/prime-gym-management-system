@@ -51,7 +51,8 @@ exerciseRouter.put("/:id", async (request, response) => {
   }
 });
 
-// DELETE
+
+//DELETE
 exerciseRouter.delete("/:id", async (request, response) => {
   try {
     const deletedCustomer = await ExerciseRepository.delete(request.params.id);
@@ -64,6 +65,7 @@ exerciseRouter.delete("/:id", async (request, response) => {
     response.status(500).json({ message: "Error deleting customer" });
   }
 });
+
 
 
 
