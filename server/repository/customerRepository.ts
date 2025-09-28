@@ -1,4 +1,4 @@
-import Customer, { ICustomerDocument } from "../models/customer";
+import Customer, { ICustomer, ICustomerDocument } from "../models/customer";
 import GenericRepository from "./genericRepository";
 import {ICustomerRepository} from "./interface/customerRepositoryInterface"
 
@@ -10,6 +10,10 @@ export class CustomerRepository extends GenericRepository<ICustomerDocument> imp
 
   async findSubscriptionStatus(status: string): Promise<ICustomerDocument[]> {
     return this.model.find({ status });
+  }
+
+  async findActivityStatus(status: string): Promise<ICustomer[]> {
+      return this.model.find({status});
   }
 
   async findByLastName(last_name:string): Promise<ICustomerDocument |null>{
