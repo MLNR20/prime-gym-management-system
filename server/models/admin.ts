@@ -6,6 +6,7 @@ export interface IAdmin extends Document {
   username: string;
   password: string;
   createdAt: Date;
+  isDeleted: Boolean;
 }
 
 const adminSchema = new Schema<IAdmin>(
@@ -15,6 +16,7 @@ const adminSchema = new Schema<IAdmin>(
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },
+    isDeleted: {type:Boolean, default: false}
   },
   { collection: "Admin" }
 );
