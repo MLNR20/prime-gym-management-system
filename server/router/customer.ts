@@ -130,12 +130,16 @@ customerRouter.put("/:id", authMiddleware, async (request: RequestWithUser, resp
 });
 
 // DELETE
-customerRouter.delete("/:id", authMiddleware, async (request, response) => {
+customerRouter.delete("/:id", authMiddleware, async (request: RequestWithUser, response) => {
   try {
     const deletedCustomer = await CustomerRepository.delete(request.params.id!);
     if (!deletedCustomer) {
       return response.status(404).json({ message: "Customer not found" });
     }
+
+    const admin = request.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} deleted new user at ${new Date().toISOString()}`);
+
     response.json({ message: "Customer deleted successfully" });
   } catch (error) {
     console.error(error);
