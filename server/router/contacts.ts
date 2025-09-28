@@ -13,7 +13,6 @@ contactRouter.post("/", async (req: Request, res: Response) => {
       contact_number: req.body.contact_number,
       role: req.body.role
     };
-
     const newlyCreatedContacts = await contactRepository.create(newContacts);
     res.status(200).send(newlyCreatedContacts);
   } catch (error) {
