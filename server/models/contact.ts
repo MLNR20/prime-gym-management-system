@@ -9,6 +9,8 @@ export interface IContacts extends Document {
   isDeleted: Boolean;
 }
 
+export interface IContactsDocument extends IContacts, Document {}
+
 const contactSchema = new Schema<IContacts>(
   {
     contact_name: { type: String, required: true, trim: true },
