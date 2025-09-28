@@ -10,8 +10,8 @@ contactRouter.post("/", async (req: Request, res: Response) => {
     const newContacts = {
       first_name: req.body.first_name,
       last_name: req.body.last_name,
-      contact_no: req.body.contact_no,
-      role: req.body.subscription_type,
+      contact_number: req.body.contact_number,
+      role: req.body.role
     };
 
     const newlyCreatedContacts = await contactRepository.create(newContacts);
