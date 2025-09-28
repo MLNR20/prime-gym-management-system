@@ -34,7 +34,7 @@ contactRouter.get("/", async (req: Request, res: Response) => {
 // SOFT DELETE
 contactRouter.patch("/:id", async (req: Request, res: Response) => {
   try {
-    const deletedContact = await contactRepository.softDelete(req.params.id, true);
+    const deletedContact = await contactRepository.softDelete(req.params.id!, true);
     if (!deletedContact) {
       return response.status(404).json({ message: "Customer not found" });
     }
