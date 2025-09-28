@@ -2,13 +2,16 @@ import express from "express";
 import ExerciseRepository from "../repository/exerciseRepository";
 import LogsRepository from "../repository/logsRepository";
 import { CustomerService } from "../repository/services/customerService";
+import { authMiddleware } from "../middleware/middleware";
+import { RequestWithUser } from "../middleware/types/express";
+
 import exerciseRepository from "../repository/exerciseRepository";
 
 const exerciseRouter = express.Router();
 //const customerService = new CustomerService(CustomerRepository);
 
 // CREATE
-exerciseRouter.post("/", async (request, response) => {
+exerciseRouter.post("/", authMiddleware, async (request:RequestWithUser, response) => {
   try {
     const newExercise = {
       exercise_name: request.body.exercise_name,
@@ -18,6 +21,9 @@ exerciseRouter.post("/", async (request, response) => {
     };
 
     const createNewExercise = await ExerciseRepository.create(newExercise);
+    //const admin = request.admin; 
+    //await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created new user at ${new Date().toISOString()}`);
+    
     return response.status(200).send(createNewExercise);
   } catch (error) {
     console.log(error);
@@ -25,10 +31,14 @@ exerciseRouter.post("/", async (request, response) => {
 });
 
 // READ ALL
-exerciseRouter.get("/", async (request, response) => {
+exerciseRouter.get("/", authMiddleware, async (request:RequestWithUser, response) => {
   try {
     const exercises = await ExerciseRepository.findAll();
     response.json(exercises);
+
+    //const admin = request.admin; 
+    //await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created new user at ${new Date().toISOString()}`);
+
   } catch (error) {
     console.error(error);
     response.status(500).json({ message: "Error fetching exercises" });
@@ -36,15 +46,19 @@ exerciseRouter.get("/", async (request, response) => {
 });
 
 // UPDATE
-exerciseRouter.put("/:id", async (request, response) => {
+exerciseRouter.put("/:id", authMiddleware, async (request:RequestWithUser, response) => {
   try {
     const updatedCustomer = await ExerciseRepository.update(
-      request.params.id,
+      request.params.id!,
       request.body
     );
     if (!updatedCustomer) {
       return response.status(404).json({ message: "Exercise not found" });
     }
+
+    //const admin = request.admin; 
+    //await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created new user at ${new Date().toISOString()}`);
+
     response.json(updatedCustomer);
   } catch (error) {
     console.error(error);
@@ -54,12 +68,16 @@ exerciseRouter.put("/:id", async (request, response) => {
 
 
 //DELETE
-exerciseRouter.delete("/:id", async (request, response) => {
+exerciseRouter.delete("/:id", authMiddleware, async (request:RequestWithUser, response) => {
   try {
-    const deletedCustomer = await ExerciseRepository.delete(request.params.id);
+    const deletedCustomer = await ExerciseRepository.delete(request.params.id!);
     if (!deletedCustomer) {
       return response.status(404).json({ message: "Customer not found" });
     }
+
+    //const admin = request.admin; 
+    //await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created new user at ${new Date().toISOString()}`);
+
     response.json({ message: "Exercise deleted successfully" });
   } catch (error) {
     console.error(error);
@@ -69,12 +87,16 @@ exerciseRouter.delete("/:id", async (request, response) => {
 
 
 // SOFT DELETE
-exerciseRouter.patch("/:id", async (request, response) => {
+exerciseRouter.patch("/:id", authMiddleware, async (request:RequestWithUser, response) => {
   try {
-    const deletedCustomer = await exerciseRepository.softDelete(request.params.id, true);
+    const deletedCustomer = await exerciseRepository.softDelete(request.params.id!, true);
     if (!deletedCustomer) {
       return response.status(404).json({ message: "Customer not found" });
     }
+
+    //const admin = request.admin; 
+    //await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created new user at ${new Date().toISOString()}`);
+
     response.json({ message: "Exercise deleted successfully" });
   } catch (error) {
     console.error(error);
@@ -83,12 +105,12 @@ exerciseRouter.patch("/:id", async (request, response) => {
 });
 
 
-exerciseRouter.post("/many/", async (req, res) => {
+exerciseRouter.post("/many/", authMiddleware, async (request: RequestWithUser, response) => {
   try {
     const docs = await ExerciseRepository.createMany(req.body); // expects array of exercises
     res.status(201).json(docs);
   } catch (err: any) {
-    res.status(400).json({ error: err.message });
+    response.status(400).json({ error: err.message });
   }
 });
 
