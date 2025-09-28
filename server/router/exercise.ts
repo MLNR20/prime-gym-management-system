@@ -83,8 +83,6 @@ exerciseRouter.patch("/:id", async (request, response) => {
 });
 
 
-
-
 exerciseRouter.post("/many/", async (req, res) => {
   try {
     const docs = await ExerciseRepository.createMany(req.body); // expects array of exercises

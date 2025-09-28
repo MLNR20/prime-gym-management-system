@@ -15,7 +15,7 @@ contactRouter.post("/", async (req: Request, res: Response) => {
     };
 
     const newlyCreatedContacts = await contactRepository.create(newContacts);
-    response.status(200).send(newlyCreatedContacts);
+    res.status(200).send(newlyCreatedContacts);
   } catch (error) {
     console.log(error);
   }
@@ -25,7 +25,7 @@ contactRouter.post("/", async (req: Request, res: Response) => {
 contactRouter.get("/", async (req: Request, res: Response) => {
   try {
     const contactsList = await contactRepository.findAll();
-    response.status(200).send(contactsList);
+    res.json(contactsList);
   } catch (error) {
     console.log(error);
   }
@@ -36,12 +36,12 @@ contactRouter.patch("/:id", async (req: Request, res: Response) => {
   try {
     const deletedContact = await contactRepository.softDelete(req.params.id!, true);
     if (!deletedContact) {
-      return response.status(404).json({ message: "Customer not found" });
+      return res.status(404).json({ message: "Customer not found" });
     }
-    response.json({ message: "Contact deleted successfully" });
+    res.json({ message: "Contact deleted successfully" });
   } catch (error) {
     console.error(error);
-    response.status(500).json({ message: "Error deleting Contact" });
+    res.status(500).json({ message: "Error deleting Contact" });
   }
 });
 
@@ -58,10 +58,10 @@ contactRouter.put("/:id", async (req: Request, res: Response) => {
     if (!updatedContact) {
       return response.status(404).json({ message: "Customer not found" });
     }
-    response.json(updatedContact);
+    res.json(updatedContact);
   } catch (error) {
     console.error(error);
-    response.status(500).json({ message: "Error updating customer" });
+    res.status(500).json({ message: "Error updating customer" });
   }
 });
 
@@ -70,12 +70,12 @@ contactRouter.delete("/:id", async (req: Request, res: Response) => {
   try {
     const deletedCustomer = await contactRepository.delete(req.params.id!);
     if (!deletedCustomer) {
-      return response.status(404).json({ message: "Contact not found" });
+      return res.status(404).json({ message: "Contact not found" });
     }
-    response.json({ message: "Contact deleted successfully" });
+    res.json({ message: "Contact deleted successfully" });
   } catch (error) {
     console.error(error);
-    response.status(500).json({ message: "Error updating customer" });
+    res.status(500).json({ message: "Error updating customer" });
   }
 });
 
