@@ -12,7 +12,7 @@ export class CustomerRepository extends GenericRepository<ICustomerDocument> imp
     return this.model.find({ status });
   }
 
-  async findActivityStatus(status: string): Promise<ICustomer[]> {
+  async findActivityStatus(status: Boolean): Promise<ICustomer[]> {
       return this.model.find({status});
   }
 

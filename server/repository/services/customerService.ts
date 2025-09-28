@@ -10,14 +10,19 @@ export class CustomerService {
     this.customerRepository = customerRepository;
   }
 
-   async getExpiredCustomers(): Promise<ICustomer[]> {
-      return this.customerRepository.findSubscriptionStatus("Expired");
-   }
+  async getExpiredCustomers(): Promise<ICustomer[]> {
+    return this.customerRepository.findSubscriptionStatus("Expired");
+  }
 
-   async getPaidCustomers(): Promise<ICustomer[]> {
-        return this.customerRepository.findSubscriptionStatus("Paid");
-    }
+  async getActiveCustomers(): Promise<ICustomer[]> {
+    return this.customerRepository.findActivityStatus(false);
+  }
 
+  async getDeletedCustomers(): Promise<ICustomer[]> {
+    return this.customerRepository.findActivityStatus(true);
+  }
+
+  async getPaidCustomers(): Promise<ICustomer[]> {
+    return this.customerRepository.findSubscriptionStatus("Paid");
+  }
 }
-
-
