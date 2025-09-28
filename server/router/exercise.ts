@@ -32,6 +32,10 @@ exerciseRouter.get("/", async (request, response) => {
   try {
     const exercises = await ExerciseRepository.findAll();
     response.json(exercises);
+
+    //const admin = request.admin; 
+    //await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created new user at ${new Date().toISOString()}`);
+
   } catch (error) {
     console.error(error);
     response.status(500).json({ message: "Error fetching exercises" });
@@ -48,6 +52,10 @@ exerciseRouter.put("/:id", async (request, response) => {
     if (!updatedCustomer) {
       return response.status(404).json({ message: "Exercise not found" });
     }
+
+    //const admin = request.admin; 
+    //await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created new user at ${new Date().toISOString()}`);
+
     response.json(updatedCustomer);
   } catch (error) {
     console.error(error);
@@ -63,6 +71,10 @@ exerciseRouter.delete("/:id", async (request, response) => {
     if (!deletedCustomer) {
       return response.status(404).json({ message: "Customer not found" });
     }
+
+    //const admin = request.admin; 
+    //await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created new user at ${new Date().toISOString()}`);
+
     response.json({ message: "Exercise deleted successfully" });
   } catch (error) {
     console.error(error);
@@ -78,6 +90,10 @@ exerciseRouter.patch("/:id", async (request, response) => {
     if (!deletedCustomer) {
       return response.status(404).json({ message: "Customer not found" });
     }
+
+    //const admin = request.admin; 
+    //await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created new user at ${new Date().toISOString()}`);
+
     response.json({ message: "Exercise deleted successfully" });
   } catch (error) {
     console.error(error);
@@ -88,7 +104,11 @@ exerciseRouter.patch("/:id", async (request, response) => {
 
 exerciseRouter.post("/many/", async (req, res) => {
   try {
-    const docs = await ExerciseRepository.createMany(req.body); // expects array of exercises
+    const docs = await ExerciseRepository.createMany(req.body); 
+
+    //const admin = request.admin; 
+    //await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created new user at ${new Date().toISOString()}`);
+
     res.status(201).json(docs);
   } catch (err: any) {
     res.status(400).json({ error: err.message });
