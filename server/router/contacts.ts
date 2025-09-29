@@ -1,11 +1,13 @@
 import express, { Request, response, Response } from "express";
 import contactRepository from "../repository/contactRepository";
 import LogsRepository from "../repository/logsRepository";
+import { authMiddleware } from "../middleware/middleware";
+import { RequestWithUser } from "../middleware/types/express";
 
 const contactRouter = express.Router();
 
 //CREATE CONTACT
-contactRouter.post("/", async (req: Request, res: Response) => {
+contactRouter.post("/", authMiddleware, async (req: RequestWithUser, res: Response) => {
   try {
     const newContacts = {
       first_name: req.body.first_name,
@@ -21,7 +23,7 @@ contactRouter.post("/", async (req: Request, res: Response) => {
 });
 
 // RETRIEVE CONTACTS LIST
-contactRouter.get("/", async (req: Request, res: Response) => {
+contactRouter.get("/", authMiddleware, async (req: RequestWithUser, res: Response) => {
   try {
     const contactsList = await contactRepository.findAll();
     res.json(contactsList);
@@ -31,7 +33,7 @@ contactRouter.get("/", async (req: Request, res: Response) => {
 });
 
 // SOFT DELETE
-contactRouter.patch("/:id", async (req: Request, res: Response) => {
+contactRouter.patch("/:id", authMiddleware, async (req: RequestWithUser, res: Response) => {
   try {
     const deletedContact = await contactRepository.softDelete(req.params.id!, true);
     if (!deletedContact) {
@@ -47,7 +49,7 @@ contactRouter.patch("/:id", async (req: Request, res: Response) => {
 
 
 // UPDATE CONTACTS
-contactRouter.put("/:id", async (req: Request, res: Response) => {
+contactRouter.put("/:id", authMiddleware, async (req: RequestWithUser, res: Response) => {
   try {
     const updatedContact = await contactRepository.update(
       req.params.id!,
@@ -65,7 +67,7 @@ contactRouter.put("/:id", async (req: Request, res: Response) => {
 });
 
 // DELETE CONTACTS
-contactRouter.delete("/:id", async (req: Request, res: Response) => {
+contactRouter.delete("/:id", authMiddleware, async (req: RequestWithUser, res: Response) => {
   try {
     const deletedCustomer = await contactRepository.delete(req.params.id!);
     if (!deletedCustomer) {
