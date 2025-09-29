@@ -21,8 +21,8 @@ exerciseRouter.post("/", authMiddleware, async (request:RequestWithUser, respons
     };
 
     const createNewExercise = await ExerciseRepository.create(newExercise);
-    //const admin = request.admin; 
-    //await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created new user at ${new Date().toISOString()}`);
+    const admin = request.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created exercise at ${new Date().toISOString()}`);
     
     return response.status(200).send(createNewExercise);
   } catch (error) {
