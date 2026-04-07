@@ -16,6 +16,9 @@ contactRouter.post("/", authMiddleware, async (req: RequestWithUser, res: Respon
       role: req.body.role
     };
 
+    const admin = req.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} registered new contact at ${new Date().toISOString()}`);
+    
     const newlyCreatedContacts = await contactRepository.create(newContacts);
     res.status(200).send(newlyCreatedContacts);
   } catch (error) {
@@ -27,6 +30,10 @@ contactRouter.post("/", authMiddleware, async (req: RequestWithUser, res: Respon
 contactRouter.get("/", authMiddleware, async (req: RequestWithUser, res: Response) => {
   try {
     const contactsList = await contactRepository.findAll();
+
+    const admin = req.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} retrieved contacts list at ${new Date().toISOString()}`);
+
     res.json(contactsList);
   } catch (error) {
     console.log(error);
@@ -37,6 +44,10 @@ contactRouter.get("/", authMiddleware, async (req: RequestWithUser, res: Respons
 contactRouter.patch("/:id", authMiddleware, async (req: RequestWithUser, res: Response) => {
   try {
     const deletedContact = await contactRepository.softDelete(req.params.id!, true);
+
+        const admin = req.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} retrieved contacts list at ${new Date().toISOString()}`);
+
     if (!deletedContact) {
       return res.status(404).json({ message: "Customer not found" });
     }

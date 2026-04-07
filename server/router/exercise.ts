@@ -19,11 +19,16 @@ exerciseRouter.post("/", authMiddleware, async (request:RequestWithUser, respons
       reps: request.body.reps,
       sets: request.body.sets,
     };
+    const admin = request.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created ${request.body.target_area}, called ${request.body.exercise_name} at ${new Date().toISOString()}`);
 
     const createNewExercise = await ExerciseRepository.create(newExercise);
+<<<<<<< HEAD
     const admin = request.admin; 
     await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created exercise at ${new Date().toISOString()}`);
     
+=======
+>>>>>>> logsForCustomers
     return response.status(200).send(createNewExercise);
   } catch (error) {
     console.log(error);
@@ -34,11 +39,9 @@ exerciseRouter.post("/", authMiddleware, async (request:RequestWithUser, respons
 exerciseRouter.get("/", authMiddleware, async (request:RequestWithUser, response) => {
   try {
     const exercises = await ExerciseRepository.findAll();
+    const admin = request.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} request for exercise list at ${new Date().toISOString()}`);
     response.json(exercises);
-
-    //const admin = request.admin; 
-    //await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created new user at ${new Date().toISOString()}`);
-
   } catch (error) {
     console.error(error);
     response.status(500).json({ message: "Error fetching exercises" });
@@ -52,13 +55,13 @@ exerciseRouter.put("/:id", authMiddleware, async (request:RequestWithUser, respo
       request.params.id!,
       request.body
     );
+
     if (!updatedCustomer) {
       return response.status(404).json({ message: "Exercise not found" });
     }
 
-    //const admin = request.admin; 
-    //await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created new user at ${new Date().toISOString()}`);
-
+    const admin = request.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} updated exercise, and called it ${request.body.exercise_name} and assigned it's target area to ${request.body.target_area} at ${new Date().toISOString()}`);
     response.json(updatedCustomer);
   } catch (error) {
     console.error(error);
@@ -75,8 +78,8 @@ exerciseRouter.delete("/:id", authMiddleware, async (request:RequestWithUser, re
       return response.status(404).json({ message: "Customer not found" });
     }
 
-    //const admin = request.admin; 
-    //await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created new user at ${new Date().toISOString()}`);
+    const admin = request.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} deleted exercise at ${new Date().toISOString()}`);
 
     response.json({ message: "Exercise deleted successfully" });
   } catch (error) {
@@ -94,8 +97,8 @@ exerciseRouter.patch("/:id", authMiddleware, async (request:RequestWithUser, res
       return response.status(404).json({ message: "Customer not found" });
     }
 
-    //const admin = request.admin; 
-    //await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created new user at ${new Date().toISOString()}`);
+    const admin = request.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} deleted exercise at ${new Date().toISOString()}`);
 
     response.json({ message: "Exercise deleted successfully" });
   } catch (error) {
@@ -105,10 +108,14 @@ exerciseRouter.patch("/:id", authMiddleware, async (request:RequestWithUser, res
 });
 
 
-exerciseRouter.post("/many/", authMiddleware, async (request: RequestWithUser, response) => {
+exerciseRouter.post("/many/", async (request:RequestWithUser, response) => {
   try {
-    const docs = await ExerciseRepository.createMany(req.body); // expects array of exercises
-    res.status(201).json(docs);
+    const docs = await ExerciseRepository.createMany(request.body);
+
+    const admin = request.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} inserted many exercises at ${new Date().toISOString()}`);
+
+    response.status(201).json(docs);
   } catch (err: any) {
     response.status(400).json({ error: err.message });
   }
