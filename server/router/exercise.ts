@@ -59,7 +59,7 @@ exerciseRouter.put("/:id", authMiddleware, async (request:RequestWithUser, respo
     response.status(200).json(updatedCustomer);
   } catch (error) {
     console.error(error);
-    response.status(500).json({ message: "Error updating customer" });
+    response.status(500).json({ message: "Error updating exercise" });
   }
 });
 
@@ -67,9 +67,9 @@ exerciseRouter.put("/:id", authMiddleware, async (request:RequestWithUser, respo
 //DELETE
 exerciseRouter.delete("/:id", authMiddleware, async (request:RequestWithUser, response) => {
   try {
-    const deletedCustomer = await ExerciseRepository.delete(request.params.id!);
+    const deletedCustomer = await ExerciseRepository.softDelete(request.params.id!, true);
     if (!deletedCustomer) {
-      return response.status(404).json({ message: "Customer not found" });
+      return response.status(404).json({ message: "Exercise not found" });
     }
 
     const admin = request.admin; 
@@ -78,7 +78,7 @@ exerciseRouter.delete("/:id", authMiddleware, async (request:RequestWithUser, re
     response.status(204).json({ message: "Exercise deleted successfully" });
   } catch (error) {
     console.error(error);
-    response.status(500).json({ message: "Error deleting customer" });
+    response.status(500).json({ message: "Error deleting exercise" });
   }
 });
 

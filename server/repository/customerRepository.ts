@@ -12,6 +12,10 @@ export class CustomerRepository extends GenericRepository<ICustomerDocument> imp
     return this.model.find({ status });
   }
 
+  async countUsersBasedOnTheirStatus(status: string): Promise<Number|null>{
+    return this.model.countDocuments({status: status});
+  }
+
   async findActivityStatus(status: Boolean): Promise<ICustomer[]> {
       return this.model.find({status});
   }

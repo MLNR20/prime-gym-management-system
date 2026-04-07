@@ -136,7 +136,7 @@ customerRouter.put("/:id", authMiddleware, async (request: RequestWithUser, resp
 // DELETE
 customerRouter.delete("/:id", authMiddleware, async (request: RequestWithUser, response) => {
   try {
-    const deletedCustomer = await CustomerRepository.delete(request.params.id!);
+    const deletedCustomer = await CustomerRepository.softDelete(request.params.id!, true);
     if (!deletedCustomer) {
       return response.status(404).json({ message: "Customer not found" });
     }
