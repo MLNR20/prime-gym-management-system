@@ -20,7 +20,7 @@ exerciseRouter.post("/", authMiddleware, async (request:RequestWithUser, respons
       sets: request.body.sets,
     };
     const admin = request.admin; 
-    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created ${request.body.target_area}, called ${request.body.exercise_name} at ${new Date().toISOString()}`);
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created exercise called ${request.body.target_area}, called ${request.body.exercise_name} at ${new Date().toISOString()}`);
 
     const createNewExercise = await ExerciseRepository.create(newExercise);
     return response.status(200).send(createNewExercise);
@@ -34,7 +34,7 @@ exerciseRouter.get("/", authMiddleware, async (request:RequestWithUser, response
   try {
     const exercises = await ExerciseRepository.findAll();
     const admin = request.admin; 
-    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} request for exercise list at ${new Date().toISOString()}`);
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} requested exercise list at ${new Date().toISOString()}`);
     response.json(exercises);
   } catch (error) {
     console.error(error);
@@ -55,7 +55,7 @@ exerciseRouter.put("/:id", authMiddleware, async (request:RequestWithUser, respo
     }
 
     const admin = request.admin; 
-    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} updated exercise, and called it ${request.body.exercise_name} and assigned it's target area to ${request.body.target_area} at ${new Date().toISOString()}`);
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} updated exercise and called ${request.body.exercise_name} changed it's details at ${new Date().toISOString()}`);
     response.json(updatedCustomer);
   } catch (error) {
     console.error(error);
