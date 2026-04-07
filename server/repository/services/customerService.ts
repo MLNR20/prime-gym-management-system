@@ -25,4 +25,5 @@ export class CustomerService {
   async getPaidCustomers(): Promise<ICustomer[]> {
     return this.customerRepository.findSubscriptionStatus("Paid");
   }
+  
 }

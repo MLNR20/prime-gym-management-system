@@ -108,7 +108,7 @@ exerciseRouter.post("/many/", async (request:RequestWithUser, response) => {
 
     const admin = request.admin; 
     await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} inserted many exercises at ${new Date().toISOString()}`);
-
+     
     response.status(201).json(docs);
   } catch (err: any) {
     response.status(400).json({ error: err.message });

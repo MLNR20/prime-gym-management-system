@@ -46,6 +46,26 @@ customerRouter.get("/", authMiddleware, async (request: RequestWithUser, respons
   }
 });
 
+
+//RETRIEVE CUSTOMER STATS
+customerRouter.get("/retrieve-stats/", authMiddleware, async(request:RequestWithUser, response)=>{
+  try
+  {
+    const activeStats= await CustomerRepository.countUsersBasedOnTheirStatus("Paid");
+    const inactiveStats = await CustomerRepository.countUsersBasedOnTheirStatus("Expired");
+    const totalSum = await CustomerRepository.getTotalAmountPaid();
+
+    const admin = request.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} accessed customers stats at ${new Date().toISOString()}`);
+
+    response.status(200).json({activeUsers:activeStats, inactiveUsers: inactiveStats, totalSum:totalSum})
+  }
+  catch(error)
+  {
+     response.status(500).json({ message: error });
+  }
+})
+
 // RETRIEVE PAID SUBSCRIPTIONS
 customerRouter.get("/status/paid", authMiddleware, async (request: RequestWithUser, response) => {
   try {
@@ -150,5 +170,7 @@ customerRouter.delete("/:id", authMiddleware, async (request: RequestWithUser, r
     response.status(500).json({ message: "Error deleting customer" });
   }
 });
+
+
 
 export default customerRouter;
