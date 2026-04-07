@@ -67,7 +67,7 @@ exerciseRouter.put("/:id", authMiddleware, async (request:RequestWithUser, respo
 //DELETE
 exerciseRouter.delete("/:id", authMiddleware, async (request:RequestWithUser, response) => {
   try {
-    const deletedCustomer = await ExerciseRepository.softDelete(request.params.id!, true);
+    const deletedCustomer = await ExerciseRepository.delete(request.params.id!);
     if (!deletedCustomer) {
       return response.status(404).json({ message: "Exercise not found" });
     }
