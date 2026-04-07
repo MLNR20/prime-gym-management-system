@@ -49,11 +49,10 @@ contactRouter.patch("/:id", authMiddleware, async (req: RequestWithUser, res: Re
     await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} removed a contact from contacts list at ${new Date().toISOString()}`);
 
     if (!deletedContact) {
-      return res.status(404).json({ message: "Customer not found" });
+      return res.status(404).json({ message: "Contact not found" });
     }
     res.status(204).json({ message: "Contact deleted successfully" });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Error deleting Contact" });
   }
 });

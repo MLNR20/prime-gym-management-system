@@ -59,6 +59,15 @@ const customerSchema = new Schema<ICustomerDocument>(
   { collection: "Customer" }
 );
 
+
+customerSchema.index(
+  { contact_no: 1},
+  {
+    unique: true,
+    partialFilterExpression: { isDeleted: false }
+  }
+);
+
 const Customer = model<ICustomerDocument>("Customer", customerSchema);
 
 export default Customer;
