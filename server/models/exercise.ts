@@ -34,7 +34,7 @@ const exerciseSchema = new Schema<IExerciseDocument>(
   {
     exercise_name: { type: String, required: true, trim: true },
     target_area: { type: String, enum: Object.values(TargetArea), required:true, trim: true },
-    reps: {type: Number, required:true, default:5},
+    reps: {type: Number, required:true, default:1},
     sets: {type:Number, required:true, default:1},
     createdAt: { type: Date, default: Date.now },
     updatedAt: {type:Date, default: Date.now},

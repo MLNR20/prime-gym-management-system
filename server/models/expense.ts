@@ -10,16 +10,17 @@ export interface IExpense {
 
 export interface IExpenseDocument extends IExpense, Document {}
 
-const logsSchema = new Schema<IExpenseDocument>(
+const expensesSchema = new Schema<IExpenseDocument>(
   {
-    admin_id: { type: String, trim: true },
-    logs: { type: String, required: true, trim: true },
+    expense_title: { type: String, trim: true },
+    unit_price: { type: Number, required: true, trim: true },
+    quantity: {type: Number, required:true},
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
   },
   { collection: "Expense" }
 );
 
-const Logs = model<IExpenseDocument>("Logs", logsSchema);
+const Logs = model<IExpenseDocument>("expensesSchema", expensesSchema);
 
 export default Logs;
