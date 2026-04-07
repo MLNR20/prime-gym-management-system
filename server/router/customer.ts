@@ -94,7 +94,7 @@ customerRouter.get("/:id", authMiddleware, async (request: RequestWithUser, resp
 });
 
 // SOFT DELETE
-customerRouter.patch("/:id", async (request: RequestWithUser, response) => {
+customerRouter.patch("/:id", authMiddleware, async (request: RequestWithUser, response) => {
   try {
     const deletedCustomer = await customerRepository.softDelete(request.params.id!, true);
     if (!deletedCustomer) {
