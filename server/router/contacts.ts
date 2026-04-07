@@ -17,7 +17,7 @@ contactRouter.post("/", authMiddleware, async (req: RequestWithUser, res: Respon
     };
 
     const admin = req.admin; 
-    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} registered new contact at ${new Date().toISOString()}`);
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} registered ${newContacts!.first_name} ${newContacts!.last_name} at ${new Date().toISOString()}`);
     
     const newlyCreatedContacts = await contactRepository.create(newContacts);
     res.status(200).send(newlyCreatedContacts);
@@ -45,8 +45,8 @@ contactRouter.patch("/:id", authMiddleware, async (req: RequestWithUser, res: Re
   try {
     const deletedContact = await contactRepository.softDelete(req.params.id!, true);
 
-        const admin = req.admin; 
-    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} retrieved contacts list at ${new Date().toISOString()}`);
+    const admin = req.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} removed a contact from contacts list at ${new Date().toISOString()}`);
 
     if (!deletedContact) {
       return res.status(404).json({ message: "Customer not found" });
@@ -71,6 +71,10 @@ contactRouter.put("/:id", authMiddleware, async (req: RequestWithUser, res: Resp
     if (!updatedContact) {
       return response.status(404).json({ message: "Customer not found" });
     }
+
+    const admin = req.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} updated ${req.body.first_name} ${req.body.last_name} from contacts list at ${new Date().toISOString()}`);
+
     res.json(updatedContact);
   } catch (error) {
     console.error(error);
@@ -85,6 +89,8 @@ contactRouter.delete("/:id", authMiddleware, async (req: RequestWithUser, res: R
     if (!deletedCustomer) {
       return res.status(404).json({ message: "Contact not found" });
     }
+    const admin = req.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} removed contact from contacts list at ${new Date().toISOString()}`);
     res.json({ message: "Contact deleted successfully" });
   } catch (error) {
     console.error(error);

@@ -94,12 +94,16 @@ customerRouter.get("/:id", authMiddleware, async (request: RequestWithUser, resp
 });
 
 // SOFT DELETE
-customerRouter.patch("/:id", async (request, response) => {
+customerRouter.patch("/:id", async (request: RequestWithUser, response) => {
   try {
     const deletedCustomer = await customerRepository.softDelete(request.params.id, true);
     if (!deletedCustomer) {
       return response.status(404).json({ message: "Customer not found" });
     }
+
+    const admin = request.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} removed ${deletedCustomer!.first_name} ${deletedCustomer!.first_name}'s from the gym members list at ${new Date().toISOString()}`);
+
     response.json({ message: "Customer deleted successfully" });
   } catch (error) {
     console.error(error);
