@@ -8,6 +8,7 @@ import customerRouter from "./router/customer"
 import authRouter from "./router/auth"
 import contactRouter from "./router/contacts";
 import exerciseRouter from "./router/exercise";
+import lockerRouter from "./router/locker";
 
 const app: Application = express();
 const PORT = process.env.PORT ?? 3002;
@@ -18,7 +19,7 @@ app.use("/customers",customerRouter);
 app.use("/auth", authRouter)
 app.use("/exercises", exerciseRouter);
 app.use("/contacts", contactRouter);
-
+app.use("/lockers", lockerRouter);
 mongoose.connect(databaseConnectionString).then(()=>{
     console.log('App connected to database');
 }).catch((error) =>{
