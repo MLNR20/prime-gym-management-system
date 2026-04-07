@@ -8,11 +8,11 @@ export class AuthRepository implements IAuthRepository {
     return Admin.findOne({ username }).exec();
   }
 
-  async createUser(first_name: string, last_name:string, password: string, username: string): Promise<IAdmin> {
+  async createUser(first_name: string, last_name:string, password: string, username: string, email:string): Promise<IAdmin> {
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    const admin = new Admin({ first_name, last_name, password: passwordHash, username });
+    const admin = new Admin({ first_name, last_name, password: passwordHash, username, email });
     return await admin.save();
   }
 

@@ -9,8 +9,8 @@ const authService = new AuthService(new AuthRepository());
 // Register
 authRouter.post("/register", async (req: Request, res: Response) => {
   try {
-    const { first_name,last_name, password, username } = req.body;
-    const user = await authService.register(first_name, last_name, password, username);
+    const { first_name,last_name, password, username, email } = req.body;
+    const user = await authService.register(first_name, last_name, password, username, email);
     res.status(201).json(user);
   } catch (err) {
     res.status(400).json({ error: "Registration failed" });

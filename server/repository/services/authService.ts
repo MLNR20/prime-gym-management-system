@@ -11,14 +11,14 @@ export class AuthService {
     this.authRepository = authRepository;
   }
 
-  async register(first_name: string, last_name: string, password: string, username: string): Promise<IAdmin> 
+  async register(first_name: string, last_name: string, password: string, username: string, email:string): Promise<IAdmin> 
   {
     await LogsRepository.logAction(
       "",
       `User ${first_name} ${last_name} created an account at ${new Date().toISOString()}`
     );
 
-    return this.authRepository.createUser(first_name, last_name, password, username);
+    return this.authRepository.createUser(first_name, last_name, password, username, email);
   }
 
   async login(username: string, password: string): Promise<string | null> 
