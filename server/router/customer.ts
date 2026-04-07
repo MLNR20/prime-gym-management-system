@@ -25,7 +25,7 @@ customerRouter.post("/", authMiddleware, async (request: RequestWithUser, respon
     const admin = request.admin; 
     await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created new user at ${new Date().toISOString()}`);
 
-    return response.status(200).send(createNewEmployee);
+    return response.status(201).send(createNewEmployee);
 
   } catch (error) {
     console.log(error);
@@ -39,7 +39,7 @@ customerRouter.get("/", authMiddleware, async (request: RequestWithUser, respons
     const admin = request.admin; 
     await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} accessed customers list at ${new Date().toISOString()}`);
 
-    response.json(customers);
+    response.status(200).json(customers);
   } catch (error) {
     console.error(error);
     response.status(500).json({ message: "Error fetching customers" });
@@ -53,7 +53,7 @@ customerRouter.get("/status/paid", authMiddleware, async (request: RequestWithUs
     const admin = request.admin; 
     await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} accessed paid customers list at ${new Date().toISOString()}`);
 
-    response.json(customers);
+    response.status(200).json(customers);
   } catch (error) {
     console.error(error);
     response.status(500).json({ message: "Error fetching customers" });
@@ -67,7 +67,7 @@ customerRouter.get("/status/expired", authMiddleware, async (request: RequestWit
     const customers = await customerService.getExpiredCustomers();
     const admin = request.admin; 
     await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} accessed expired customers list at ${new Date().toISOString()}`);
-    response.json(customers);
+    response.status(200).json(customers);
   } catch (error) {
     console.error(error);
     response.status(500).json({ message: "Error fetching customers" });
@@ -86,7 +86,7 @@ customerRouter.get("/:id", authMiddleware, async (request: RequestWithUser, resp
     const admin = request.admin; 
     await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} retrieved ${customer.first_name} ${customer.last_name}'s customer details at ${new Date().toISOString()}`);
 
-    response.json(customer);
+    response.status(200).json(customer);
   } catch (error) {
     console.error(error);
     response.status(500).json({ message: "Error fetching customer" });
@@ -104,7 +104,7 @@ customerRouter.patch("/:id", async (request: RequestWithUser, response) => {
     const admin = request.admin; 
     await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} removed ${deletedCustomer!.first_name} ${deletedCustomer!.first_name}'s from the gym members list at ${new Date().toISOString()}`);
 
-    response.json({ message: "Customer deleted successfully" });
+    response.status(204).json({ message: "Customer deleted successfully" });
   } catch (error) {
     console.error(error);
     response.status(500).json({ message: "Error deleting customer" });
@@ -126,7 +126,7 @@ customerRouter.put("/:id", authMiddleware, async (request: RequestWithUser, resp
     if (!updatedCustomer) {
       return response.status(404).json({ message: "Customer not found" });
     }
-    response.json(updatedCustomer);
+    response.status(200).json(updatedCustomer);
   } catch (error) {
     console.error(error);
     response.status(500).json({ message: "Error updating customer" });
@@ -144,7 +144,7 @@ customerRouter.delete("/:id", authMiddleware, async (request: RequestWithUser, r
     const admin = request.admin; 
     await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} deleted new user at ${new Date().toISOString()}`);
 
-    response.json({ message: "Customer deleted successfully" });
+    response.status(204).json({ message: "Customer deleted successfully" });
   } catch (error) {
     console.error(error);
     response.status(500).json({ message: "Error deleting customer" });
