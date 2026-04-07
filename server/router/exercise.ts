@@ -23,7 +23,7 @@ exerciseRouter.post("/", authMiddleware, async (request:RequestWithUser, respons
     await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created exercise called ${request.body.target_area}, called ${request.body.exercise_name} at ${new Date().toISOString()}`);
 
     const createNewExercise = await ExerciseRepository.create(newExercise);
-    return response.status(200).send(createNewExercise);
+    return response.status(201).send(createNewExercise);
   } catch (error) {
     console.log(error);
   }
@@ -35,7 +35,7 @@ exerciseRouter.get("/", authMiddleware, async (request:RequestWithUser, response
     const exercises = await ExerciseRepository.findAll();
     const admin = request.admin; 
     await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} requested exercise list at ${new Date().toISOString()}`);
-    response.json(exercises);
+    response.status(200).json(exercises);
   } catch (error) {
     console.error(error);
     response.status(500).json({ message: "Error fetching exercises" });
@@ -56,7 +56,7 @@ exerciseRouter.put("/:id", authMiddleware, async (request:RequestWithUser, respo
 
     const admin = request.admin; 
     await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} updated exercise and called ${request.body.exercise_name} changed it's details at ${new Date().toISOString()}`);
-    response.json(updatedCustomer);
+    response.status(200).json(updatedCustomer);
   } catch (error) {
     console.error(error);
     response.status(500).json({ message: "Error updating customer" });
@@ -75,7 +75,7 @@ exerciseRouter.delete("/:id", authMiddleware, async (request:RequestWithUser, re
     const admin = request.admin; 
     await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} deleted exercise at ${new Date().toISOString()}`);
 
-    response.json({ message: "Exercise deleted successfully" });
+    response.status(204).json({ message: "Exercise deleted successfully" });
   } catch (error) {
     console.error(error);
     response.status(500).json({ message: "Error deleting customer" });
@@ -94,7 +94,7 @@ exerciseRouter.patch("/:id", authMiddleware, async (request:RequestWithUser, res
     const admin = request.admin; 
     await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} deleted exercise at ${new Date().toISOString()}`);
 
-    response.json({ message: "Exercise deleted successfully" });
+    response.status(200).json({ message: "Exercise deleted successfully" });
   } catch (error) {
     console.error(error);
     response.status(500).json({ message: "Error deleting customer" });
