@@ -97,7 +97,7 @@ equipmentRouter.put("/:id", authMiddleware, async(Request:RequestWithUser, Respo
 
         const admin = Request.admin; 
         await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} updated equipment at ${new Date().toISOString()}`);
-        return Response.status(204).json(updateEquiment)
+        return Response.status(200).json(updateEquiment)
     }
     catch(error)
     {
