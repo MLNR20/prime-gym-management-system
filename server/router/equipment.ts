@@ -83,6 +83,28 @@ equipmentRouter.delete("/:id", authMiddleware, async(Request:RequestWithUser, Re
     }
 })
 
+//SOFT DELETE EQUIPMENT
+equipmentRouter.put("/:id", authMiddleware, async(Request:RequestWithUser, Response)=>{
+    try
+    {
+        const id = Request.params.id!;
+        const updateEquiment = await equipmentRepository.update(id, Request.body);
+
+        if(!updateEquiment)
+        {
+            return Response.status(404).json({message: "Failed to update equipment"})
+        }
+
+        const admin = Request.admin; 
+        await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} updated equipment at ${new Date().toISOString()}`);
+        return Response.status(204).json(updateEquiment)
+    }
+    catch(error)
+    {
+        return Response.status(500).json({message:"Delete equipment failed!"})
+    }
+})
+
 
 
 export default equipmentRouter
