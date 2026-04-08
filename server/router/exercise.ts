@@ -42,6 +42,29 @@ exerciseRouter.get("/", authMiddleware, async (request:RequestWithUser, response
   }
 });
 
+
+//RETRIEVE EXERCISE FOR EDITING
+exerciseRouter.get("/:id", authMiddleware, async(request:RequestWithUser, response)=>{
+  try
+  {
+     const retrieveExercise = await ExerciseRepository.findById(request.params.id!)
+
+    if(!retrieveExercise)
+    {
+      return response.status(404).json({message:"Failed to retrieve exercise"})
+    }
+
+    const admin = request.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} retrieved exercise at ${new Date().toISOString()}`);
+    response.status(200).json(retrieveExercise);
+  }
+  catch(error)
+  {
+    response.status(500).json({message:"Error fetching exercise"})
+  }
+})
+
+
 // UPDATE
 exerciseRouter.put("/:id", authMiddleware, async (request:RequestWithUser, response) => {
   try {
@@ -102,7 +125,7 @@ exerciseRouter.patch("/:id", authMiddleware, async (request:RequestWithUser, res
 });
 
 
-exerciseRouter.post("/many/", async (request:RequestWithUser, response) => {
+exerciseRouter.post("/many/", authMiddleware, async (request:RequestWithUser, response) => {
   try {
     const docs = await ExerciseRepository.createMany(request.body);
 
