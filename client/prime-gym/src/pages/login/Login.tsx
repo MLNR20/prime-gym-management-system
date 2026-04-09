@@ -56,7 +56,7 @@ const navigate = useNavigate();
               <input
                 type="text"
                 placeholder="Enter your username..."
-                className={`input input-bordered h-12  bg-white border border-gray-700 w-full ${errors.userName ? "input-error" : ""
+                className={`input input-bordered h-12  bg-white border border-gray-700 w-full ${errors.username ? "input-error" : ""
                   }`}
                 {...register("username", {
                   required: "Username is required",
