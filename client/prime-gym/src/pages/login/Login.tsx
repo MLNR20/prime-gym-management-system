@@ -1,8 +1,10 @@
 import Header from "../../components/Header";
 import { useForm } from "react-hook-form";
+import {useNavigate} from "react-router-dom";
+import axios from "axios";
 
 type FormData = {
-  userName: string;
+  username: string;
   password: string;
 };
 
@@ -12,9 +14,23 @@ export default function Login(): React.ReactElement {
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>();
+const navigate = useNavigate();
 
-  const onSubmit = (data: FormData) => {
+  const onSubmit = async(data: FormData) => {
     console.log("Form Data:", data);
+
+    try
+    {
+      const loginRoute = await axios.post("http://localhost:3002/auth/login", data)
+      const token = loginRoute.data.token;
+      console.log(token)
+      localStorage.setItem("token", token);
+      navigate("/");
+    }
+    catch(error)
+    {
+      console.log(error)
+    }
   };
 
   return (
@@ -42,14 +58,14 @@ export default function Login(): React.ReactElement {
                 placeholder="Enter your username..."
                 className={`input input-bordered h-12  bg-white border border-gray-700 w-full ${errors.userName ? "input-error" : ""
                   }`}
-                {...register("userName", {
+                {...register("username", {
                   required: "Username is required",
                 })}
               />
 
-              {errors.userName && (
+              {errors.username && (
                 <span className="text-red-500 text-sm">
-                  {errors.userName.message}
+                  {errors.username.message}
                 </span>
               )}
             </div>
