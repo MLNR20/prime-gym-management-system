@@ -1,6 +1,11 @@
 import React from "react"
 
-export default function Cards(): React.ReactElement {
+interface CardProps{
+  Card_Figure: string;
+  Card_Header:string;
+  Card_Subheader:string; 
+}
+export default function Cards({Card_Figure, Card_Header, Card_Subheader}): React.ReactElement {
   return (
     <div className="card card-border bg-base-100 w-96">
       <div className="card-body">

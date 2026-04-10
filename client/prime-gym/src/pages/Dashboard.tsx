@@ -4,13 +4,21 @@ import Header from '../components/Header';
 
 export default function Dashboard(): React.ReactElement {
   return (
-   <div className="flex flex-row">
-        <div className="w-2/12 flex-auto">
-            <Sidebar/>
-        </div>
-        <div className="w-10/12 flex-auto p-20">
-            <Header header="Dashboard" subheader="Your stats, charts, and data will go here."/>
-        </div>
+ <div className="flex min-h-screen">
+
+      {/* Sidebar */}
+      <div className="w-64">
+        <Sidebar />
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 p-24">
+        <Header
+          header="Dashboard"
+          subheader="Welcome back! Let's take a look how your gym is performing..."
+        />
+      </div>
+
     </div>
   )
 }
