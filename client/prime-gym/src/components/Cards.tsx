@@ -5,15 +5,13 @@ interface CardProps{
   Card_Header:string;
   Card_Subheader:string; 
 }
-export default function Cards({Card_Figure, Card_Header, Card_Subheader}): React.ReactElement {
+export default function Cards({Card_Figure, Card_Header, Card_Subheader}: CardProps): React.ReactElement {
   return (
-    <div className="card card-border bg-base-100 w-96">
+    <div className="card mt-2 p-1 bg-white w-full">
       <div className="card-body">
-        <h2 className="card-title">Card Title</h2>
-        <p>A card component has a figure, a body part, and inside body there are title and actions parts</p>
-        <div className="card-actions justify-end">
-          <button className="btn btn-primary">Buy Now</button>
-        </div>
+        <h2 className="card-title font-medium text-md text-black">{Card_Header}</h2>
+        <h1 className="font-extrabold my-4 text-4xl">{Card_Figure}</h1>
+        <h2 className="card-title font-light text-md text-gray-500">{Card_Subheader}</h2>
       </div>
     </div>
   )

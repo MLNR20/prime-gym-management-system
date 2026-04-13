@@ -9,8 +9,7 @@ import {
   Dumbbell,
   CircleUser,
   LogOut,
-  ScrollText,
-  SportShoe,
+  SportShoe
 } from "lucide-react";
 import fitwatch from "../assets/fitwatch.png";
 
@@ -42,7 +41,7 @@ export default function Sidebar(): React.ReactElement {
             <img src={fitwatch} className="w-24 mx-auto" />
           </div>
       
-          <div className="grid grid-cols-1 mt-8 w-full gap-4">
+          <div className="grid mb-4 grid-cols-1 mt-8 w-full gap-4">
             <div className=" w-full">
               <li className="pt-2 pb-2 text-xs text-gray-500">GENERAL</li>
               <div className="grid grid-cols-1 mt-2 w-full gap-1.5">

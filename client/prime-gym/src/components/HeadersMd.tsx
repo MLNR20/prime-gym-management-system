@@ -7,9 +7,9 @@ interface HeaderProps {
 
 export default function HeaderMd({ header, subheader }: HeaderProps): React.ReactElement {
   return (
-    <div>
-      <div className="text-xl font-bold black mb-4">{header}</div>
-      <div className="text-lg font-regular text-gray-500">{subheader}</div>
+    <div className="mb-4">
+      <div className="text-lg font-semibold black mb-2">{header}</div>
+      <div className="text-md font-light text-gray-500">{subheader}</div>
     </div>
   )
 }
