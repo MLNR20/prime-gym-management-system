@@ -4,7 +4,12 @@ import Header from "../components/Header";
 import Cards from "../components/Cards";
 import Tables from "../components/Tables";
 import CRUDTemplate from "../templates/CRUDTemplate";
+import fetchData from "../data/fetchData";
 export default function Dashboard(): React.ReactElement {
+
+  const userToken =  fetchData({url:"contacts"})
+
+  console.log(userToken)
   const data = [
     {
       firstName: "Miguel",
@@ -69,6 +74,7 @@ export default function Dashboard(): React.ReactElement {
         <Sidebar />
       </div>
 
+      
       {/* Main Content */}
       <div className="flex-1 p-24 overflow-auto">
         <Header
