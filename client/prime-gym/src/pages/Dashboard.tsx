@@ -5,11 +5,18 @@ import Cards from "../components/Cards";
 import Tables from "../components/Tables";
 import CRUDTemplate from "../templates/CRUDTemplate";
 import fetchData from "../data/fetchData";
+import createData from "../data/createData";
 export default function Dashboard(): React.ReactElement {
 
   const userToken =  fetchData({url:"contacts"})
-
+  const createDatas = createData({url:"contacts", createData: {
+            "first_name": "Gerard",
+        "last_name": "Tamson",
+        "contact_number": "+639177777399",
+        "role": "Water Boy"
+  }})
   console.log(userToken)
+  console.log(createDatas)
   const data = [
     {
       firstName: "Miguel",
