@@ -5,14 +5,18 @@ import Cards from "../components/Cards";
 import Tables from "../components/Tables";
 import CRUDTemplate from "../templates/CRUDTemplate";
 import fetchData from "../data/fetchData";
-import createData from "../data/createData";
-import deleteData from "../data/deleteData";
 
+import softDeleteData from "../data/softDeleteData"
 
 export default function Dashboard(): React.ReactElement {
 
   const userToken =  fetchData({url:"contacts"})
- 
+
+
+  const dataDel = softDeleteData({ url: "contacts", id: "69dd894408532e7ad0a731f7" });
+
+  console.log(userToken)
+  console.log(dataDel)
   const data = [
     {
       firstName: "Miguel",
