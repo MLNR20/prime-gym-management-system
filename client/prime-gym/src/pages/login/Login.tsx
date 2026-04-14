@@ -1,6 +1,6 @@
 import Header from "../../components/Header";
 import { useForm } from "react-hook-form";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 type FormData = {
@@ -14,37 +14,34 @@ export default function Login(): React.ReactElement {
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>();
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
-  const onSubmit = async(data: FormData) => {
+  const onSubmit = async (data: FormData) => {
     console.log("Form Data:", data);
 
-    try
-    {
-      const loginRoute = await axios.post("http://localhost:3002/auth/login", data)
+    try {
+      const loginRoute = await axios.post(
+        "http://localhost:3002/auth/login",
+        data,
+      );
       const token = loginRoute.data.token;
-      console.log(token)
+      console.log(token);
       localStorage.setItem("token", token);
       navigate("/");
-    }
-    catch(error)
-    {
-      console.log(error)
+    } catch (error) {
+      console.log(error);
     }
   };
 
   return (
     <div className="flex flex-row min-h-screen">
-
       {/* LEFT SIDE (empty / image placeholder) */}
       <div className="w-7/12 flex-auto bg-base-200"></div>
 
       {/* RIGHT SIDE (form) */}
       <div className="w-5/12 flex-auto px-24 py-24   flex items-center">
         <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-md">
-
           <div className="flex min-w-full flex-col gap-6">
-
             <Header
               header="Login"
               subheader="Welcome back! Let's get to work..."
@@ -56,8 +53,9 @@ const navigate = useNavigate();
               <input
                 type="text"
                 placeholder="Enter your username..."
-                className={`input input-bordered h-12  bg-white border border-gray-700 w-full ${errors.username ? "input-error" : ""
-                  }`}
+                className={`input input-bordered h-12  bg-white border border-gray-700 w-full ${
+                  errors.username ? "input-error" : ""
+                }`}
                 {...register("username", {
                   required: "Username is required",
                 })}
@@ -76,8 +74,9 @@ const navigate = useNavigate();
               <input
                 type="password"
                 placeholder="Enter your password..."
-                className={`input input-bordered h-12 border bg-white border-gray-700 w-full ${errors.password ? "input-error" : ""
-                  }`}
+                className={`input input-bordered h-12 border bg-white border-gray-700 w-full ${
+                  errors.password ? "input-error" : ""
+                }`}
                 {...register("password", {
                   required: "Password is required",
                 })}
@@ -93,7 +92,6 @@ const navigate = useNavigate();
             <button type="submit" className="btn btn-primary w-full">
               Submit
             </button>
-
           </div>
         </form>
       </div>

@@ -1,36 +1,27 @@
-import { useEffect, useState } from "react";
 import axios from "axios";
 
 interface RequestStructure<T = any> {
   url: string;
-  createData?: T;
+  data?: T;
 }
 
-export default function createData({ url, createData }: RequestStructure) {
-  const [data, setData] = useState<any[]>([]);
-  const retrieveToken = localStorage.getItem("token");
+export default async function createData({url, data}: RequestStructure) {
+  const token = localStorage.getItem("token");
 
-  useEffect(() => {
-    const sendData = async () => {
-      try {
-        const response = await axios.post(
-          `http://localhost:3002/${url}`,
-          createData, // ✅ request body
-          {
-            headers: {
-              Authorization: `Bearer ${retrieveToken}`,
-            },
-          }
-        );
-
-        setData(response.data);
-      } catch (error) {
-        console.log(error);
+  try {
+    const response = await axios.post(
+      `http://localhost:3002/${url}`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
-    };
+    );
 
-    sendData();
-  }, []);
-
-  return data;
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 }
