@@ -5,6 +5,7 @@ import {
   flexRender,
 } from "@tanstack/react-table";
 import deleteData from "../data/deleteData";
+import { useNavigate } from "react-router-dom";
 
 interface TableProps {
   data: any[];
@@ -12,18 +13,20 @@ interface TableProps {
   url: string;
 }
 
+
 export default function CRUDTables({
   data,
   columns,
   url,
 }: TableProps): React.ReactElement {
   const [selectedRow, setSelectedRow] = useState<any>(null);
-
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
+
+  const redirectURL = useNavigate();
 
   function deleteEntry() {
     try {
@@ -71,7 +74,13 @@ export default function CRUDTables({
                 </td>
               ))}
               <td className="border-b flex gap-2 border-gray-300">
-                <button className="btn btn-primary">Edit</button>
+                <button className="btn btn-primary"
+                  onClick={()=>{
+                    const id = row.original._id;
+                    setSelectedRow(id); 
+                    redirectURL(`${id}`);
+                  }}
+                >Edit</button>
                 <button
                   className="btn btn-error text-white"
                   onClick={() => {

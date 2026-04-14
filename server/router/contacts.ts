@@ -40,6 +40,21 @@ contactRouter.get("/", authMiddleware, async (req: RequestWithUser, res: Respons
   }
 });
 
+
+// RETRIEVE CONTACT LIST
+contactRouter.get("/:id", authMiddleware, async (req: RequestWithUser, res: Response) => {
+  try {
+    const contactsList = await contactRepository.findById(req.params.id!);
+
+    const admin = req.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} retrieved contact at ${new Date().toISOString()}`);
+
+    res.status(200).json(contactsList);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 // SOFT DELETE
 contactRouter.patch("/:id", authMiddleware, async (req: RequestWithUser, res: Response) => {
   try {
