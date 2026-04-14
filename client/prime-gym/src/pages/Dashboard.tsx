@@ -1,7 +1,7 @@
 import React from "react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
-
+import retrieveHeaderData from "../data/setHeaderData";
 
 export default function Dashboard(): React.ReactElement {
 
@@ -35,6 +35,9 @@ export default function Dashboard(): React.ReactElement {
       dateUpdated: "2026-03-30",
     },
   ];
+
+console.log(retrieveHeaderData({headerData:data}));
+  
 
   const columns = [
   {
