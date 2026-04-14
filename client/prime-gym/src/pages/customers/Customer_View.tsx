@@ -52,7 +52,7 @@ export default function Customer_View(): React.ReactElement {
           Columns={columns}
           Data={retrieveData}
           url="customers"
-          RedirectAddUrl="/add_contacts"
+          RedirectAddUrl="/add_customers"
           ButtonString="Add Customer"
           subheader="Let's manage and handle your customers..."
         />
