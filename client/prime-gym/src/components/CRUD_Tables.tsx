@@ -1,25 +1,40 @@
+import { useState } from "react";
 import {
   useReactTable,
   getCoreRowModel,
   flexRender,
 } from "@tanstack/react-table";
+import deleteData from "../data/deleteData";
 
 interface TableProps {
   data: any[];
   columns: any[];
+  url: string;
 }
 
 export default function CRUDTables({
   data,
   columns,
+  url,
 }: TableProps): React.ReactElement {
+  const [selectedRow, setSelectedRow] = useState<any>(null);
+
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
 
-  function deleteEntry() {}
+  function deleteEntry() {
+    try {
+      alert(selectedRow); // alerts the id of the selected row
+      deleteData({ url: url, id: selectedRow });
+      const modal = document.getElementById("my_modal_5");
+      if (modal instanceof HTMLDialogElement) modal.close();
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   return (
     <div className="overflow-x-auto">
@@ -60,11 +75,11 @@ export default function CRUDTables({
                 <button
                   className="btn btn-error text-white"
                   onClick={() => {
+                    const id = row.original._id;
+                    console.log(id)
+                    setSelectedRow(id); // ✅ store the clicked row
                     const modal = document.getElementById("my_modal_5");
-
-                    if (modal instanceof HTMLDialogElement) {
-                      modal.showModal();
-                    }
+                    if (modal instanceof HTMLDialogElement) modal.showModal();
                   }}
                 >
                   Delete
@@ -74,25 +89,30 @@ export default function CRUDTables({
           ))}
         </tbody>
       </table>
+
       <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle">
         <div className="modal-box bg-white text-black shadow-xl border border-gray-200">
           <h3 className="font-bold text-lg">Delete!</h3>
           <p className="py-4">
-            You're about to delete a record! You won't be able to reverse this!
+            You're about to delete <strong>{selectedRow}</strong>? This
+            action cannot be reversed!
           </p>
 
-          <div className="modal-action">
-            <form method="dialog gap-2">
-              <button className="btn btn-error text-white">Delete</button>
-              <button className="btn bg-gray-200 text-black border-none hover:bg-gray-300">
-                Close
-              </button>
+          <div className="modal-action gap-2">
+            <button
+              className="btn btn-error text-white"
+              onClick={deleteEntry} // ✅ uses selectedRow internally
+            >
+              Delete
+            </button>
+            <form method="dialog">
+              <button className="btn btn-neutral btn-outline">Close</button>
             </form>
           </div>
         </div>
 
-        {/* softer backdrop */}
-        <form method="dialog" className="modal-backdrop bg-black/40">
+        {/* backdrop */}
+        <form method="dialog" className="modal-backdrop">
           <button>close</button>
         </form>
       </dialog>

@@ -53,6 +53,7 @@ const columns = [
           header="Contact Management"
           Columns={columns}
           Data={retrieveData}
+          url = "contacts"
           ButtonString="Add Contact"
           subheader="Let's manage and handle your contacts..."
         />
