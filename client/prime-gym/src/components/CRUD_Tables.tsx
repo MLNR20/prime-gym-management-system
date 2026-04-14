@@ -19,6 +19,8 @@ export default function CRUDTables({
     getCoreRowModel: getCoreRowModel(),
   });
 
+  function deleteEntry() {}
+
   return (
     <div className="overflow-x-auto">
       <table className="table table-zebra">
@@ -55,12 +57,45 @@ export default function CRUDTables({
               ))}
               <td className="border-b flex gap-2 border-gray-300">
                 <button className="btn btn-primary">Edit</button>
-                <button className="btn btn-error text-white">Delete</button>
+                <button
+                  className="btn btn-error text-white"
+                  onClick={() => {
+                    const modal = document.getElementById("my_modal_5");
+
+                    if (modal instanceof HTMLDialogElement) {
+                      modal.showModal();
+                    }
+                  }}
+                >
+                  Delete
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+      <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle">
+        <div className="modal-box bg-white text-black shadow-xl border border-gray-200">
+          <h3 className="font-bold text-lg">Delete!</h3>
+          <p className="py-4">
+            You're about to delete a record! You won't be able to reverse this!
+          </p>
+
+          <div className="modal-action">
+            <form method="dialog gap-2">
+              <button className="btn btn-error text-white">Delete</button>
+              <button className="btn bg-gray-200 text-black border-none hover:bg-gray-300">
+                Close
+              </button>
+            </form>
+          </div>
+        </div>
+
+        {/* softer backdrop */}
+        <form method="dialog" className="modal-backdrop bg-black/40">
+          <button>close</button>
+        </form>
+      </dialog>
     </div>
   );
 }

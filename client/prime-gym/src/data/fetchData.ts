@@ -5,7 +5,7 @@ interface Token {
   url: string;
 }
 
-export default function fetchData({ url }: Token) {
+export default function useFetchData({ url }: Token) {
   const [data, setData] = useState<any[]>([]);
   const retrieveToken = localStorage.getItem("token");
 
@@ -25,7 +25,7 @@ export default function fetchData({ url }: Token) {
     };
 
     retrieveData();
-  }, []);
+  }, [url]);
 
   return data;
 }
