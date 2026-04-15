@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "../../components/Sidebar";
 import Header from "../../components/Header";
 import { useForm } from "react-hook-form";
-import createData from "../../data/createData";
-import { useNavigate } from "react-router-dom";
+import fetchRecord from "../../data/fetchRecord";
+import { useNavigate, useParams } from "react-router-dom";
+import updateData from "../../data/updateData";
 type FormData = {
   first_name: string;
   last_name: string;
@@ -14,30 +15,69 @@ type FormData = {
   payment_option: string;
 };
 
+type Params = {
+  id: string;
+};
+
 export default function Edit_Customer(): React.ReactElement {
+  const { id } = useParams<Params>();
+  const redirect = useNavigate();
+  const [loading, setLoading] = useState(true);
+
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<FormData>();
-  const usenavigate = useNavigate();
 
   const onSubmit = async (data: FormData) => {
     console.log("Form Data:", data);
     try {
-      alert("Submitted");
-      const createCustomer = await createData({ url: "customers", data: data });
-      console.log(createCustomer)
-      if(createCustomer)
-      {
-      alert("Redirect");
+        alert("Submitted");
+        await updateData({url: "customers", id:id!.toString() ,updateData: data})
 
-      }
-      usenavigate("/customers");
+        redirect("/contacts")
     } catch (error) {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    if (!id) return;
+
+    const load = async () => {
+      try {
+        setLoading(true);
+
+        const result = await fetchRecord({
+          url: "customers",
+          id,
+        });
+
+        if (result) {
+          reset(result);
+        }
+
+        console.log(result);
+      } catch (error) {
+        console.log("Fetch error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, [id, reset]);
+
+  // ✅ LOADING STATE
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
   return (
     <div className="flex background-white  h-screen overflow-hidden">
       <div className="w-64">
@@ -47,8 +87,8 @@ export default function Edit_Customer(): React.ReactElement {
       <div className="flex-1 p-24   overflow-auto">
         <div className="bg-white p-16 rounded-lg">
           <Header
-            subheader="Hey, there! Let's create a new customer!"
-            header="Add Customer"
+            subheader="Hey, there! Let's update a new customer!"
+            header="Edit Customer"
           />
           <form onSubmit={handleSubmit(onSubmit)} className="w-full my-12">
             <div className="flex w-full my-6  flex-col gap-2">
@@ -196,6 +236,31 @@ export default function Edit_Customer(): React.ReactElement {
               {errors.subscription_type && (
                 <p className="text-red-500 text-sm mt-1">
                   {errors.subscription_type.message}
+                </p>
+              )}
+            </div>
+
+            <div className="flex w-full my-6 flex-col gap-2">
+              <label className="label">
+                <span className="label-text text-black">Status</span>
+              </label>
+              <select
+                defaultValue=""
+                className="select select-bordered h-12 border bg-white border-gray-700 w-full"
+                {...register("status", {
+                  required: "Status is required",
+                })}
+              >
+                <option value="" disabled>
+                  Pick a status option
+                </option>
+                <option value="Paid">Paid</option>
+                <option value="Expired">Expired</option>
+              </select>
+
+              {errors.status && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.status.message}
                 </p>
               )}
             </div>
