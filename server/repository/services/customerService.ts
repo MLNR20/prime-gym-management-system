@@ -26,4 +26,7 @@ export class CustomerService {
     return this.customerRepository.findSubscriptionStatus("Paid");
   }
   
+  async retrieveMonthlyIncome(): Promise<Number>{
+    return this.customerRepository.retrievePaidCustomerAmountByMonth();
+  }
 }

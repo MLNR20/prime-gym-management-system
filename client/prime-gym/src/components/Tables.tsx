@@ -18,7 +18,7 @@ export default function Tables({ data, columns }: TableProps): React.ReactElemen
   });
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto mt-6">
       <table className="table table-zebra">
 
         {/* THEAD */}

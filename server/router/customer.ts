@@ -4,9 +4,12 @@ import LogsRepository from "../repository/logsRepository";
 import {CustomerService} from "../repository/services/customerService";
 import { authMiddleware } from "../middleware/middleware";
 import { RequestWithUser } from "../middleware/types/express";
-import customerRepository from "../repository/customerRepository";
+
 const customerRouter = express.Router();
 const customerService = new CustomerService(CustomerRepository);
+
+
+
 
 // CREATE
 customerRouter.post("/", authMiddleware, async (request: RequestWithUser, response) => {
@@ -54,11 +57,12 @@ customerRouter.get("/retrieve-stats/", authMiddleware, async(request:RequestWith
     const activeStats= await CustomerRepository.countUsersBasedOnTheirStatus("Paid");
     const inactiveStats = await CustomerRepository.countUsersBasedOnTheirStatus("Expired");
     const totalSum = await CustomerRepository.getTotalAmountPaid();
+    const monthlyTotalSum = await CustomerRepository.retrievePaidCustomerAmountByMonth();
 
     const admin = request.admin; 
     await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} accessed customers stats at ${new Date().toISOString()}`);
 
-    response.status(200).json({activeUsers:activeStats, inactiveUsers: inactiveStats, totalSum:totalSum})
+    response.status(200).json({activeUsers:activeStats, inactiveUsers: inactiveStats, totalSum:totalSum, monthlyTotalSum: monthlyTotalSum})
   }
   catch(error)
   {
@@ -81,6 +85,7 @@ customerRouter.get("/status/paid", authMiddleware, async (request: RequestWithUs
 });
 
 
+
 // RETRIEVE EXPIRED SUBSCRIPTIONS
 customerRouter.get("/status/expired", authMiddleware, async (request: RequestWithUser, response) => {
   try {
@@ -93,6 +98,7 @@ customerRouter.get("/status/expired", authMiddleware, async (request: RequestWit
     response.status(500).json({ message: "Error fetching customers" });
   }
 });
+
 
 // READ ONE
 customerRouter.get("/:id", authMiddleware, async (request: RequestWithUser, response) => {
@@ -116,7 +122,7 @@ customerRouter.get("/:id", authMiddleware, async (request: RequestWithUser, resp
 // SOFT DELETE
 customerRouter.patch("/:id", authMiddleware, async (request: RequestWithUser, response) => {
   try {
-    const deletedCustomer = await customerRepository.softDelete(request.params.id!, true);
+    const deletedCustomer = await CustomerRepository.softDelete(request.params.id!, true);
     if (!deletedCustomer) {
       return response.status(404).json({ message: "Customer not found" });
     }

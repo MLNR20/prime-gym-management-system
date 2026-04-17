@@ -1,70 +1,48 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
-import retrieveHeaderData from "../data/setHeaderData";
+import Cards from "../components/Cards";
+import useFetchData from "../data/fetchData";
+import TableTemplate from "../templates/TableTemplate";
 
 export default function Dashboard(): React.ReactElement {
+  const [data, setData] = useState<any>(null);
 
-  const data = [
+  const fetchDashboardData = useFetchData({
+    url: "customers/retrieve-stats/",
+  });
+  const fetchLogRecords = useFetchData({
+    url: "logs",
+  });
+
+  useEffect(() => {
+    if (fetchDashboardData) {
+      setData(fetchDashboardData);
+    }
+  }, [fetchDashboardData]);
+
+  console.log("Dashboard dat II", data);
+  console.log(fetchLogRecords);
+
+
+    const columns = [
     {
-      firstName: "Miguel",
-      lastName: "Rivadenera",
-      email: "miguel@example.com",
-      dateCreated: "2026-04-01",
-      dateUpdated: "2026-04-05",
+      header: "#",
+      cell: ({ row }: any) => row.index + 1,
     },
     {
-      firstName: "Juan",
-      lastName: "Dela Cruz",
-      email: "juan@example.com",
-      dateCreated: "2026-03-28",
-      dateUpdated: "2026-04-02",
+      header: "Logs",
+      accessorKey: "logs",
     },
     {
-      firstName: "Maria",
-      lastName: "Santos",
-      email: "maria@example.com",
-      dateCreated: "2026-03-25",
-      dateUpdated: "2026-04-01",
-    },
-    {
-      firstName: "Carlos",
-      lastName: "Reyes",
-      email: "carlos@example.com",
-      dateCreated: "2026-03-20",
-      dateUpdated: "2026-03-30",
+      header: "Date Created",
+      accessorKey: "createdAt",
     },
   ];
+  if (!data) {
+    return <div>Loading...</div>;
+  }
 
-console.log(retrieveHeaderData({headerData:data}));
-  
-
-  const columns = [
-  {
-    header: "#",
-    cell: ({ row }: any) => row.index + 1,
-  },
-  {
-    header: "First Name",
-    accessorKey: "firstName",
-  },
-  {
-    header: "Last Name",
-    accessorKey: "lastName",
-  },
-  {
-    header: "Email",
-    accessorKey: "email",
-  },
-  {
-    header: "Created",
-    accessorKey: "dateCreated",
-  },
-  {
-    header: "Updated",
-    accessorKey: "dateUpdated",
-  },
-];
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar */}
@@ -72,13 +50,43 @@ console.log(retrieveHeaderData({headerData:data}));
         <Sidebar />
       </div>
 
-      
       {/* Main Content */}
       <div className="flex-1 p-24 overflow-auto">
         <Header
           header="Dashboard"
           subheader="Welcome back! Let's take a look how your gym is performing..."
         />
+        <div className="flex mt-4 gap-4 flex-row">
+          <Cards
+            Card_Figure={data.monthlyTotalSum?.toString()}
+            Card_Header="Monthly Subscription Income"
+            Card_Subheader="Your total earnings this month..."
+          />
+          <Cards
+            Card_Figure={data.monthlyTotalSum?.toString()}
+            Card_Header="Monthly Subscription Income"
+            Card_Subheader="Your total earnings this month..."
+          />
+          <Cards
+            Card_Figure={data.monthlyTotalSum?.toString()}
+            Card_Header="Monthly Subscription Income"
+            Card_Subheader="Your total earnings this month..."
+          />
+          <Cards
+            Card_Figure={data.monthlyTotalSum?.toString()}
+            Card_Header="Monthly Subscription Income"
+            Card_Subheader="Your total earnings this month..."
+          />
+        </div>
+        <div className="mt-6">
+        <TableTemplate
+                  header="Table Column"
+                  Columns={columns}
+                  Data={fetchLogRecords}
+                  subheader="Let's manage and handle your customers..."
+                />
+        </div>
+       
       </div>
     </div>
   );

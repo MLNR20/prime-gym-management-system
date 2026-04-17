@@ -1,9 +1,11 @@
 import Customer, { ICustomer, ICustomerDocument } from "../models/customer";
 import GenericRepository from "./genericRepository";
-import {ICustomerRepository} from "./interface/customerRepositoryInterface"
+import { ICustomerRepository } from "./interface/customerRepositoryInterface";
 
-export class CustomerRepository extends GenericRepository<ICustomerDocument> implements ICustomerRepository {
-  
+export class CustomerRepository
+  extends GenericRepository<ICustomerDocument>
+  implements ICustomerRepository
+{
   async findByFirstName(first_name: string): Promise<ICustomerDocument | null> {
     return this.model.findOne({ first_name });
   }
@@ -12,23 +14,47 @@ export class CustomerRepository extends GenericRepository<ICustomerDocument> imp
     return this.model.find({ status });
   }
 
-  async countUsersBasedOnTheirStatus(status: string): Promise<Number>{
-    return this.model.countDocuments({status});
+  async countUsersBasedOnTheirStatus(status: string): Promise<Number> {
+    return this.model.countDocuments({ status });
   }
 
- async getTotalAmountPaid(): Promise<number> {
-  const result = await this.model.aggregate([
-    { $group: { _id: null, total: { $sum: "$amount_paid" } } }
-  ]);
-  return result[0]?.total ?? 0;
-}
+  async retrievePaidCustomerAmountByMonth(): Promise<number> {
+    const dateNow = new Date();
+    const date30DaysAgo = new Date();
+    date30DaysAgo.setDate(dateNow.getDate() - 30);
+
+    const result = await this.model.aggregate([
+      {
+        $match: {
+          payment_Date: {
+            $gte: date30DaysAgo,
+            $lte: dateNow,
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalAmount: { $sum: "$amount_paid" },
+        },
+      },
+    ]);
+
+    return result[0]?.totalAmount ?? 0;
+  }
+  async getTotalAmountPaid(): Promise<number> {
+    const result = await this.model.aggregate([
+      { $group: { _id: null, total: { $sum: "$amount_paid" } } },
+    ]);
+    return result[0]?.total ?? 0;
+  }
 
   async findActivityStatus(status: Boolean): Promise<ICustomer[]> {
-      return this.model.find({status});
+    return this.model.find({ status });
   }
 
-  async findByLastName(last_name:string): Promise<ICustomerDocument |null>{
-    return this.model.findOne({last_name});
+  async findByLastName(last_name: string): Promise<ICustomerDocument | null> {
+    return this.model.findOne({ last_name });
   }
 }
 

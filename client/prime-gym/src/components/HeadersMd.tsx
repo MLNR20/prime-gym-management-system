@@ -8,8 +8,8 @@ interface HeaderProps {
 export default function HeaderMd({ header, subheader }: HeaderProps): React.ReactElement {
   return (
     <div className="mb-4">
-      <div className="text-lg font-semibold black mb-2">{header}</div>
-      <div className="text-md font-light text-gray-500">{subheader}</div>
+      <h1 className="text-md font-light black mb-2">{header}</h1>
+      <h2 className="text-sm  font-light text-gray-500">{subheader}</h2>
     </div>
   )
 }
