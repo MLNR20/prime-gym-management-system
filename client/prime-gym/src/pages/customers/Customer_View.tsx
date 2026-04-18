@@ -37,6 +37,15 @@ export default function Customer_View(): React.ReactElement {
     { header: "Date Updated", accessorKey: "updatedAt" },
   ];
 
+  if(!retrieveData)
+  {
+    return(
+      <div>
+        Loading...
+      </div>
+    )
+  }
+
   return (
     <div className="flex background-white h-screen overflow-hidden">
       <div className="w-64">

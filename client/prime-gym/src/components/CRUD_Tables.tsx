@@ -8,6 +8,8 @@ import {
 import deleteData from "../data/deleteData";
 import { useNavigate } from "react-router-dom";
 import useFetchData from "../data/fetchData";
+import getWindowedPages from "../utils/getWindowedPages";
+
 interface TableProps {
   data: any[];
   columns: any[];
@@ -30,6 +32,10 @@ export default function CRUDTables({
   });
 
   const tableData = (changeDataLimits as any).data ?? data ?? [];
+  const totalPage =  (changeDataLimits as any).meta?.totalPages;
+
+  const pages = getWindowedPages(page, totalPage ?? 1);
+  console.log(totalPage)
   const table = useReactTable({
     data: tableData,
     columns,
@@ -43,6 +49,7 @@ export default function CRUDTables({
 
   const redirectURL = useNavigate();
   const rowCount = table.getRowModel().rows.length;
+
 
   function deleteEntry() {
     try {
@@ -132,7 +139,7 @@ export default function CRUDTables({
                     onClick={() => {
                       const id = row.original._id;
                       console.log(id);
-                      setSelectedRow(id); 
+                      setSelectedRow(id);
                       const modal = document.getElementById("my_modal_5");
                       if (modal instanceof HTMLDialogElement) modal.showModal();
                     }}
@@ -144,8 +151,41 @@ export default function CRUDTables({
             ))}
           </tbody>
         </table>
-        <div className="mt-6">
-          <h4>Showing {rowCount} entries</h4>
+        <div className="mt-6 flex flex-row gap-auto w-full">
+          <div className="flex gap-2 flex-row gap-auto w-full">
+            <div className="flex gap-2 justify-center items-center">
+              {/* Prev */}
+              <button
+                className="btn"
+                disabled={page === 1}
+                onClick={() => setPage((p) => p - 1)}
+              >
+                Prev
+              </button>
+
+              {/* Page numbers */}
+              {
+                pages.map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p)}
+                    className={`btn ${page === p ? "btn-primary" : "btn-outline"}`}
+                  >
+                    {p}
+                  </button>
+                ))}
+
+              {/* Next */}
+              <button
+                className="btn"
+                disabled={page === totalPage}
+                onClick={() => setPage((p) => p + 1)}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+          <h4 className="w-full text-end">Showing {rowCount} entries</h4>
         </div>
       </div>
 
