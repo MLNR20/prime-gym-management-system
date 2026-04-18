@@ -130,7 +130,7 @@ export default function CRUDTables({
                   <button
                     className="btn btn-primary"
                     onClick={() => {
-                      const id = row.original._id;
+                      const id = (row.original as any)._id;
                       setSelectedRow(id);
                       redirectURL(`${id}`);
                     }}
@@ -140,7 +140,7 @@ export default function CRUDTables({
                   <button
                     className="btn btn-error text-white"
                     onClick={() => {
-                      const id = row.original._id;
+                      const id = (row.original as any)._id;
                       console.log(id);
                       setSelectedRow(id);
                       const modal = document.getElementById("my_modal_5");
