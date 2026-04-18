@@ -26,12 +26,12 @@ export default function Tables({
   const changeDataLimits = useFetchData({
     url: `${url}/show/?page=${page}&limit=${limit}`,
   });
-console.log("BASE URL:", `${url}/show/?page=${page}&limit=${limit}`);
+  console.log("BASE URL:", `${url}/show/?page=${page}&limit=${limit}`);
   const tableData = (changeDataLimits as any).data ?? data ?? [];
   const totalPage = (changeDataLimits as any).meta?.totalPages;
   const pages = getWindowedPages(page, totalPage ?? 1);
 
-  console.log(changeDataLimits)
+  console.log(changeDataLimits);
   const table = useReactTable({
     data: tableData,
     columns,
@@ -57,6 +57,19 @@ console.log("BASE URL:", `${url}/show/?page=${page}&limit=${limit}`);
             onChange={(e) => setGlobalFilter(e.target.value)}
             className="input input-bordered h-12 border bg-white border-gray-400 w-100"
           ></input>
+        </div>
+        <div className="flex flex-row items-center justify-end  w-1/2 gap-2">
+          <h4>Showing</h4>
+          <select
+            onChange={(e) => setLimit(parseInt(e.target.value))}
+            className="select w-fit h-12 border bg-white border-gray-400 "
+          >
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+          <h4>entries</h4>
         </div>
       </div>
       <table className="table table-zebra">
