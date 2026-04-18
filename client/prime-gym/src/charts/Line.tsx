@@ -108,8 +108,22 @@ export default function SubscriptionLineChart({ subMonthsData }: Props) {
   };
 
   return (
-    <div className="w-full rounded-lg max-h-96 p-6 bg-white">
+  <div className="w-full rounded-lg bg-white p-6 h-106 flex flex-col">
+    
+    <div className="mb-4">
+      <h1 className="text-lg font-semibold text-black mb-2">
+        Subscriber Breakdown
+      </h1>
+      <h2 className="text-md font-light text-gray-500">
+        Your recent gym span over ...
+      </h2>
+    </div>
+
+    {/* chart container MUST fill remaining space */}
+    <div className="flex-1 relative">
       <Line data={data} options={options} />
     </div>
-  );
+
+  </div>
+);
 }

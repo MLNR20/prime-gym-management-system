@@ -5,6 +5,7 @@ import {
   Legend
 } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
+import HeaderMd from "../components/HeadersMd";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -28,8 +29,12 @@ export default function DoughnutChart({
     ]
   };
 return (
-  <div className="bg-white  rounded-lg p-6 max-w-96 max-h-96"
+  <div className="bg-white  rounded-lg p-6 max-w-96 h-fit"
   >
+    <div className="mb-4">
+      <h1 className="text-lg font-semibold black mb-2">Subscriber Breakdown</h1>
+      <h2 className="text-md  font-light text-gray-500">Your subscriber's activity...</h2>
+    </div>   
     <Doughnut data={data} className="" />
   </div>
 );

@@ -9,7 +9,7 @@ export default function HeaderMd({ header, subheader }: HeaderProps): React.Reac
   return (
     <div className="mb-4">
       <h1 className="text-2xl font-semibold black mb-4">{header}</h1>
-      <h2 className="text-xl  font-light text-gray-500">{subheader}</h2>
+      <h2 className="text-lg  font-light text-gray-500">{subheader}</h2>
     </div>
   )
 }

@@ -90,7 +90,7 @@ if (!data || !fetchhistory?.subMonthsData) {
           header="Dashboard"
           subheader="Welcome back! Let's take a look how your gym is performing..."
         />
-        <div className="flex mt-4 gap-4 flex-row">
+        <div className="flex mt-4 gap-4 w-full flex-row">
           <Cards
             Card_Figure={data?.monthlyTotalSum?.toString() || "0"}
             Card_Header="Monthly Subscription Income"
@@ -113,7 +113,7 @@ if (!data || !fetchhistory?.subMonthsData) {
           />
         </div>
    
-        <div className="flex flex-row my-4 w-full gap-4">
+        <div className="flex flex-row my-4 h-fit gap-4">
           <SubscriptionLineChart subMonthsData={fetchhistory?.subMonthsData || []}/>
           <DoughnutChart 
             activeUsers={data.activeUsers}
