@@ -49,6 +49,20 @@ customerRouter.get("/", authMiddleware, async (request: RequestWithUser, respons
   }
 });
 
+//RETRIVE CUSTOMER
+customerRouter.get("/show/", authMiddleware, async (request: RequestWithUser, response) => {
+  try {
+
+    const limit = parseInt(request.query.limit as string) || 10;
+    const customers = await CustomerRepository.findLimit(limit);
+    const admin = request.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} accessed customers list at ${new Date().toISOString()}`)
+    response.status(200).json(customers);
+  } catch (error) {
+    console.error(error);
+    response.status(500).json({ message: "Error fetching customers" });
+  }
+});
 
 //RETRIEVE CUSTOMER STATS
 customerRouter.get("/retrieve-stats/", authMiddleware, async(request:RequestWithUser, response)=>{

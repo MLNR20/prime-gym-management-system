@@ -44,6 +44,10 @@ class GenericRepository<T> {
     return this.model.find();
   }
 
+  async findLimit(shown_result:number): Promise<HydratedDocument<T>[]>{
+    return this.model.find().limit(shown_result);
+  }
+
   async softDelete(id: string, status: Boolean): Promise<HydratedDocument<T>| null>
   {
     return this.model.findOneAndUpdate({_id: id},  { $set: { isDeleted: status } });

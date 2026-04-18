@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -7,7 +7,7 @@ import {
 } from "@tanstack/react-table";
 import deleteData from "../data/deleteData";
 import { useNavigate } from "react-router-dom";
-
+import useFetchData from "../data/fetchData";
 interface TableProps {
   data: any[];
   columns: any[];
@@ -20,10 +20,18 @@ export default function CRUDTables({
   url,
 }: TableProps): React.ReactElement {
   const [selectedRow, setSelectedRow] = useState<any>(null);
+  const [limit, setLimit] = useState(10)
+
+  //This line of code is responsible for search functionality...
   const [globalFilter, setGlobalFilter] = useState("");
 
+
+  const  changeDataLimits = useFetchData({
+    url: `${url}/show/?limit=${limit}`, 
+  })
+  const tableData = Array.isArray(changeDataLimits) ? changeDataLimits : data;
   const table = useReactTable({
-    data,
+    data: tableData,
     columns,
     state: {
       globalFilter,
@@ -35,9 +43,12 @@ export default function CRUDTables({
 
   const redirectURL = useNavigate();
   const rowCount = table.getRowModel().rows.length;
+
+
+
   function deleteEntry() {
     try {
-      alert(selectedRow); // alerts the id of the selected row
+      alert(selectedRow); 
       deleteData({ url: url, id: selectedRow });
       const modal = document.getElementById("my_modal_5");
       if (modal instanceof HTMLDialogElement) modal.close();
@@ -48,16 +59,27 @@ export default function CRUDTables({
 
   return (
     <div>
-      <div className="mb-4">
-        <div className="flex flex-row gap-5 items-center">
+      <div className="mb-4 flex flex-row gap-auto w-full">
+        {/*Search functionality whenever global filter is typed it changes the value and filters the value...*/}
+        <div className="flex flex-row gap-5  items-center w-1/2 ">
           <h4>Search:</h4>
           <input
             type="text"
             placeholder="Search details here..."
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
-            className="input input-bordered h-12 border bg-white border-gray-700 w-full"
+            className="input input-bordered h-12 border bg-white border-gray-400 w-100"
           ></input>
+        </div>
+        <div className="flex flex-row items-center justify-end  w-1/2 gap-2">
+          <h4>Showing</h4>
+          <select onChange={(e)=>setLimit(parseInt(e.target.value))} className="select w-fit h-12 border bg-white border-gray-400 ">
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+          <h4>entries</h4>
         </div>
       </div>
       <div className="overflow-x-auto">

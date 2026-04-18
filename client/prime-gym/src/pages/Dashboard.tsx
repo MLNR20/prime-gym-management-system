@@ -34,7 +34,7 @@ export default function Dashboard(): React.ReactElement {
 
   const fetchDashboardData = useFetchData({
     url: "customers/retrieve-stats/",
-  });
+  }) || [];
 
     const fetchhistory = useFetchData({
     url: "customers/monthly-breakdown",
@@ -51,6 +51,8 @@ export default function Dashboard(): React.ReactElement {
       setData(fetchDashboardData);
     }
   }, [fetchDashboardData]);
+
+
 
   console.log("Dashboard dat II", data);
   console.log(fetchLogRecords);
@@ -71,7 +73,7 @@ export default function Dashboard(): React.ReactElement {
   ];
 
   
-if (!data || !fetchhistory?.subMonthsData) {
+if (!data || !fetchhistory.subMonthsData) {
   return <div>Loading...</div>;
 }
 
