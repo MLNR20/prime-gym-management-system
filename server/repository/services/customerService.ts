@@ -29,4 +29,8 @@ export class CustomerService {
   async retrieveMonthlyIncome(): Promise<Number>{
     return this.customerRepository.retrievePaidCustomerAmountByMonth();
   }
+
+  async subscriptionsByMonth(): Promise<ICustomer[]>{
+    return this.customerRepository.subscriptionsByMonth();
+  }
 }

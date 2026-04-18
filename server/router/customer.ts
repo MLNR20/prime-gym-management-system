@@ -70,6 +70,23 @@ customerRouter.get("/retrieve-stats/", authMiddleware, async(request:RequestWith
   }
 })
 
+
+//RETRIEVE CUSTOMER STATS
+customerRouter.get("/monthly-breakdown/", authMiddleware, async(request:RequestWithUser, response)=>{
+  try
+  {
+    const subMonths= await CustomerRepository.subscriptionsByMonth();
+    const admin = request.admin; 
+    await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} accessed monthly breakdown at ${new Date().toISOString()}`);
+
+    response.status(200).json({subMonthsData:subMonths})
+  }
+  catch(error)
+  {
+     response.status(500).json({ message: error });
+  }
+})
+
 // RETRIEVE PAID SUBSCRIPTIONS
 customerRouter.get("/status/paid", authMiddleware, async (request: RequestWithUser, response) => {
   try {

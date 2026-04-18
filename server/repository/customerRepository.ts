@@ -18,6 +18,28 @@ export class CustomerRepository
     return this.model.countDocuments({ status });
   }
 
+  async subscriptionsByMonth(): Promise<ICustomerDocument[]> {
+    const result = await this.model.aggregate([
+      {
+        $group: {
+          _id: {
+            year: { $year: "$payment_Date" },
+            month: { $month: "$payment_Date" },
+            subscriptionType: "$subscription_type",
+          },
+          total: { $sum: 1 },
+        },
+      },
+      {
+        $sort: {
+          "_id.year": 1,
+          "_id.month": 1,
+        },
+      },
+    ]);
+    return result;
+  }
+
   async retrievePaidCustomerAmountByMonth(): Promise<number> {
     const dateNow = new Date();
     const date30DaysAgo = new Date();
