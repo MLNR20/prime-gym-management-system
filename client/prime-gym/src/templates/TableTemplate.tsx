@@ -7,14 +7,15 @@ interface DataTables{
     subheader: string;
     Data: any[];
     Columns: any[];
+    Url: string;
 
 }
 
-export default function TableTemplate({header, subheader, Data, Columns}: DataTables): React.ReactElement {
+export default function TableTemplate({header, subheader, Data, Url, Columns}: DataTables): React.ReactElement {
   return (
     <div className="bg-white p-16 rounded-lg">
       <HeaderMd subheader={subheader} header={header} />
-      <Tables data={Data} columns={Columns}/>
+      <Tables data={Data} url={Url} columns={Columns}/>
     </div>
   );
 }

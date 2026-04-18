@@ -6,20 +6,34 @@ import {
 } from "@tanstack/react-table";
 
 import { useState } from "react";
-
+import useFetchData from "../data/fetchData";
+import getWindowedPages from "../utils/getWindowedPages";
 interface TableProps {
   data: any[];
   columns: any[];
+  url: string;
 }
 
 export default function Tables({
   data,
   columns,
+  url,
 }: TableProps): React.ReactElement {
   const [globalFilter, setGlobalFilter] = useState("");
+  const [limit, setLimit] = useState(10);
+  const [page, setPage] = useState(1);
 
+  const changeDataLimits = useFetchData({
+    url: `${url}/show/?page=${page}&limit=${limit}`,
+  });
+console.log("BASE URL:", `${url}/show/?page=${page}&limit=${limit}`);
+  const tableData = (changeDataLimits as any).data ?? data ?? [];
+  const totalPage = (changeDataLimits as any).meta?.totalPages;
+  const pages = getWindowedPages(page, totalPage ?? 1);
+
+  console.log(changeDataLimits)
   const table = useReactTable({
-    data,
+    data: tableData,
     columns,
     state: {
       globalFilter,
@@ -28,6 +42,7 @@ export default function Tables({
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
   });
+  const rowCount = table.getRowModel().rows.length;
 
   return (
     <div className="overflow-x-auto mt-6">
@@ -79,6 +94,49 @@ export default function Tables({
           ))}
         </tbody>
       </table>
+      <div className="mt-6 flex flex-row gap-auto w-full">
+        <div className="flex gap-2 flex-row gap-auto w-full">
+          <div className="flex gap-2 justify-center items-center">
+            {/* Prev */}
+            <button
+              className={
+                page === 1
+                  ? "text-gray-400 font-normal btn bg-transparent border-none"
+                  : "hover:bg-black hover:text-white bg-gray-200 btn bg-transparent  border-none text-black"
+              }
+              disabled={page === 1}
+              onClick={() => setPage((p) => p - 1)}
+            >
+              Prev
+            </button>
+
+            {/* Page numbers */}
+            {pages.map((p) => (
+              <button
+                key={p}
+                onClick={() => setPage(p)}
+                className={`btn border-none ${page === p ? "btn-neutral" : "btn-outline"}`}
+              >
+                {p}
+              </button>
+            ))}
+
+            {/* Next */}
+            <button
+              className={
+                page === totalPage
+                  ? "text-gray-400 font-normal btn bg-transparent border-none"
+                  : "hover:bg-black hover:text-white  btn bg-transparent border-none text-black"
+              }
+              disabled={page === totalPage}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+        <h4 className="w-full text-end">Showing {rowCount} entries</h4>
+      </div>
     </div>
   );
 }

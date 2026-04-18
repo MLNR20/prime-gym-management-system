@@ -124,6 +124,7 @@ if (!data || !fetchhistory) {
         <div>
           <TableTemplate
             header="Table Column"
+            Url="logs"
             Columns={columns}
             Data={fetchLogRecords}
             subheader="Let's manage and handle your customers..."
