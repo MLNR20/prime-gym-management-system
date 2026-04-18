@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   useReactTable,
   getCoreRowModel,
   flexRender,
+  getFilteredRowModel,
 } from "@tanstack/react-table";
 import deleteData from "../data/deleteData";
 import { useNavigate } from "react-router-dom";
@@ -13,21 +14,27 @@ interface TableProps {
   url: string;
 }
 
-
 export default function CRUDTables({
   data,
   columns,
   url,
 }: TableProps): React.ReactElement {
   const [selectedRow, setSelectedRow] = useState<any>(null);
+  const [globalFilter, setGlobalFilter] = useState("");
+
   const table = useReactTable({
     data,
     columns,
+    state: {
+      globalFilter,
+    },
+    onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
   });
 
   const redirectURL = useNavigate();
-
+  const rowCount = table.getRowModel().rows.length;
   function deleteEntry() {
     try {
       alert(selectedRow); // alerts the id of the selected row
@@ -40,71 +47,91 @@ export default function CRUDTables({
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="table table-zebra">
-        {/* THEAD */}
-        <thead className="bg-gray-200 p-2">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <th key={header.id} className="text-black bg-gray-300">
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
-                </th>
-              ))}
-              <th className="text-black bg-gray-300">Actions</th>
-            </tr>
-          ))}
-        </thead>
+    <div>
+      <div className="mb-4">
+        <div className="flex flex-row gap-5 items-center">
+          <h4>Search:</h4>
+          <input
+            type="text"
+            placeholder="Search details here..."
+            value={globalFilter}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            className="input input-bordered h-12 border bg-white border-gray-700 w-full"
+          ></input>
+        </div>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="table table-zebra">
+          {/* THEAD */}
+          <thead className="bg-gray-200 p-2">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <th key={header.id} className="text-black bg-gray-300">
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                  </th>
+                ))}
+                <th className="text-black bg-gray-300">Actions</th>
+              </tr>
+            ))}
+          </thead>
 
-        {/* TBODY */}
-        <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr
-              key={row.id}
-              className="bg-white border-2 border-indigo-200 border-b-gray-300"
-            >
-              {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} className="border-b border-gray-300">
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+          {/* TBODY */}
+          <tbody>
+            {table.getRowModel().rows.map((row) => (
+              <tr
+                key={row.id}
+                className="bg-white border-2 border-indigo-200 border-b-gray-300"
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <td key={cell.id} className="border-b border-gray-300">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+                <td className="border-b flex gap-2 border-gray-300">
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => {
+                      const id = row.original._id;
+                      setSelectedRow(id);
+                      redirectURL(`${id}`);
+                    }}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="btn btn-error text-white"
+                    onClick={() => {
+                      const id = row.original._id;
+                      console.log(id);
+                      setSelectedRow(id); // ✅ store the clicked row
+                      const modal = document.getElementById("my_modal_5");
+                      if (modal instanceof HTMLDialogElement) modal.showModal();
+                    }}
+                  >
+                    Delete
+                  </button>
                 </td>
-              ))}
-              <td className="border-b flex gap-2 border-gray-300">
-                <button className="btn btn-primary"
-                  onClick={()=>{
-                    const id = row.original._id;
-                    setSelectedRow(id); 
-                    redirectURL(`${id}`);
-                  }}
-                >Edit</button>
-                <button
-                  className="btn btn-error text-white"
-                  onClick={() => {
-                    const id = row.original._id;
-                    console.log(id)
-                    setSelectedRow(id); // ✅ store the clicked row
-                    const modal = document.getElementById("my_modal_5");
-                    if (modal instanceof HTMLDialogElement) modal.showModal();
-                  }}
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div className="mt-6">
+          <h4>Showing {rowCount} entries</h4>
+        </div>
+      </div>
 
       <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle">
         <div className="modal-box bg-white text-black shadow-xl border border-gray-200">
           <h3 className="font-bold text-lg">Delete!</h3>
           <p className="py-4">
-            You're about to delete <strong>{selectedRow}</strong>? This
-            action cannot be reversed!
+            You're about to delete <strong>{selectedRow}</strong>? This action
+            cannot be reversed!
           </p>
 
           <div className="modal-action gap-2">
