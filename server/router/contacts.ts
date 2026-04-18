@@ -26,6 +26,32 @@ contactRouter.post("/", authMiddleware, async (req: RequestWithUser, res: Respon
   }
 });
 
+
+//RETRIVE CUSTOMER
+contactRouter.get(
+  "/show/",
+  authMiddleware,
+  async (request: RequestWithUser, response) => {
+    try {
+      const limit = parseInt(request.query.limit as string) || 10;
+      const page = parseInt(request.query.page as string) || 1;
+      const result = await contactRepository.paginate({
+        page,
+        limit,
+      });
+      const admin = request.admin;
+      await LogsRepository.logAction(
+        admin!._id.toString(),
+        `${admin!.first_name} ${admin?.last_name} accessed customers list at ${new Date().toISOString()}`,
+      );
+      response.status(200).json(result);
+    } catch (error) {
+      console.error(error);
+      response.status(500).json({ message: "Error fetching customers" });
+    }
+  },
+);
+
 // RETRIEVE CONTACTS LIST
 contactRouter.get("/", authMiddleware, async (req: RequestWithUser, res: Response) => {
   try {
