@@ -40,6 +40,8 @@ export class CustomerRepository
     return result;
   }
 
+  
+
   async retrievePaidCustomerAmountByMonth(): Promise<number> {
     const dateNow = new Date();
     const date30DaysAgo = new Date();

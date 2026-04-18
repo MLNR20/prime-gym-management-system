@@ -20,16 +20,16 @@ export default function CRUDTables({
   url,
 }: TableProps): React.ReactElement {
   const [selectedRow, setSelectedRow] = useState<any>(null);
-  const [limit, setLimit] = useState(10)
-
+  const [limit, setLimit] = useState(10);
+  const [page, setPage] = useState(1);
   //This line of code is responsible for search functionality...
   const [globalFilter, setGlobalFilter] = useState("");
 
+  const changeDataLimits = useFetchData({
+    url: `${url}/show/?page=${page}&limit=${limit}`,
+  });
 
-  const  changeDataLimits = useFetchData({
-    url: `${url}/show/?limit=${limit}`, 
-  })
-  const tableData = Array.isArray(changeDataLimits) ? changeDataLimits : data;
+  const tableData = (changeDataLimits as any).data ?? data ?? [];
   const table = useReactTable({
     data: tableData,
     columns,
@@ -44,11 +44,9 @@ export default function CRUDTables({
   const redirectURL = useNavigate();
   const rowCount = table.getRowModel().rows.length;
 
-
-
   function deleteEntry() {
     try {
-      alert(selectedRow); 
+      alert(selectedRow);
       deleteData({ url: url, id: selectedRow });
       const modal = document.getElementById("my_modal_5");
       if (modal instanceof HTMLDialogElement) modal.close();
@@ -73,7 +71,10 @@ export default function CRUDTables({
         </div>
         <div className="flex flex-row items-center justify-end  w-1/2 gap-2">
           <h4>Showing</h4>
-          <select onChange={(e)=>setLimit(parseInt(e.target.value))} className="select w-fit h-12 border bg-white border-gray-400 ">
+          <select
+            onChange={(e) => setLimit(parseInt(e.target.value))}
+            className="select w-fit h-12 border bg-white border-gray-400 "
+          >
             <option value="10">10</option>
             <option value="20">20</option>
             <option value="50">50</option>
@@ -131,7 +132,7 @@ export default function CRUDTables({
                     onClick={() => {
                       const id = row.original._id;
                       console.log(id);
-                      setSelectedRow(id); // ✅ store the clicked row
+                      setSelectedRow(id); 
                       const modal = document.getElementById("my_modal_5");
                       if (modal instanceof HTMLDialogElement) modal.showModal();
                     }}

@@ -1,3 +1,4 @@
+// @ts-ignore
 import React from "react";
 import Sidebar from "../../components/Sidebar";
 import CRUDTemplate from "../../templates/CRUDTemplate";
@@ -17,8 +18,9 @@ type Customer = {
 export default function Customer_View(): React.ReactElement {
   const retrieveData = useFetchData({
     url: "customers/show/",
-  }) as Customer[];
+  });
 
+  const customerData = (retrieveData as any).data;
   console.log(retrieveData);
 
   const columns = [
@@ -45,7 +47,7 @@ export default function Customer_View(): React.ReactElement {
         <CRUDTemplate
           header="Customer Management"
           Columns={columns}
-          Data={retrieveData}
+          Data={customerData}
           url="customers"
           RedirectAddUrl="/add_customers"
           ButtonString="Add Customer"

@@ -73,7 +73,7 @@ export default function Dashboard(): React.ReactElement {
   ];
 
   
-if (!data || !fetchhistory.subMonthsData) {
+if (!data || !fetchhistory) {
   return <div>Loading...</div>;
 }
 
@@ -116,7 +116,7 @@ if (!data || !fetchhistory.subMonthsData) {
         </div>
    
         <div className="flex flex-row my-4 h-fit gap-4">
-          <SubscriptionLineChart subMonthsData={fetchhistory?.subMonthsData || []}/>
+          <SubscriptionLineChart subMonthsData={fetchhistory || []}/>
           <DoughnutChart 
             activeUsers={data.activeUsers}
             inactiveUsers={data.inactiveUsers}/>
