@@ -4,16 +4,6 @@ import Sidebar from "../../components/Sidebar";
 import CRUDTemplate from "../../templates/CRUDTemplate";
 import useFetchData from "../../data/fetchData";
 
-type Customer = {
-  _id: string;
-  first_name: string;
-  last_name: string;
-  amount_paid: number;
-  status: string;
-  subscription_type: string;
-  createdAt: string;
-  updatedAt: string;
-};
 
 export default function Customer_View(): React.ReactElement {
   const retrieveData = useFetchData({
@@ -26,7 +16,12 @@ export default function Customer_View(): React.ReactElement {
   const columns = [
     {
       header: "#",
-      cell: ({ row }: any) => row.index + 1,
+      cell: ({ row, table }: any) => {
+        const page = table.options.meta?.page ?? 1;
+        const limit = table.options.meta?.limit ?? 10;
+
+        return (page - 1) * limit + row.index + 1;
+      },
     },
     { header: "First Name", accessorKey: "first_name" },
     { header: "Last Name", accessorKey: "last_name" },
@@ -37,13 +32,8 @@ export default function Customer_View(): React.ReactElement {
     { header: "Date Updated", accessorKey: "updatedAt" },
   ];
 
-  if(!retrieveData)
-  {
-    return(
-      <div>
-        Loading...
-      </div>
-    )
+  if (!retrieveData) {
+    return <div>Loading...</div>;
   }
 
   return (

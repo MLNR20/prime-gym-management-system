@@ -32,15 +32,19 @@ export default function CRUDTables({
   });
 
   const tableData = (changeDataLimits as any).data ?? data ?? [];
-  const totalPage =  (changeDataLimits as any).meta?.totalPages;
+  const totalPage = (changeDataLimits as any).meta?.totalPages;
 
   const pages = getWindowedPages(page, totalPage ?? 1);
-  console.log(totalPage)
+  console.log(totalPage);
   const table = useReactTable({
     data: tableData,
     columns,
     state: {
       globalFilter,
+    },
+    meta: {
+      page,
+      limit,
     },
     onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
@@ -49,7 +53,6 @@ export default function CRUDTables({
 
   const redirectURL = useNavigate();
   const rowCount = table.getRowModel().rows.length;
-
 
   function deleteEntry() {
     try {
@@ -164,16 +167,15 @@ export default function CRUDTables({
               </button>
 
               {/* Page numbers */}
-              {
-                pages.map((p) => (
-                  <button
-                    key={p}
-                    onClick={() => setPage(p)}
-                    className={`btn ${page === p ? "btn-primary" : "btn-outline"}`}
-                  >
-                    {p}
-                  </button>
-                ))}
+              {pages.map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setPage(p)}
+                  className={`btn ${page === p ? "btn-primary" : "btn-outline"}`}
+                >
+                  {p}
+                </button>
+              ))}
 
               {/* Next */}
               <button
