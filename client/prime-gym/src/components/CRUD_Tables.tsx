@@ -159,7 +159,7 @@ export default function CRUDTables({
             <div className="flex gap-2 justify-center items-center">
               {/* Prev */}
               <button
-                className="btn"
+                className={page===1?  "text-gray-400 font-normal btn bg-transparent border-none" : "hover:bg-black hover:text-white bg-gray-200 btn bg-transparent  border-none text-black" }
                 disabled={page === 1}
                 onClick={() => setPage((p) => p - 1)}
               >
@@ -171,7 +171,7 @@ export default function CRUDTables({
                 <button
                   key={p}
                   onClick={() => setPage(p)}
-                  className={`btn ${page === p ? "btn-primary" : "btn-outline"}`}
+                  className={`btn border-none ${page === p ? "btn-neutral" : "btn-outline"}`}
                 >
                   {p}
                 </button>
@@ -179,7 +179,7 @@ export default function CRUDTables({
 
               {/* Next */}
               <button
-                className="btn"
+                className={page === totalPage?  "text-gray-400 font-normal btn bg-transparent border-none" : "hover:bg-black hover:text-white  btn bg-transparent border-none text-black" } 
                 disabled={page === totalPage}
                 onClick={() => setPage((p) => p + 1)}
               >
