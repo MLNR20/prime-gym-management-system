@@ -9,6 +9,7 @@ import {
   Dumbbell,
   CircleUser,
   LogOut,
+  KeyRound,
   SportShoe
 } from "lucide-react";
 import fitwatch from "../assets/fitwatch.png";
@@ -46,7 +47,7 @@ export default function Sidebar(): React.ReactElement {
               <li className="pt-2 pb-2 text-xs text-gray-500">GENERAL</li>
               <div className="grid grid-cols-1 mt-2 w-full gap-1.5">
                 <li>
-                  <Link to="/profile">
+                  <Link to="/">
                     <div className="flex flex-row gap-2 p-1 w-full items-center">
                       <Gauge
                         color="gray"
@@ -80,7 +81,7 @@ export default function Sidebar(): React.ReactElement {
               <li className="pt-2 pb-2 text-xs text-gray-500">OPERATIONS</li>
               <div className="grid grid-cols-1 mt-2 w-full gap-1.5">
                 <li className="mt-1">
-                  <Link to="/profile">
+                  <Link to="/customers">
                     <div className="flex flex-row gap-2 p-1 w-full items-start">
                       <UserRound
                         color="gray"
@@ -93,7 +94,7 @@ export default function Sidebar(): React.ReactElement {
                   </Link>
                 </li>
                 <li className="mt-1">
-                  <Link to="/profile">
+                  <Link to="/contacts">
                     <div className="flex flex-row gap-2 p-1 w-full items-start">
                       <Phone color="gray" />
                       Contacts
@@ -105,6 +106,14 @@ export default function Sidebar(): React.ReactElement {
                     <div className="flex flex-row gap-2 p-1 w-full items-start">
                       <Dumbbell color="gray" />
                       Exercises
+                    </div>
+                  </Link>
+                </li>
+                <li className="mt-1">
+                  <Link to="/profile">
+                    <div className="flex flex-row gap-2 p-1 w-full items-start">
+                      <KeyRound color="gray" />
+                      Lockers
                     </div>
                   </Link>
                 </li>

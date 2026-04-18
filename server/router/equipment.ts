@@ -51,9 +51,7 @@ equipmentRouter.post("/", authMiddleware, async(Request: RequestWithUser, Respon
         const newEquipment = await equipmentRepository.create(Request.body);
         const admin = Request.admin; 
         await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created equipment at ${new Date().toISOString()}`);
-
         return Response.status(200).json(newEquipment);
-
     }
     catch(error)
     {
