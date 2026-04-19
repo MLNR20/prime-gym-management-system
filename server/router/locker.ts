@@ -29,14 +29,14 @@ lockerRouter.get("/", authMiddleware, async(Request:RequestWithUser, Response)=>
 
 
 //RETRIVE CUSTOMER
-contactRouter.get(
+lockerRouter.get(
   "/show/",
   authMiddleware,
   async (request: RequestWithUser, response) => {
     try {
       const limit = parseInt(request.query.limit as string) || 10;
       const page = parseInt(request.query.page as string) || 1;
-      const result = await contactRepository.paginate({
+      const result = await lockerRepository.paginate({
         page,
         limit,
       });

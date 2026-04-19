@@ -10,6 +10,8 @@ import Add_Customers from '../pages/customers/Add_Customer'
 import Edit_Customer from '../pages/customers/Edit_Customer'
 import Locker_View from '../pages/lockers/Locker_View'
 import Add_Locker from '../pages/lockers/Add_Locker'
+import Edit_Lockers from '../pages/lockers/Edit_Locker'
+
 // ...other imports
 
 export default function Router() {
@@ -22,6 +24,8 @@ export default function Router() {
         <Route path="/add_contacts" element={<Add_Contacts/>}/>
         <Route path="/contacts/:id" element={<Edit_Contacts/>}/>
         <Route path="/customers/:id" element={<Edit_Customer/>}/>
+                <Route path="/lockers/:id" element={<Edit_Lockers/>}/>
+
         <Route path="/lockers" element={<Locker_View/>}/>
         <Route path="/customers" element={<Customer_View/>}/>
         <Route path='/add_customers' element={<Add_Customers/>}/>

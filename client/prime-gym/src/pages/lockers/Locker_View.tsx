@@ -4,7 +4,7 @@ import CRUDTemplate from "../../templates/CRUDTemplate";
 import useFetchData from "../../data/fetchData";
 
 export default function Locker_View(): React.ReactElement {
-  const retrieveData = useFetchData({ url: "lockers" });
+  const retrieveData = useFetchData({ url: "lockers/show/" });
 
   const columns = [
     {
