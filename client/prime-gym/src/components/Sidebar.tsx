@@ -110,7 +110,7 @@ export default function Sidebar(): React.ReactElement {
                   </Link>
                 </li>
                 <li className="mt-1">
-                  <Link to="/profile">
+                  <Link to="/lockers">
                     <div className="flex flex-row gap-2 p-1 w-full items-start">
                       <KeyRound color="gray" />
                       Lockers

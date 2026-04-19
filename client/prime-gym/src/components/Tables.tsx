@@ -74,11 +74,11 @@ export default function Tables({
       </div>
       <table className="table table-zebra">
         {/* THEAD */}
-        <thead className="bg-blue-200 text-md">
+        <thead className="bg-slate-300 text-md">
           {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
+            <tr className="bg-slate-300" key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <th key={header.id} className="text-black bg-gray-300">
+                <th key={header.id} className="text-black bg-gray-100">
                   {header.isPlaceholder
                     ? null
                     : flexRender(

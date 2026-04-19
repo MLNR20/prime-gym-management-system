@@ -43,12 +43,12 @@ contactRouter.get(
       const admin = request.admin;
       await LogsRepository.logAction(
         admin!._id.toString(),
-        `${admin!.first_name} ${admin?.last_name} accessed customers list at ${new Date().toISOString()}`,
+        `${admin!.first_name} ${admin?.last_name} accessed lockers list at ${new Date().toISOString()}`,
       );
       response.status(200).json(result);
     } catch (error) {
       console.error(error);
-      response.status(500).json({ message: "Error fetching customers" });
+      response.status(500).json({ message: "Error fetching lockers" });
     }
   },
 );
