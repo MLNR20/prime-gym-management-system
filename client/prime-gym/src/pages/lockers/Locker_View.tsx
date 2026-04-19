@@ -36,8 +36,8 @@ export default function Locker_View(): React.ReactElement {
           Columns={columns}
           Data={retrieveData}
           url="lockers"
-          RedirectAddUrl="/add_contacts"
-          ButtonString="Add Contact"
+          RedirectAddUrl="/add_locker"
+          ButtonString="Add Locker"
           subheader="Let's manage and handle your lockers..."
         />
       </div>
