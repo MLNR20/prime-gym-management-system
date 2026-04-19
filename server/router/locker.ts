@@ -3,6 +3,8 @@ import { authMiddleware } from "../middleware/middleware";
 import { RequestWithUser } from "../middleware/types/express";
 import LogsRepository from "../repository/logsRepository";
 import lockerRepository from "../repository/lockerRepository";
+import contactRouter from "./contacts";
+import contactRepository from "../repository/contactRepository";
 
 const lockerRouter = express.Router();
 
@@ -23,6 +25,33 @@ lockerRouter.get("/", authMiddleware, async(Request:RequestWithUser, Response)=>
         return Response.status(500).json({message:"Locker retrieval failed"})
     }
 })
+
+
+
+//RETRIVE CUSTOMER
+contactRouter.get(
+  "/show/",
+  authMiddleware,
+  async (request: RequestWithUser, response) => {
+    try {
+      const limit = parseInt(request.query.limit as string) || 10;
+      const page = parseInt(request.query.page as string) || 1;
+      const result = await contactRepository.paginate({
+        page,
+        limit,
+      });
+      const admin = request.admin;
+      await LogsRepository.logAction(
+        admin!._id.toString(),
+        `${admin!.first_name} ${admin?.last_name} accessed customers list at ${new Date().toISOString()}`,
+      );
+      response.status(200).json(result);
+    } catch (error) {
+      console.error(error);
+      response.status(500).json({ message: "Error fetching customers" });
+    }
+  },
+);
 
 
 //RETRIEVE LOCKER BY ID
