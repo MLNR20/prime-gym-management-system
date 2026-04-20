@@ -59,8 +59,6 @@ export default function Edit_Lockers(): React.ReactElement {
         if (result) {
           reset(result);
         }
-
-        console.log(result.lockerNumber)
       } catch (error) {
         console.log("Fetch error:", error);
       } finally {
