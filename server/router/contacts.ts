@@ -27,7 +27,7 @@ contactRouter.post("/", authMiddleware, async (req: RequestWithUser, res: Respon
 });
 
 
-//RETRIVE CUSTOMER
+//RETRIVE CONTACTS
 contactRouter.get(
   "/show/",
   authMiddleware,
