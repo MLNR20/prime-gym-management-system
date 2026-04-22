@@ -40,7 +40,7 @@ export default function Equipment_View(): React.ReactElement {
           Columns={columns}
           Data={retrieveData}
           url="equipment"
-          RedirectAddUrl="/add_locker"
+          RedirectAddUrl="/add_equipment"
           ButtonString="Add Equipment"
           subheader="Let's manage and handle your gym equipment..."
         />
