@@ -10,7 +10,11 @@ import {
   CircleUser,
   LogOut,
   KeyRound,
-  SportShoe
+  Notebook,
+  ScrollText,
+  BookUser,
+  Package2,
+  SportShoe,
 } from "lucide-react";
 import fitwatch from "../assets/fitwatch.png";
 
@@ -41,115 +45,202 @@ export default function Sidebar(): React.ReactElement {
           <div className="w-full items-center">
             <img src={fitwatch} className="w-24 mx-auto" />
           </div>
-      
+
           <div className="grid mb-4 grid-cols-1 mt-8 w-full gap-4">
-            <div className=" w-full">
-              <li className="pt-2 pb-2 text-xs text-gray-500">GENERAL</li>
-              <div className="grid grid-cols-1 mt-2 w-full gap-1.5">
-                <li>
-                  <Link to="/">
-                    <div className="flex flex-row gap-2 p-1 w-full items-center">
-                      <Gauge
-                        color="gray"
-                        className="my-auto"
-                        width="22"
-                        height="22"
-                      />
-                      Dashboard
-                    </div>
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/profile">
-                    <div className="flex flex-row gap-2 p-1 w-full items-start">
-                      <ChartArea color="gray" />
-                      Analytics
-                    </div>
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/profile">
-                    <div className="flex flex-row gap-2 p-1 w-full items-start">
-                      <Wallet color="gray" />
-                      Finances
-                    </div>
-                  </Link>
-                </li>
+            {/*OVERVIEW SECTION*/}
+            <div className="w-full mt-4">
+              <div className="collapse collapse-arrow ">
+                <input type="checkbox" defaultChecked />
+                <div className="collapse-title text-gray-500 p-0 min-h-0">
+                  GENERAL
+                </div>
+                <div className="collapse-content  p-0 min-h-0 text-sm">
+                  <div className="grid grid-cols-1 mt-2 w-full gap-1.5">
+                    <li>
+                      <Link to="/">
+                        <div className="flex flex-row gap-2 p-1 w-full items-center">
+                          <Gauge
+                            color="gray"
+                            className="my-auto"
+                            width="22"
+                            height="22"
+                          />
+                          Dashboard
+                        </div>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/profile">
+                        <div className="flex flex-row gap-2 p-1 w-full items-start">
+                          <ChartArea color="gray" />
+                          Analytics
+                        </div>
+                      </Link>
+                    </li>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className=" w-full">
-              <li className="pt-2 pb-2 text-xs text-gray-500">OPERATIONS</li>
-              <div className="grid grid-cols-1 mt-2 w-full gap-1.5">
-                <li className="mt-1">
-                  <Link to="/customers">
-                    <div className="flex flex-row gap-2 p-1 w-full items-start">
-                      <UserRound
-                        color="gray"
-                        className="my-auto"
-                        width="22"
-                        height="22"
-                      />
-                      Customers
-                    </div>
-                  </Link>
-                </li>
-                <li className="mt-1">
-                  <Link to="/contacts">
-                    <div className="flex flex-row gap-2 p-1 w-full items-start">
-                      <Phone color="gray" />
-                      Contacts
-                    </div>
-                  </Link>
-                </li>
-                <li className="mt-1">
-                  <Link to="/profile">
-                    <div className="flex flex-row gap-2 p-1 w-full items-start">
-                      <Dumbbell color="gray" />
-                      Exercises
-                    </div>
-                  </Link>
-                </li>
-                <li className="mt-1">
-                  <Link to="/lockers">
-                    <div className="flex flex-row gap-2 p-1 w-full items-start">
-                      <KeyRound color="gray" />
-                      Lockers
-                    </div>
-                  </Link>
-                </li>
-                <li className="mt-1">
-                  <Link to="/profile">
-                    <div className="flex flex-row gap-2 p-1 w-full items-start">
-                      <SportShoe color="gray" />
-                      Programs
-                    </div>
-                  </Link>
-                </li>
+             <div className="border-t border-gray-300 my-2 w-full"></div>
+            {/*MEMBER SECTION*/}
+            <div className="w-full">
+              <div className="collapse collapse-arrow ">
+                <input type="checkbox" defaultChecked />
+                <div className="collapse-title text-gray-500 p-0 min-h-0">
+                  MEMBERS
+                </div>
+                <div className="collapse-content  p-0 min-h-0 text-sm">
+                  <div className="grid grid-cols-1 mt-2 w-full gap-1.5">
+                    <li className="mt-1">
+                      <Link to="/customers">
+                        <div className="flex flex-row gap-2 p-1 w-full items-start">
+                          <UserRound
+                            color="gray"
+                            className="my-auto"
+                            width="22"
+                            height="22"
+                          />
+                          Customers
+                        </div>
+                      </Link>
+                    </li>
+                    <li className="mt-1">
+                      <Link to="/profile">
+                        <div className="flex flex-row gap-2 p-1 w-full items-start">
+                          <Notebook color="gray" />
+                          Attendance
+                        </div>
+                      </Link>
+                    </li>
+                    <li className="mt-1">
+                      <Link to="/contacts">
+                        <div className="flex flex-row gap-2 p-1 w-full items-start">
+                          <Phone color="gray" />
+                          Contacts
+                        </div>
+                      </Link>
+                    </li>
+                    <li className="mt-1">
+                      <Link to="/lockers">
+                        <div className="flex flex-row gap-2 p-1 w-full items-start">
+                          <KeyRound color="gray" />
+                          Lockers
+                        </div>
+                      </Link>
+                    </li>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className=" w-full">
-              <li className="pt-2 pb-2 text-xs text-gray-500">ACTIVITY</li>
-              <div className="grid grid-cols-1 mt-2 w-full gap-1.5">
-                <li className="mt-1">
-                  <Link to="/profile">
-                    <div className="flex flex-row gap-2 p-1 w-full items-start">
-                      <CircleUser color="gray" />
-                      Profile
-                    </div>
-                  </Link>
-                </li>
-                <li className="mt-1">
-                  <Link to="/profile">
-                    <div className="flex flex-row gap-2 p-1 w-full items-start">
-                      <LogOut color="gray" />
-                      Log Out
-                    </div>
-                  </Link>
-                </li>
+            <div className="border-t border-gray-300 my-2 w-full"></div>
+            
+            {/*EXERCISE SECTION*/}
+            <div className="w-full">
+              <div className="collapse collapse-arrow ">
+                <input type="checkbox" defaultChecked />
+                <div className="collapse-title text-gray-500 p-0 min-h-0">
+                  EXERCISE
+                </div>
+                <div className="collapse-content  p-0 min-h-0 text-sm">
+                  <div className="grid grid-cols-1 mt-2 w-full gap-1.5">
+                    <li className="mt-1">
+                      <Link to="/profile">
+                        <div className="flex flex-row gap-2 p-1 w-full items-start">
+                          <Dumbbell color="gray" />
+                          Exercises
+                        </div>
+                      </Link>
+                    </li>
+                    <li className="mt-1">
+                      <Link to="/profile">
+                        <div className="flex flex-row gap-2 p-1 w-full items-start">
+                          <SportShoe color="gray" />
+                          Programs
+                        </div>
+                      </Link>
+                    </li>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="border-t border-gray-300 my-2 w-full"></div>
+            {/*BUSINESS SECTION*/}
+            <div className="w-full">
+              <div className="collapse collapse-arrow ">
+                <input type="checkbox" defaultChecked />
+                <div className="collapse-title text-gray-500 p-0 min-h-0">
+                  BUSINESS
+                </div>
+                <div className="collapse-content  p-0 min-h-0 text-sm">
+                  <div className="grid grid-cols-1 mt-2 w-full gap-1.5">
+                    <li className="mt-1">
+                      <Link to="/profile">
+                        <div className="flex flex-row gap-2 p-1 w-full items-start">
+                          <ScrollText color="gray" />
+                          Subscription History
+                        </div>
+                      </Link>
+                    </li>
+                    <li className="mt-1">
+                      <Link to="/profile">
+                        <div className="flex flex-row gap-2 p-1 w-full items-start">
+                          <BookUser color="gray" />
+                          Admin
+                        </div>
+                      </Link>
+                    </li>
+                    <li className="mt-1">
+                      <Link to="/profile">
+                        <div className="flex flex-row gap-2 p-1 w-full items-start">
+                          <Package2 color="gray" />
+                          Inventory
+                        </div>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/profile">
+                        <div className="flex flex-row gap-2 p-1 w-full items-start">
+                          <Wallet color="gray" />
+                          Finances
+                        </div>
+                      </Link>
+                    </li>
+                  </div>
+                </div>
+              </div>
+            </div>
+             <div className="border-t border-gray-300 my-2 w-full"></div>
+            {/*PROFILE SECTION*/}
+            <div className="w-full">
+              <div className="collapse collapse-arrow ">
+                <input type="checkbox" defaultChecked />
+                <div className="collapse-title text-gray-500 p-0 min-h-0">
+                  PROFILE
+                </div>
+                <div className="collapse-content  p-0 min-h-0 text-sm">
+                  <div className="grid grid-cols-1 mt-2 w-full gap-1.5">
+                    <li className="mt-1">
+                      <Link to="/profile">
+                        <div className="flex flex-row gap-2 p-1 w-full items-start">
+                          <CircleUser color="gray" />
+                          Profile
+                        </div>
+                      </Link>
+                    </li>
+                    <li className="mt-1">
+                      <Link to="/profile">
+                        <div className="flex flex-row gap-2 p-1 w-full items-start">
+                          <LogOut color="gray" />
+                          Log Out
+                        </div>
+                      </Link>
+                    </li>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-              <div className="mt-auto py-2">
+          <div className="mt-auto py-2">
             <div className="flex flex-row items-center mt-4 gap-4">
               <div>
                 <div className="avatar">
