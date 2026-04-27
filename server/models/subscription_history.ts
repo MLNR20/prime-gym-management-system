@@ -3,7 +3,7 @@ import { Schema, model, Document } from "mongoose";
 export interface ISubscriptionHistory {
   customer_id: Number;
   amount: Number;
-  status: String;
+  subscription_type: String;
   dateRenewed:Date;
   createdAt: Date;
   updatedAt: Date;
@@ -15,7 +15,7 @@ const subscriptionHistorySchema = new Schema<ISubscriptionHistoryDocument>(
   {
     customer_id: { type: String, trim: true },
     amount: {type: Number, trim:true},
-    status: {type: Number, trim: true},
+    subscription_type: {type: String, trim: true},
     dateRenewed: {type:Date, default:Date.now},
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
