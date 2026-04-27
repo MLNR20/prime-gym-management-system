@@ -26,7 +26,7 @@ export default function Customer_View(): React.ReactElement {
       header: "Full Name",
       accessorFn: (row: any) => `${row.first_name} ${row.last_name}`,
     },
-    { header: "Amount Paid", accessorKey: "amount_paid" },
+    { header: "Amount Paid", accessorKey: "amount_paid", cell:({getValue}: any) => { return "₱ "+ getValue()} },
     { 
       header: "Status",
       accessorKey: "status" ,
