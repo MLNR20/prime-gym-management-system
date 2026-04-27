@@ -16,7 +16,7 @@ const subscriptionHistorySchema = new Schema<ISubscriptionHistoryDocument>(
     customer_id: { type: String, trim: true },
     amount: {type: Number, trim:true},
     subscription_type: {type: String, trim: true},
-    dateRenewed: {type:Date, default:Date.now},
+    dateRenewed: {type:Date},
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
   },
