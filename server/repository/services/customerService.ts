@@ -33,4 +33,9 @@ export class CustomerService {
   async subscriptionsByMonth(): Promise<ICustomer[]>{
     return this.customerRepository.subscriptionsByMonth();
   }
+
+  async createSubscriptionHistory(customer_id: string) : Promise<void> {
+    
+
+  }
 }
