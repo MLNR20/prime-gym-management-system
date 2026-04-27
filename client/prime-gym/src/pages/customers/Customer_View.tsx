@@ -19,12 +19,13 @@ export default function Customer_View(): React.ReactElement {
       cell: ({ row, table }: any) => {
         const page = table.options.meta?.page ?? 1;
         const limit = table.options.meta?.limit ?? 10;
-
         return (page - 1) * limit + row.index + 1;
       },
     },
-    { header: "First Name", accessorKey: "first_name" },
-    { header: "Last Name", accessorKey: "last_name" },
+    {
+      header: "Full Name",
+      accessorFn: (row: any) => `${row.first_name} ${row.last_name}`,
+    },
     { header: "Amount Paid", accessorKey: "amount_paid" },
     { header: "Status", accessorKey: "status" },
     { header: "Subscription Type", accessorKey: "subscription_type" },
