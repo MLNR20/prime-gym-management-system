@@ -2,16 +2,16 @@ import React from "react"
 
 interface Pills
 {
-    taskStatus: string
+    status: string
 }
-export default function Pills({taskStatus}: Pills): React.ReactElement {
+export default function Pills({status}: Pills): React.ReactElement {
 
 
     return(
          <>
-            {taskStatus === "Success" && <div className="badge badge-soft badge-success">Success</div>}
-            {taskStatus === "Error" && <div className="badge badge-soft badge-error">Error</div>}
-            {taskStatus === "Pending" && <div className="badge badge-soft badge-warning">Warning</div>}
+            {(status === "Success" || status==="Paid") && <div className="badge badge-soft bg-green-200 border-none text-green-700 badge-success">{status}</div>}
+            {(status === "Error" || status==="Expired") && <div className="badge bg-red-200 border-none text-red-700 badge-soft badge-error">{status}</div>}
+            {status === "Pending" && <div className="badge badge-soft badge-warning">Warning</div>}
         </>
     )
 

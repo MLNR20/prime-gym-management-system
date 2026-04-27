@@ -3,7 +3,7 @@ import React from "react";
 import Sidebar from "../../components/Sidebar";
 import CRUDTemplate from "../../templates/CRUDTemplate";
 import useFetchData from "../../data/fetchData";
-
+import Pills from "../../components/Pills";
 
 export default function Customer_View(): React.ReactElement {
   const retrieveData = useFetchData({
@@ -27,7 +27,11 @@ export default function Customer_View(): React.ReactElement {
       accessorFn: (row: any) => `${row.first_name} ${row.last_name}`,
     },
     { header: "Amount Paid", accessorKey: "amount_paid" },
-    { header: "Status", accessorKey: "status" },
+    { 
+      header: "Status",
+      accessorKey: "status" ,
+      cell: ({ getValue }: any) => <Pills status={getValue()} />
+    },
     { header: "Subscription Type", accessorKey: "subscription_type" },
     { header: "Date Created", accessorKey: "createdAt" },
     { header: "Date Updated", accessorKey: "updatedAt" },
