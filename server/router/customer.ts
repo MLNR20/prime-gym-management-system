@@ -1,12 +1,14 @@
 import express from "express";
 import CustomerRepository from "../repository/customerRepository";
+import SubscriptionHistoryRepository from "../repository/subscriptionhistoryRepository"
 import LogsRepository from "../repository/logsRepository";
 import { CustomerService } from "../repository/services/customerService";
 import { authMiddleware } from "../middleware/middleware";
 import { RequestWithUser } from "../middleware/types/express";
+import customerRepository from "../repository/customerRepository";
 
 const customerRouter = express.Router();
-const customerService = new CustomerService(CustomerRepository);
+const customerService = new CustomerService(CustomerRepository, SubscriptionHistoryRepository);
 
 // CREATE
 customerRouter.post(
@@ -231,6 +233,32 @@ customerRouter.patch(
   },
 );
 
+
+//TESTING SUBSCRIPTION HISTORY
+customerRouter.put(
+  "/update/:id",
+  authMiddleware,
+  async (request: RequestWithUser, response) => {
+    try {
+
+
+      const id = request.params.id;
+      if (!id) {
+        response.status(400).json({ success: false, message: "Customer ID is required" });
+        return;
+      }
+
+      const customerDetails = await customerRepository.findById(id.toString());
+
+      await customerService.createSubscriptionHistory(id.toString(), request.body.subscription_type, request.body.amount_paid)
+
+      response.status(200).json({request: customerDetails, id: request.params.id!});
+    } catch (error) {
+      console.error(error);
+      response.status(500).json({ message: "Error updating customer" });
+    }
+  },
+);
 // UPDATE
 customerRouter.put(
   "/:id",

@@ -1,7 +1,7 @@
 import { Schema, model, Document } from "mongoose";
 
 export interface ISubscriptionHistory {
-  customer_id: Number;
+  customer_id: String;
   amount: Number;
   subscription_type: String;
   dateRenewed:Date;

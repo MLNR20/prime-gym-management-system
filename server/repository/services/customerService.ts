@@ -2,12 +2,15 @@
 import { CustomerRepository } from "../customerRepository";
 import { ICustomer } from "../../models/customer";
 import LogsRepository from "../../repository/logsRepository";
+import {SubscriptionHistoryRepository} from "../../repository/subscriptionhistoryRepository"
 
 export class CustomerService {
   private customerRepository: CustomerRepository;
+  private subscriptionRepository: SubscriptionHistoryRepository;
 
-  constructor(customerRepository: CustomerRepository) {
+  constructor(customerRepository: CustomerRepository, subscriptionRepository: SubscriptionHistoryRepository) {
     this.customerRepository = customerRepository;
+    this.subscriptionRepository = subscriptionRepository;
   }
 
   async getExpiredCustomers(): Promise<ICustomer[]> {
@@ -34,8 +37,16 @@ export class CustomerService {
     return this.customerRepository.subscriptionsByMonth();
   }
 
-  async createSubscriptionHistory(customer_id: string) : Promise<void> {
+  async createSubscriptionHistory(customer_id: string, subscription_type: string, amount: number) : Promise<void> {
+
+    const check_customer_id = await this.customerRepository.findById(customer_id);
+
     
 
+    if(!check_customer_id) throw new Error(`Customer with id ${customer_id} not found`); 
+
+    if(check_customer_id.status === "Paid") throw new Error(`Customer status is currently paid`);
+
+    await this.subscriptionRepository.create({subscription_type:subscription_type, customer_id: customer_id, amount: amount})
   }
 }

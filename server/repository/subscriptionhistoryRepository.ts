@@ -1,13 +1,8 @@
-import Logs, { ILogsDocument } from "../models/logs";
+import SubscriptionHistory, { ISubscriptionHistoryDocument } from "../models/subscription_history";
 import GenericRepository from "./genericRepository";
 
-class SubscriptionHistoryRepository extends GenericRepository<ILogsDocument> {
-  async logAction(adminId: string, message: string): Promise<ILogsDocument> {
-    return this.model.create({
-      admin_id: adminId,
-      logs: message,
-    });
-  }
+export class SubscriptionHistoryRepository extends GenericRepository<ISubscriptionHistoryDocument> {
+    
 }
 
-export default new SubscriptionHistoryRepository(Logs);
+export default new SubscriptionHistoryRepository(SubscriptionHistory);
