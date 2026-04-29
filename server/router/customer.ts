@@ -190,7 +190,7 @@ customerRouter.patch("/update-subscription/:id", authMiddleware, async (request:
     const id = request.params.id;
     if (!id) return response.status(400).json({ success: false, message: "Customer ID is required" });
 
-    await customerService.updateSubscription(id.toString(), request.body.subscription_type, request.body.amount_paid);
+    await customerService.updateSubscription(id.toString(), request.body.payment_option, request.body.subscription_type, request.body.amount_paid);
     await customerService.createSubscriptionHistory(id.toString(), request.body.subscription_type, request.body.amount_paid);
 
     const admin = request.admin;

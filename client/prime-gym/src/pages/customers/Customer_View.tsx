@@ -26,6 +26,10 @@ export default function Customer_View(): React.ReactElement {
       header: "Full Name",
       accessorFn: (row: any) => `${row.first_name} ${row.last_name}`,
     },
+    {
+      header: "Payment Option", accessorKey: "payment_option"
+    }
+    ,
     { header: "Amount Paid", accessorKey: "amount_paid", cell:({getValue}: any) => { return "₱ "+ getValue()} },
     { 
       header: "Status",
@@ -33,6 +37,8 @@ export default function Customer_View(): React.ReactElement {
       cell: ({ getValue }: any) => <Pills status={getValue()} />
     },
     { header: "Subscription Type", accessorKey: "subscription_type" },
+        { header: "Payment Date", accessorKey: "payment_Date" },
+    { header: "Expiration Date", accessorKey: "expiration_Date" },
     { header: "Date Created", accessorKey: "createdAt" },
     { header: "Date Updated", accessorKey: "updatedAt" },
   ];
