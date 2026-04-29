@@ -44,6 +44,15 @@ class GenericRepository<T> {
     return updatedDocs;
   }
 
+
+  async updateSpecificDetails(id: string, data: Partial<T>): Promise<T | null> {
+    return await this.model.findByIdAndUpdate(
+      id,
+      { $set: data },
+      { new: true }
+    );
+  }
+
   async findAll(): Promise<HydratedDocument<T>[]> {
     return this.model.find();
   }

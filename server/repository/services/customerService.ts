@@ -37,16 +37,19 @@ export class CustomerService {
     return this.customerRepository.subscriptionsByMonth();
   }
 
-  async createSubscriptionHistory(customer_id: string, subscription_type: string, amount: number) : Promise<void> {
-
+  async updateSubscription(customer_id: string, subscription_type_details: string, amount: number) : Promise<void> {
     const check_customer_id = await this.customerRepository.findById(customer_id);
-
-    
-
+    const thirtyDaysFromNow = new Date();
+    const now  = new Date();
+    thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
     if(!check_customer_id) throw new Error(`Customer with id ${customer_id} not found`); 
-
     if(check_customer_id.status === "Paid") throw new Error(`Customer status is currently paid`);
+    await this.customerRepository.updateSpecificDetails(customer_id, {status: "Paid", amount_paid: amount, subscription_type:subscription_type_details, payment_Date: now , expiration_Date: thirtyDaysFromNow});
+  }
 
+  async createSubscriptionHistory(customer_id: string, subscription_type: string, amount: number) : Promise<void> {
+    const check_customer_id = await this.customerRepository.findById(customer_id);
+    if(!check_customer_id) throw new Error(`Customer with id ${customer_id} not found`); 
     await this.subscriptionRepository.create({subscription_type:subscription_type, customer_id: customer_id, amount: amount})
   }
 }
