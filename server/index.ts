@@ -11,9 +11,11 @@ import exerciseRouter from "./router/exercise";
 import lockerRouter from "./router/locker";
 import equipmentRouter from "./router/equipment";
 import logsRouter from "./router/logs";
+import { subscriptionCron } from "./crons/subscriptionCron";
 
 const app: Application = express();
 const PORT = process.env.PORT ?? 3002;
+
 
 app.use(cors());
 app.use(express.json());
@@ -24,6 +26,8 @@ app.use("/contacts", contactRouter);
 app.use("/lockers", lockerRouter);
 app.use("/equipment", equipmentRouter);
 app.use("/logs", logsRouter);
+
+
 
 mongoose.connect(databaseConnectionString).then(()=>{
     console.log('App connected to database');
