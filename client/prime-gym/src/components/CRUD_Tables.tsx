@@ -127,6 +127,19 @@ export default function CRUDTables({
                   </td>
                 ))}
                 <td className="border-b flex gap-2 border-gray-300">
+
+               {url === "/customers/" && (
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => {
+                        const id = (row.original as any)._id;
+                        setSelectedRow(id);
+                        redirectURL(`${id}`);
+                      }}
+                    >
+                      Approve
+                    </button>
+                  )}
                   <button
                     className="btn btn-primary"
                     onClick={() => {
@@ -159,7 +172,7 @@ export default function CRUDTables({
             <div className="flex gap-2 justify-center items-center">
               {/* Prev */}
               <button
-                className={page===1?  "text-gray-400 font-normal btn bg-transparent border-none" : "hover:bg-black hover:text-white bg-gray-200 btn bg-transparent  border-none text-black" }
+                className={page===1?  "text-gray-400 font-normal btn bg-transparent border-none" : "hover:bg-black hover:text-white bg-gray-200 btn   border-none text-black" }
                 disabled={page === 1}
                 onClick={() => setPage((p) => p - 1)}
               >
