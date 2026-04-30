@@ -4,6 +4,7 @@ import Header from "../../components/Header";
 import { useForm } from "react-hook-form";
 import createData from "../../data/createData";
 import { useNavigate } from "react-router-dom";
+
 type FormData = {
   first_name: string;
   last_name: string;

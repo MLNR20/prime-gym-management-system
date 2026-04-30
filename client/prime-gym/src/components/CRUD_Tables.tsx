@@ -93,7 +93,7 @@ export default function CRUDTables({
           <h4>entries</h4>
         </div>
       </div>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto w-full">
         <table className="table table-zebra">
           {/* THEAD */}
           <thead className="bg-gray-200 p-2">
@@ -122,13 +122,13 @@ export default function CRUDTables({
                 className="bg-white border-2 border-indigo-200 border-b-gray-300"
               >
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="border-b border-gray-300">
+                  <td key={cell.id} className="border-b text-nowrap border-gray-300">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}
                 <td className="border-b flex gap-2 border-gray-300">
 
-               {url === "/customers/" && (
+               {url === "customers" && (
                     <button
                       className="btn btn-primary"
                       onClick={() => {
@@ -141,7 +141,7 @@ export default function CRUDTables({
                     </button>
                   )}
                   <button
-                    className="btn btn-primary"
+                    className="btn btn-info text-white bg-blue-500"
                     onClick={() => {
                       const id = (row.original as any)._id;
                       setSelectedRow(id);

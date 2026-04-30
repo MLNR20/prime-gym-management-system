@@ -4,6 +4,7 @@ import Sidebar from "../../components/Sidebar";
 import CRUDTemplate from "../../templates/CRUDTemplate";
 import useFetchData from "../../data/fetchData";
 import Pills from "../../components/Pills";
+import formatIsoDate from "../../utils/dateFormat";
 
 export default function Customer_View(): React.ReactElement {
   const retrieveData = useFetchData({
@@ -37,10 +38,10 @@ export default function Customer_View(): React.ReactElement {
       cell: ({ getValue }: any) => <Pills status={getValue()} />
     },
     { header: "Subscription Type", accessorKey: "subscription_type" },
-        { header: "Payment Date", accessorKey: "payment_Date" },
-    { header: "Expiration Date", accessorKey: "expiration_Date" },
-    { header: "Date Created", accessorKey: "createdAt" },
-    { header: "Date Updated", accessorKey: "updatedAt" },
+    { header: "Payment Date", accessorKey: "payment_Date", cell: ({ getValue }: any) => {return formatIsoDate(getValue())}},
+    { header: "Expiration Date", accessorKey: "expiration_Date",  cell: ({ getValue }: any) => {return formatIsoDate(getValue())} },
+    { header: "Date Created", accessorKey: "createdAt",  cell: ({ getValue }: any) => {return formatIsoDate(getValue())} },
+    { header: "Date Updated", accessorKey: "updatedAt",  cell: ({ getValue }: any) => {return formatIsoDate(getValue())} },
   ];
 
   if (!retrieveData) {
