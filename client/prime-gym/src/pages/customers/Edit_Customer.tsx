@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 import fetchRecord from "../../data/fetchRecord";
 import { useNavigate, useParams } from "react-router-dom";
 import updateData from "../../data/updateData";
+import patchUpdateData from "../../data/patchUpdateData";
+
 type FormData = {
   first_name: string;
   last_name: string;
@@ -22,6 +24,7 @@ type Params = {
 export default function Edit_Customer(): React.ReactElement {
   const { id } = useParams<Params>();
   const redirect = useNavigate();
+  const [isUpdatingTransactionDetail, setIsUpdatingTransactionDetail] =useState(false);
   const [loading, setLoading] = useState(true);
 
   const {
@@ -34,14 +37,33 @@ export default function Edit_Customer(): React.ReactElement {
   const onSubmit = async (data: FormData) => {
     console.log("Form Data:", data);
     try {
-        alert("Submitted");
-        await updateData({url: "customers", id:id!.toString() ,updateData: data})
+      alert("Submitted");
 
-        redirect("/contacts")
+      if (isUpdatingTransactionDetail) {
+
+        alert(isUpdatingTransactionDetail);
+        await patchUpdateData({
+          url: `customers/update-subscription`,
+          id: id!.toString(),
+          updateData: data,
+        });
+
+        redirect("/customers");
+      } else {
+        await updateData({
+          url: "customers",
+          id: id!.toString(),
+          updateData: data,
+        });
+
+        redirect("/customers");
+      }
     } catch (error) {
       console.log(error);
     }
   };
+
+
 
   useEffect(() => {
     if (!id) return;
@@ -289,8 +311,23 @@ export default function Edit_Customer(): React.ReactElement {
                 </p>
               )}
             </div>
+            <div>
+              <label className="label">
+                <input
+                  type="checkbox"
+                  checked={isUpdatingTransactionDetail}
+                  onChange={(e) =>
+                    setIsUpdatingTransactionDetail(e.target.checked)
+                  }
+                  className="checkbox checkbox-primary"
+                />
+                Remember me
+              </label>
+            </div>
 
-            <button className="btn btn-success mt-4">Submit</button>
+            <button className="btn btn-success mt-4" >
+              Submit
+            </button>
           </form>
         </div>
       </div>
