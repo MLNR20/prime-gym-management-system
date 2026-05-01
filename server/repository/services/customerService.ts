@@ -44,7 +44,7 @@ export class CustomerService {
     thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
     if(!check_customer_id) throw new Error(`Customer with id ${customer_id} not found`); 
     if(check_customer_id.status === "Paid") throw new Error(`Customer status is currently paid`);
-    if(subscription_type_details==="Monthly Subscription") await this.customerRepository.updateSpecificDetails(customer_id, {status: "Paid", amount_paid: amount, payment_option:payment_option, subscription_type:subscription_type_details, payment_Date: now , expiration_Date: thirtyDaysFromNow});
+    if(subscription_type_details==="Monthly Subscription" || subscription_type_details==="Monthly with Coaching") await this.customerRepository.updateSpecificDetails(customer_id, {status: "Paid", amount_paid: amount, payment_option:payment_option, subscription_type:subscription_type_details, payment_Date: now , expiration_Date: thirtyDaysFromNow});
     if(subscription_type_details==="Daily Exercise") await this.customerRepository.updateSpecificDetails(customer_id, {status: "Paid", amount_paid: amount, payment_option:payment_option, subscription_type:subscription_type_details, payment_Date: now , expiration_Date: now});
   }
 

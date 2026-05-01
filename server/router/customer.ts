@@ -209,8 +209,19 @@ customerRouter.patch("/update-subscription/:id", authMiddleware, async (request:
 // UPDATE
 customerRouter.put("/:id", authMiddleware, async (request: RequestWithUser, response) => {
   try {
+
+    const thirtyDaysFromNow = new Date();
+    const now  = new Date();
+    thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+
+
+    if(request.body.subscription_type === "Daily Exercise") request.body.expiration_Date = now;
+    if(request.body.subscription_type==="Monthly Subscription" || request.body.subscription_type==="Monthly with Coaching") request.body.expiration_Date = thirtyDaysFromNow;
+
     const updatedCustomer = await CustomerRepository.update(request.params.id!, request.body);
     if (!updatedCustomer) return response.status(404).json({ message: "Customer not found" });
+
+
 
     const admin = request.admin;
     await LogsRepository.logAction(
