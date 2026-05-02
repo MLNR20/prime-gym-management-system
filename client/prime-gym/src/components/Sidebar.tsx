@@ -22,7 +22,6 @@ export default function Sidebar(): React.ReactElement {
   return (
     <div className="drawer lg:drawer-open w-full">
       <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
-
       <div className="drawer-content flex flex-col">
         {/* Navbar / toggle button for mobile */}
         <label htmlFor="my-drawer-3" className="btn drawer-button lg:hidden">

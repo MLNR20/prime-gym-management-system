@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
+
 interface Token {
   url: string;
 }
@@ -8,6 +9,9 @@ interface Token {
 export default function useFetchData({ url }: Token) {
   const [data, setData] = useState<any[]>([]);
   const retrieveToken = localStorage.getItem("token");
+ 
+
+
 
   useEffect(() => {
     const retrieveData = async () => {

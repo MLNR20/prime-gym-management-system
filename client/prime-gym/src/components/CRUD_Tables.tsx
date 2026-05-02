@@ -14,12 +14,14 @@ interface TableProps {
   data: any[];
   columns: any[];
   url: string;
+ additionalFunctionality?: (row?: any) => void;
 }
 
 export default function CRUDTables({
   data,
   columns,
   url,
+  additionalFunctionality
 }: TableProps): React.ReactElement {
   const [selectedRow, setSelectedRow] = useState<any>(null);
   const [limit, setLimit] = useState(10);
@@ -35,7 +37,7 @@ export default function CRUDTables({
   const totalPage = (changeDataLimits as any).meta?.totalPages;
 
   const pages = getWindowedPages(page, totalPage ?? 1);
-  console.log(totalPage);
+
   const table = useReactTable({
     data: tableData,
     columns,
@@ -131,11 +133,7 @@ export default function CRUDTables({
                {url === "customers" && (
                     <button
                       className="btn btn-primary"
-                      onClick={() => {
-                        const id = (row.original as any)._id;
-                        setSelectedRow(id);
-                        redirectURL(`${id}`);
-                      }}
+                      onClick={() => additionalFunctionality?.(row.original)}
                     >
                       Approve
                     </button>
@@ -172,7 +170,7 @@ export default function CRUDTables({
             <div className="flex gap-2 justify-center items-center">
               {/* Prev */}
               <button
-                className={page===1?  "text-gray-400 font-normal btn bg-transparent border-none" : "hover:bg-black hover:text-white bg-gray-200 btn   border-none text-black" }
+                className={page===1?  "text-gray-400 font-normal btn bg-transparent border-none" : "hover:bg-black hover:text-white bg-transparent btn   border-none text-black" }
                 disabled={page === 1}
                 onClick={() => setPage((p) => p - 1)}
               >
