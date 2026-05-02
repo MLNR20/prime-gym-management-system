@@ -20,11 +20,11 @@ import fitwatch from "../assets/fitwatch.png";
 
 export default function Sidebar(): React.ReactElement {
   return (
-    <div className="drawer lg:drawer-open w-full">
+    <div className="drawer md:drawer-open lg:drawer-open w-full">
       <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content flex flex-col">
         {/* Navbar / toggle button for mobile */}
-        <label htmlFor="my-drawer-3" className="btn drawer-button lg:hidden">
+        <label htmlFor="my-drawer-3" className="btn drawer-button md:hidden lg:hidden">
           Open drawer
         </label>
 

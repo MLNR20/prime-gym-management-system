@@ -80,19 +80,19 @@ if (!data || !fetchhistory) {
 
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen p-6 md:p-0 lg:p-0 lg:flex-row md:flex-row flex-col overflow-hidden">
       {/* Sidebar */}
-      <div className="w-64">
+      <div className="w-full md:w-48 lg:w-64">
         <Sidebar />
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 space-y-6 p-24 overflow-auto">
+      <div className="flex-1 space-y-6 p-6 md:p-24 lg:p-24 overflow-auto">
         <Header
           header="Dashboard"
           subheader="Welcome back! Let's take a look how your gym is performing..."
         />
-        <div className="flex gap-4 w-full flex-row">
+        <div className="flex gap-4 flex-col lg:w-full lg:flex-row">
           <Cards
             Card_Figure={data?.monthlyTotalSum?.toString() || "0"}
             Card_Header="Monthly Subscription Income"

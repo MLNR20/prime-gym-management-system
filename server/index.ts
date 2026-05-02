@@ -12,6 +12,7 @@ import lockerRouter from "./router/locker";
 import equipmentRouter from "./router/equipment";
 import logsRouter from "./router/logs";
 import { subscriptionCron } from "./crons/subscriptionCron";
+import SubscriptionHistoryRepositoryRouter from "./router/subscriptionhistory";
 
 const app: Application = express();
 const PORT = process.env.PORT ?? 3002;
@@ -26,7 +27,7 @@ app.use("/contacts", contactRouter);
 app.use("/lockers", lockerRouter);
 app.use("/equipment", equipmentRouter);
 app.use("/logs", logsRouter);
-
+app.use("/subscription-history", SubscriptionHistoryRepositoryRouter)
 
 
 mongoose.connect(databaseConnectionString).then(()=>{
