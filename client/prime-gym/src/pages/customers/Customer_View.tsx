@@ -44,6 +44,8 @@ const [selectedRow, setSelectedRow] = useState<FormData | null>(null);
   };
 
   useEffect(() => {
+
+    setCustomerData(retrieveData)
   if (selectedRow) {
     reset({
       _id: selectedRow._id,

@@ -173,7 +173,7 @@ export default function Sidebar(): React.ReactElement {
                 <div className="collapse-content  p-0 min-h-0 text-sm">
                   <div className="grid grid-cols-1 mt-2 w-full gap-1.5">
                     <li className="mt-1">
-                      <Link to="/profile">
+                      <Link to="/subscription-history">
                         <div className="flex flex-row gap-2 p-1 w-full items-start">
                           <ScrollText color="gray" />
                           Subscription History

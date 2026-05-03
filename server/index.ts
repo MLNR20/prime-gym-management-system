@@ -27,7 +27,7 @@ app.use("/contacts", contactRouter);
 app.use("/lockers", lockerRouter);
 app.use("/equipment", equipmentRouter);
 app.use("/logs", logsRouter);
-app.use("/subscription-history", SubscriptionHistoryRepositoryRouter)
+app.use("/subscription", SubscriptionHistoryRepositoryRouter)
 
 
 mongoose.connect(databaseConnectionString).then(()=>{

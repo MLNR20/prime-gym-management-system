@@ -7,28 +7,69 @@ import SubscriptionHistoryRepository from "../repository/subscriptionhistoryRepo
 const SubscriptionHistoryRepositoryRouter = express.Router();
 
 // RETRIEVE SUBSCRIPTION HISTORY LIST
-SubscriptionHistoryRepositoryRouter.get("/", authMiddleware, async (req: RequestWithUser, res: Response) => {
-  try {
-    const logsList = await SubscriptionHistoryRepository.findAll();
-    res.status(200).json(logsList);
-  } catch (error) {
-    console.log(error);
-  }
-});
+SubscriptionHistoryRepositoryRouter.get(
+  "/",
+  authMiddleware,
+  async (req: RequestWithUser, res: Response) => {
+    try {
+      const logsList = await SubscriptionHistoryRepository.findAll();
+      res.status(200).json(logsList);
+    } catch (error) {
+      console.log(error);
+    }
+  },
+);
 
 // PAGINATION SUBSCRIPTION HISTORY LIST
-SubscriptionHistoryRepositoryRouter.get("/show/", authMiddleware, async (request: RequestWithUser, response: Response) => {
+SubscriptionHistoryRepositoryRouter.get(
+  "/show/",
+  authMiddleware,
+  async (request: RequestWithUser, response: Response) => {
     try {
       const limit = parseInt(request.query.limit as string) || 10;
       const page = parseInt(request.query.page as string) || 1;
-      const result = await SubscriptionHistoryRepository.paginate({
+      const pipeline = [
+        {
+          $addFields: {
+            customer_id: { $toObjectId: "$customer_id" }, 
+          },
+        },
+        {
+          $lookup: {
+            from: "Customer", 
+            localField: "customer_id",
+            foreignField: "_id",
+            as: "customer",
+          },
+        },
+        {
+          $unwind: {
+            path: "$customer",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            amount: 1,
+            first_name: "$customer.first_name",
+            last_name: "$customer.last_name",
+            subscription_type: 1,
+            dateRenewed: 1,
+            createdAt: 1,
+            updatedAt: 1
+          },
+        },
+      ];
+      const result = await SubscriptionHistoryRepository.paginateWithLookup({
         page,
         limit,
+        pipeline,
       });
       const admin = request.admin;
       await LogsRepository.logAction(
         admin!._id.toString(),
-        `${admin!.first_name} ${admin?.last_name} accessed logs list at ${new Date().toISOString()}`,
+        `${admin!.first_name} ${admin?.last_name} accessed subscription history list at ${new Date().toISOString()}`,
       );
       response.status(200).json(result);
     } catch (error) {
@@ -37,7 +78,5 @@ SubscriptionHistoryRepositoryRouter.get("/show/", authMiddleware, async (request
     }
   },
 );
-
-
 
 export default SubscriptionHistoryRepositoryRouter;

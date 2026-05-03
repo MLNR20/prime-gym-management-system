@@ -44,12 +44,50 @@ class GenericRepository<T> {
     return updatedDocs;
   }
 
+  async paginateWithLookup({
+    page = 1,
+    limit = 10,
+    pipeline = [],
+  }: {
+    page?: number;
+    limit?: number;
+    pipeline?: any[];
+  }) {
+    const skip = (page - 1) * limit;
+
+    const dataPipeline = [
+      ...pipeline, // your joins go here
+      { $skip: skip },
+      { $limit: limit },
+    ];
+
+    const countPipeline = [...pipeline, { $count: "total" }];
+
+    const [data, countResult] = await Promise.all([
+      this.model.aggregate(dataPipeline),
+      this.model.aggregate(countPipeline),
+    ]);
+
+    const total = countResult[0]?.total || 0;
+
+    return {
+      data,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: page * limit < total,
+        hasPrevPage: page > 1,
+      },
+    };
+  }
 
   async updateSpecificDetails(id: string, data: Partial<T>): Promise<T | null> {
     return await this.model.findByIdAndUpdate(
       id,
       { $set: data },
-      { new: true }
+      { new: true },
     );
   }
 

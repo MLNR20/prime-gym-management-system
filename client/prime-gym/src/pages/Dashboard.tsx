@@ -16,7 +16,6 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { Doughnut } from "react-chartjs-2";
 
 export default function Dashboard(): React.ReactElement {
   const [data, setData] = useState<any>(null);

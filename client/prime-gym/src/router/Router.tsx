@@ -14,6 +14,7 @@ import Edit_Lockers from '../pages/lockers/Edit_Locker'
 import Equipment_View from "../pages/equipment/Equipment_View"
 import Add_Equipment from "../pages/equipment/Add_Equipment";
 import Edit_Equipment from "../pages/equipment/Edit_Equipment";
+import Subscription_History_View from '../pages/subscription/Subscription_View'
 // ...other imports
 
 export default function Router() {
@@ -30,7 +31,7 @@ export default function Router() {
         <Route path="/equipment/" element={<Equipment_View/>}/>
                 <Route path="/add_equipment/" element={<Add_Equipment/>}/>
         <Route path="/equipment/:id" element={<Edit_Equipment/>}/>
-
+        <Route path="/subscription-history" element={<Subscription_History_View/>}/>
         <Route path="/lockers" element={<Locker_View/>}/>
         <Route path="/customers" element={<Customer_View/>}/>
         <Route path='/add_customers' element={<Add_Customers/>}/>
