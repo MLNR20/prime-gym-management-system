@@ -102,7 +102,7 @@ export default function CRUDTables({
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <th key={header.id} className="text-black bg-gray-300">
+                  <th key={header.id} className="text-black text-[0.950rem] p-5 bg-gray-300">
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -111,7 +111,7 @@ export default function CRUDTables({
                         )}
                   </th>
                 ))}
-                <th className="text-black bg-gray-300">Actions</th>
+                <th className="text-black text-[0.950rem] p-5 bg-gray-300">Actions</th>
               </tr>
             ))}
           </thead>
@@ -121,14 +121,14 @@ export default function CRUDTables({
             {table.getRowModel().rows.map((row) => (
               <tr
                 key={row.id}
-                className="bg-white border-2 border-indigo-200 border-b-gray-300"
+                className="bg-white border-2 text-[0.950rem] p-5 border-indigo-200 border-b-gray-300"
               >
                 {row.getVisibleCells().map((cell) => (
                   <td key={cell.id} className="border-b text-nowrap border-gray-300">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}
-                <td className="border-b flex gap-2 border-gray-300">
+                <td className="border-b  flex gap-2 border-gray-300">
 
                {url === "customers" && (
                     <button

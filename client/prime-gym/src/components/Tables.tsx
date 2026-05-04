@@ -78,7 +78,7 @@ export default function Tables({
           {table.getHeaderGroups().map((headerGroup) => (
             <tr className="bg-slate-300" key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <th key={header.id} className="text-black bg-gray-100">
+                <th key={header.id} className="text-black text-[0.950rem] p-5 bg-gray-100">
                   {header.isPlaceholder
                     ? null
                     : flexRender(
@@ -96,10 +96,10 @@ export default function Tables({
           {table.getRowModel().rows.map((row) => (
             <tr
               key={row.id}
-              className="bg-white border-2 border-indigo-200 border-b-gray-300"
+              className="bg-white  border-2 border-indigo-200 border-b-gray-300"
             >
               {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} className="border-b border-gray-300">
+                <td key={cell.id} className="border-b p-5 text-[0.950rem] border-gray-300">
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               ))}
