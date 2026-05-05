@@ -181,7 +181,7 @@ export default function Sidebar(): React.ReactElement {
                       </Link>
                     </li>
                     <li className="mt-1">
-                      <Link to="/profile">
+                      <Link to="/admin">
                         <div className="flex flex-row gap-2 p-1 w-full items-start">
                           <BookUser color="gray" />
                           Admin

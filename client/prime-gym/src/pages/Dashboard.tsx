@@ -122,7 +122,7 @@ if (!data || !fetchhistory) {
         </div>
         <div>
           <TableTemplate
-            header="Table Column"
+            header="Logs"
             Url="logs"
             Columns={columns}
             Data={fetchLogRecords}
