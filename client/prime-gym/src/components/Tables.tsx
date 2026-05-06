@@ -118,7 +118,7 @@ export default function Tables({
               className={
                 page === 1
                   ? "text-gray-400 font-normal btn bg-transparent border-none"
-                  : "hover:bg-black hover:text-white bg-gray-200 btn bg-transparent  border-none text-black"
+                  : "hover:bg-black hover:text-white btn bg-transparent  border-none text-black"
               }
               disabled={page === 1}
               onClick={() => setPage((p) => p - 1)}
