@@ -1,5 +1,5 @@
 // @ts-ignore
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import CRUDTemplate from "../../templates/CRUDTemplate";
 import useFetchData from "../../data/fetchData";
@@ -19,22 +19,22 @@ export default function Customer_View(): React.ReactElement {
   const retrieveData = useFetchData({
     url: "customers/show/",
   });
- const navigate = useNavigate();
-const [customerData, setCustomerData] = useState<any[]>([]);
-const [selectedRow, setSelectedRow] = useState<FormData | null>(null);
- const {
-  register,
-  handleSubmit,
-  reset,
-  formState: { errors },
-} = useForm<FormData>({
-  defaultValues: {
-    _id: "",
-    amount_paid: 0,
-    subscription_type: "",
-    payment_option: "",
-  },
-});
+  const navigate = useNavigate();
+  const [customerData, setCustomerData] = useState<any[]>([]);
+  const [selectedRow, setSelectedRow] = useState<FormData | null>(null);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<FormData>({
+    defaultValues: {
+      _id: "",
+      amount_paid: 0,
+      subscription_type: "",
+      payment_option: "",
+    },
+  });
 
   const approveForm = async (row: any) => {
     console.log("Selected Row:", row);
@@ -44,33 +44,30 @@ const [selectedRow, setSelectedRow] = useState<FormData | null>(null);
   };
 
   useEffect(() => {
-
-    setCustomerData(retrieveData)
-  if (selectedRow) {
-    reset({
-      _id: selectedRow._id,
-      amount_paid: Number(selectedRow.amount_paid) || 0,
-      subscription_type: selectedRow.subscription_type || "",
-      payment_option: selectedRow.payment_option || "",
-    });
-  }
-}, [selectedRow, reset]);
-
+    setCustomerData(retrieveData);
+    if (selectedRow) {
+      reset({
+        _id: selectedRow._id,
+        amount_paid: Number(selectedRow.amount_paid) || 0,
+        subscription_type: selectedRow.subscription_type || "",
+        payment_option: selectedRow.payment_option || "",
+      });
+    }
+  }, [selectedRow, reset]);
 
   console.log(retrieveData);
 
-  const onSubmit =async (formData: FormData) => {
+  const onSubmit = async (formData: FormData) => {
     console.log("Sbmit", formData);
 
-       await patchUpdateData({
-              url: `customers/update-subscription`,
-              id: formData._id,
-              updateData: formData,
-            });
+    await patchUpdateData({
+      url: `customers/update-subscription`,
+      id: formData._id,
+      updateData: formData,
+    });
 
-    alert("Sibmitted")
-navigate(0);
-
+    alert("Sibmitted");
+    navigate(0);
   };
 
   const columns = [
@@ -151,7 +148,7 @@ navigate(0);
           <h3 className="font-bold text-lg">Edit Details</h3>
           <p className="py-4">Edit transaction details here...</p>
           <div className="modal-action flex-col">
-            <form key={selectedRow?._id}  onSubmit={handleSubmit(onSubmit)}>
+            <form key={selectedRow?._id} onSubmit={handleSubmit(onSubmit)}>
               <div className="w-full">
                 <input type="hidden" {...register("_id")} />
                 <div className="flex w-full flex-col gap-2">
@@ -166,11 +163,11 @@ navigate(0);
                     }`}
                     {...register("amount_paid", {
                       required: "Amount Paid is required",
-                      valueAsNumber: true ,
+                      valueAsNumber: true,
                       min: {
                         value: 1,
                         message: "Amount Paid must be greater than 0 pesos",
-                      }
+                      },
                     })}
                   />
                   {errors.amount_paid && (

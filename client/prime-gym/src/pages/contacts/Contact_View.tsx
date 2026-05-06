@@ -9,7 +9,11 @@ export default function Contact_View(): React.ReactElement {
   const columns = [
     {
       header: "#",
-      cell: ({ row }: any) => row.index + 1,
+      cell: ({ row, table }: any) => {
+        const page = table.options.meta?.page ?? 1;
+        const limit = table.options.meta?.limit ?? 10;
+        return (page - 1) * limit + row.index + 1;
+      },
     },
     {
       header: "First Name",

@@ -26,17 +26,20 @@ export default function Tables({
   const changeDataLimits = useFetchData({
     url: `${url}/show/?page=${page}&limit=${limit}`,
   });
-  console.log("BASE URL:", `${url}/show/?page=${page}&limit=${limit}`);
   const tableData = (changeDataLimits as any).data ?? data ?? [];
   const totalPage = (changeDataLimits as any).meta?.totalPages;
   const pages = getWindowedPages(page, totalPage ?? 1);
-
+  console.log(url);
   console.log(changeDataLimits);
   const table = useReactTable({
     data: tableData,
     columns,
     state: {
       globalFilter,
+    },
+    meta: {
+      page,
+      limit,
     },
     onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),

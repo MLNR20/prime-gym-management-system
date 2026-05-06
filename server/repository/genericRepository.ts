@@ -7,11 +7,25 @@ interface PaginationOptions {
 
 class GenericRepository<T> {
   protected model: Model<T>;
+  protected hiddenFields: string[] = [];
 
   constructor(model: Model<T>) {
     this.model = model;
   }
 
+  protected sanitize(doc: any) {
+    if (!doc) return doc;
+
+    const obj = doc.toObject ? doc.toObject() : { ...doc };
+
+    if (!this.hiddenFields.length) return obj;
+
+    for (const field of this.hiddenFields) {
+      delete obj[field];
+    }
+
+    return obj;
+  }
   async create(data: Partial<T>): Promise<HydratedDocument<T>> {
     return this.model.create(data);
   }
@@ -98,10 +112,10 @@ class GenericRepository<T> {
   async paginate({ page = 1, limit = 10 }: PaginationOptions) {
     const skip = (page - 1) * limit;
     const data = await this.model.find().skip(skip).limit(limit);
-    const total = await this.model.countDocuments();
+    const total = await this.model.estimatedDocumentCount();
 
     return {
-      data,
+      data: data.map((doc) => this.sanitize(doc)),
       meta: {
         page,
         limit,
