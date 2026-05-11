@@ -58,7 +58,15 @@ customerRouter.get("/show/", authMiddleware, async (request: RequestWithUser, re
   try {
     const limit = parseInt(request.query.limit as string) || 10;
     const page = parseInt(request.query.page as string) || 1;
-    const result = await CustomerRepository.paginate({ page, limit });
+    const search = (request.query.search as string) || "";
+
+    const result = await customerRepository.search({
+      page,
+      limit,
+      search,
+      fields: ["first_name", "last_name", "email"],
+    });
+
     const admin = request.admin;
     await LogsRepository.logAction(
       admin!._id.toString(),

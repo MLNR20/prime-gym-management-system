@@ -1,26 +1,39 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-
-interface Token {
+interface FetchProps {
   url: string;
+  page?: number;
+  limit?: number;
+  search?: string;
 }
 
-export default function useFetchData({ url }: Token) {
-  const [data, setData] = useState<any[]>([]);
+export default function useFetchData({
+  url,
+  page,
+  limit,
+  search,
+}: FetchProps) {
+  const [data, setData] = useState<any>({ data: [], meta: {} });
+
   const retrieveToken = localStorage.getItem("token");
- 
-
-
 
   useEffect(() => {
     const retrieveData = async () => {
       try {
-        const response = await axios.get(`http://localhost:3002/${url}`, {
-          headers: {
-            Authorization: `Bearer ${retrieveToken}`,
-          },
-        });
+        const response = await axios.get(
+          `http://localhost:3002/${url}`,
+          {
+            params: {
+              page,
+              limit,
+              search,
+            },
+            headers: {
+              Authorization: `Bearer ${retrieveToken}`,
+            },
+          }
+        );
 
         setData(response.data);
       } catch (error) {
@@ -29,7 +42,6 @@ export default function useFetchData({ url }: Token) {
     };
 
     retrieveData();
-  }, [url]);
-
+  }, [url, page, limit, search]);
   return data;
 }

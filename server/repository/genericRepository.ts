@@ -109,6 +109,44 @@ class GenericRepository<T> {
     return this.model.find();
   }
 
+  async search({
+    page = 1,
+    limit = 10,
+    search = "",
+    fields = [],
+  }: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    fields?: string[];
+  }) {
+    const skip = (page - 1) * limit;
+
+    let query: any = { isDeleted: false };
+
+    if (search && fields.length > 0) {
+      query.$or = fields.map((field) => ({
+        [field]: { $regex: search, $options: "i" },
+      }));
+    }
+
+    const data = await this.model.find(query).skip(skip).limit(limit);
+
+    const total = await this.model.countDocuments(query);
+
+    return {
+      data: data.map((d) => this.sanitize(d)),
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: page * limit < total,
+        hasPrevPage: page > 1,
+      },
+    };
+  }
+
   async paginate({ page = 1, limit = 10 }: PaginationOptions) {
     const skip = (page - 1) * limit;
     const data = await this.model.find().skip(skip).limit(limit);

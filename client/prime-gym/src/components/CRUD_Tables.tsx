@@ -3,7 +3,6 @@ import {
   useReactTable,
   getCoreRowModel,
   flexRender,
-  getFilteredRowModel,
 } from "@tanstack/react-table";
 import deleteData from "../data/deleteData";
 import { useNavigate } from "react-router-dom";
@@ -16,15 +15,14 @@ interface TableProps {
   columns: any[];
   url: string;
   deleteType: string;
- additionalFunctionality?: (row?: any) => void;
+  additionalFunctionality?: (row?: any) => void;
 }
 
 export default function CRUDTables({
-  data,
   columns,
   url,
   deleteType,
-  additionalFunctionality
+  additionalFunctionality,
 }: TableProps): React.ReactElement {
   const [selectedRow, setSelectedRow] = useState<any>(null);
   const [limit, setLimit] = useState(10);
@@ -33,27 +31,25 @@ export default function CRUDTables({
   const [globalFilter, setGlobalFilter] = useState("");
 
   const changeDataLimits = useFetchData({
-    url: `${url}/show/?page=${page}&limit=${limit}`,
+    url: `${url}/show`,
+    page,
+    limit,
+    search: globalFilter,
   });
 
-  const tableData = (changeDataLimits as any).data ?? data ?? [];
-  const totalPage = (changeDataLimits as any).meta?.totalPages;
+  const tableData = changeDataLimits.data ?? [];
+  const totalPage = changeDataLimits.meta?.totalPages ?? 1;
 
   const pages = getWindowedPages(page, totalPage ?? 1);
 
   const table = useReactTable({
     data: tableData,
     columns,
-    state: {
-      globalFilter,
-    },
     meta: {
       page,
       limit,
     },
-    onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
   });
 
   const redirectURL = useNavigate();
@@ -62,8 +58,10 @@ export default function CRUDTables({
   function deleteEntry() {
     try {
       alert(selectedRow);
-      if(deleteType==="Hard Delete") deleteData({ url: url, id: selectedRow });
-      if(deleteType==="Soft Delete") softDeleteData({ url: url, id: selectedRow });
+      if (deleteType === "Hard Delete")
+        deleteData({ url: url, id: selectedRow });
+      if (deleteType === "Soft Delete")
+        softDeleteData({ url: url, id: selectedRow });
       const modal = document.getElementById("my_modal_5");
       if (modal instanceof HTMLDialogElement) modal.close();
     } catch (error) {
@@ -81,7 +79,7 @@ export default function CRUDTables({
             type="text"
             placeholder="Search details here..."
             value={globalFilter}
-            onChange={(e) => setGlobalFilter(e.target.value)}
+            onChange={(e) => {setGlobalFilter(e.target.value);setPage(1);}}
             className="input input-bordered h-12 border bg-white border-gray-400 w-100"
           ></input>
         </div>
@@ -106,7 +104,10 @@ export default function CRUDTables({
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <th key={header.id} className="text-black text-[0.950rem] p-5 bg-gray-300">
+                  <th
+                    key={header.id}
+                    className="text-black text-[0.950rem] p-5 bg-gray-300"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -115,7 +116,9 @@ export default function CRUDTables({
                         )}
                   </th>
                 ))}
-                <th className="text-black text-[0.950rem] p-5 bg-gray-300">Actions</th>
+                <th className="text-black text-[0.950rem] p-5 bg-gray-300">
+                  Actions
+                </th>
               </tr>
             ))}
           </thead>
@@ -128,21 +131,22 @@ export default function CRUDTables({
                 className="bg-white border-2 text-[0.950rem] p-5 border-indigo-200 border-b-gray-300"
               >
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="border-b text-nowrap border-gray-300">
+                  <td
+                    key={cell.id}
+                    className="border-b text-nowrap border-gray-300"
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}
                 <td className="border-b  flex gap-2 border-gray-300">
-
-               {url === "customers" && (
+                  {url === "customers" && (
                     <button
                       className="btn btn-primary"
                       onClick={() => additionalFunctionality?.(row.original)}
                     >
                       Approve
                     </button>
-                  )
-                }
+                  )}
                   <button
                     className="btn btn-info text-white bg-blue-500"
                     onClick={() => {
@@ -175,7 +179,11 @@ export default function CRUDTables({
             <div className="flex gap-2 justify-center items-center">
               {/* Prev */}
               <button
-                className={page===1?  "text-gray-400 font-normal btn bg-transparent border-none" : "hover:bg-black hover:text-white bg-transparent btn   border-none text-black" }
+                className={
+                  page === 1
+                    ? "text-gray-400 font-normal btn bg-transparent border-none"
+                    : "hover:bg-black hover:text-white bg-transparent btn   border-none text-black"
+                }
                 disabled={page === 1}
                 onClick={() => setPage((p) => p - 1)}
               >
@@ -195,7 +203,11 @@ export default function CRUDTables({
 
               {/* Next */}
               <button
-                className={page === totalPage?  "text-gray-400 font-normal btn bg-transparent border-none" : "hover:bg-black hover:text-white  btn bg-transparent border-none text-black" } 
+                className={
+                  page === totalPage
+                    ? "text-gray-400 font-normal btn bg-transparent border-none"
+                    : "hover:bg-black hover:text-white  btn bg-transparent border-none text-black"
+                }
                 disabled={page === totalPage}
                 onClick={() => setPage((p) => p + 1)}
               >
