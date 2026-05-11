@@ -52,6 +52,7 @@ export default function Contact_View(): React.ReactElement {
           header="Contact Management"
           Columns={columns}
           Data={retrieveData}
+          DeleteType="Hard Delete"
           url="contacts"
           RedirectAddUrl="/add_contacts"
           ButtonString="Add Contact"

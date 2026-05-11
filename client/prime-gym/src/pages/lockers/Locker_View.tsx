@@ -35,6 +35,7 @@ export default function Locker_View(): React.ReactElement {
           header="Locker Management"
           Columns={columns}
           Data={retrieveData}
+          DeleteType="Soft Delete"
           url="lockers"
           RedirectAddUrl="/add_locker"
           ButtonString="Add Locker"

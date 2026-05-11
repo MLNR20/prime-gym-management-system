@@ -265,6 +265,7 @@ export default function Customer_View(): React.ReactElement {
           Data={customerData}
           additionalFunctionality={approveForm}
           url="customers"
+          DeleteType="Soft Delete"
           RedirectAddUrl="/add_customers"
           ButtonString="Add Customer"
           subheader="Let's manage and handle your customers..."

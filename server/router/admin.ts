@@ -53,7 +53,7 @@ adminRouter.get(
   },
 );
 
-adminRouter.delete(
+adminRouter.patch(
   "/:id",
   authMiddleware,
   async (req: RequestWithUser, res: Response) => {

@@ -9,11 +9,13 @@ import deleteData from "../data/deleteData";
 import { useNavigate } from "react-router-dom";
 import useFetchData from "../data/fetchData";
 import getWindowedPages from "../utils/getWindowedPages";
+import softDeleteData from "../data/softDeleteData";
 
 interface TableProps {
   data: any[];
   columns: any[];
   url: string;
+  deleteType: string;
  additionalFunctionality?: (row?: any) => void;
 }
 
@@ -21,6 +23,7 @@ export default function CRUDTables({
   data,
   columns,
   url,
+  deleteType,
   additionalFunctionality
 }: TableProps): React.ReactElement {
   const [selectedRow, setSelectedRow] = useState<any>(null);
@@ -59,7 +62,8 @@ export default function CRUDTables({
   function deleteEntry() {
     try {
       alert(selectedRow);
-      deleteData({ url: url, id: selectedRow });
+      if(deleteType==="Hard Delete") deleteData({ url: url, id: selectedRow });
+      if(deleteType==="Soft Delete") softDeleteData({ url: url, id: selectedRow });
       const modal = document.getElementById("my_modal_5");
       if (modal instanceof HTMLDialogElement) modal.close();
     } catch (error) {

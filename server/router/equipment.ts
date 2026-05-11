@@ -109,7 +109,7 @@ equipmentRouter.delete("/:id", authMiddleware, async(Request:RequestWithUser, Re
     }
 })
 
-//SOFT DELETE EQUIPMENT
+//UPDATe EQUIPMENT
 equipmentRouter.put("/:id", authMiddleware, async(Request:RequestWithUser, Response)=>{
     try
     {
