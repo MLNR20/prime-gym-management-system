@@ -126,9 +126,8 @@ export default function Tables({
                 </td>
               ))}
               {url === "admin" && (
-                <td className="border-b  flex gap-2 border-gray-300">
+                <td className="border-b p-5 border-gray-300">
                 <button className="btn text-white btn-error" onClick={() => {setRow(row); additionalFunctionality?.((row as any).original?._id)}}>Delete</button>
-
                 </td>
               )}
             </tr>
