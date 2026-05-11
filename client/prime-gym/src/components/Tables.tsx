@@ -12,23 +12,30 @@ interface TableProps {
   data: any[];
   columns: any[];
   url: string;
+  additionalFunctionality?: (id: string) => void;
 }
 
 export default function Tables({
   data,
   columns,
   url,
+  additionalFunctionality,
 }: TableProps): React.ReactElement {
+
+
   const [globalFilter, setGlobalFilter] = useState("");
+  const [row, setRow] = useState<any>(null);
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
 
   const changeDataLimits = useFetchData({
     url: `${url}/show/?page=${page}&limit=${limit}`,
   });
+
   const tableData = (changeDataLimits as any).data ?? data ?? [];
   const totalPage = (changeDataLimits as any).meta?.totalPages;
   const pages = getWindowedPages(page, totalPage ?? 1);
+
   console.log(url);
   console.log(changeDataLimits);
   const table = useReactTable({
@@ -81,7 +88,10 @@ export default function Tables({
           {table.getHeaderGroups().map((headerGroup) => (
             <tr className="bg-slate-300" key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <th key={header.id} className="text-black text-[0.950rem] p-5 bg-gray-100">
+                <th
+                  key={header.id}
+                  className="text-black text-[0.950rem] p-5 bg-gray-100"
+                >
                   {header.isPlaceholder
                     ? null
                     : flexRender(
@@ -90,6 +100,12 @@ export default function Tables({
                       )}
                 </th>
               ))}
+
+              {url === "admin" && (
+                <th className="text-black text-[0.950rem] p-5 bg-gray-100" >
+                  Actions
+                </th>
+              )}
             </tr>
           ))}
         </thead>
@@ -102,10 +118,19 @@ export default function Tables({
               className="bg-white  border-2 border-indigo-200 border-b-gray-300"
             >
               {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} className="border-b p-5 text-[0.950rem] border-gray-300">
+                <td
+                  key={cell.id}
+                  className="border-b p-5 text-[0.950rem] border-gray-300"
+                >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               ))}
+              {url === "admin" && (
+                <td className="border-b  flex gap-2 border-gray-300">
+                <button className="btn text-white btn-error" onClick={() => {setRow(row); additionalFunctionality?.((row as any).original?._id)}}>Delete</button>
+
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

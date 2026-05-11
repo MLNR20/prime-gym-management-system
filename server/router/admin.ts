@@ -1,8 +1,10 @@
 import express, { Response } from "express";
-import logsRepository from "../repository/logsRepository";
+import LogsRepository from "../repository/logsRepository";
 import adminRepository from "../repository/adminRepository";
 import { authMiddleware } from "../middleware/middleware";
 import { RequestWithUser } from "../middleware/types/express";
+import { Types } from "mongoose";
+
 
 const adminRouter = express.Router();
 
@@ -38,14 +40,12 @@ adminRouter.get(
         limit,
       });
       const admin = req.admin;
-      await logsRepository.logAction(
+      await LogsRepository.logAction(
         admin!._id.toString(),
         `${admin!.first_name} ${admin?.last_name} accessed admin list at ${new Date().toISOString()}`,
       );
 
-      return res.status(200).json(
-        result,
-      );
+      return res.status(200).json(result);
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: error });
@@ -53,4 +53,27 @@ adminRouter.get(
   },
 );
 
+adminRouter.delete(
+  "/:id",
+  authMiddleware,
+  async (req: RequestWithUser, res: Response) => {
+    try {
+      const adminId = await adminRepository.findById(req.params.id!);
+      if (!adminId)
+        return res.status(404).json({ message: "Customer not found" });
+
+      const admin = req.admin;
+      await LogsRepository.logAction(
+        admin!._id.toString(),
+        `${admin!.first_name} ${admin?.last_name} deactivated admin account at ${new Date().toISOString()}`,
+      );
+
+      await adminRepository.deactivateAccount((adminId as any)._id.toString());
+      res.status(204).json({message:"Admin account successfully deleted!", adminId});
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Error in detailing activation" });
+    }
+  },
+);
 export default adminRouter;

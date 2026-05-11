@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import axios from "axios";
 
 interface Token {
@@ -6,27 +5,25 @@ interface Token {
   id: string;
 }
 
-export default function softDeleteData({ url, id }: Token) {
-  const [data, setData] = useState<any[]>([]);
+export default async function softDeleteData({
+  url,
+  id,
+}: Token) {
   const retrieveToken = localStorage.getItem("token");
 
-  useEffect(() => {
-    const softDeleteData = async () => {
-      try {
-        const response = await axios.delete(`http://localhost:3002/${url}/${id}`, {
-          headers: {
-            Authorization: `Bearer ${retrieveToken}`,
-          },
-        });
-
-        setData(response.data);
-      } catch (error) {
-        console.log(error);
+  try {
+    const response = await axios.delete(
+      `http://localhost:3002/${url}/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${retrieveToken}`,
+        },
       }
-    };
+    );
 
-    softDeleteData();
-  }, []);
-
-  return data;
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
 }

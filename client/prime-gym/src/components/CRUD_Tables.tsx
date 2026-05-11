@@ -137,7 +137,8 @@ export default function CRUDTables({
                     >
                       Approve
                     </button>
-                  )}
+                  )
+                }
                   <button
                     className="btn btn-info text-white bg-blue-500"
                     onClick={() => {

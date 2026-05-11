@@ -3,8 +3,26 @@ import Sidebar from "../../components/Sidebar";
 import useFetchData from "../../data/fetchData";
 import TableTemplate from "../../templates/TableTemplate";
 import Pills from "../../components/Pills";
+import softDeleteData from "../../data/softDeleteData";
+import { useNavigate } from "react-router-dom";
 export default function Admin_View(): React.ReactElement {
   const retrieveData = useFetchData({ url: "admin" });
+  const navigate = useNavigate();
+
+
+  const test = async(id: string) => {
+    try
+    {
+      softDeleteData({ url: "admin", id: id });
+      alert("Success");
+      navigate(0);
+    }
+    catch(error)
+    {
+      console.log(error) 
+    }
+    
+  }
 
   const columns = [
     {
@@ -24,7 +42,7 @@ export default function Admin_View(): React.ReactElement {
       accessorKey: "email",
     },
     {
-      header: "isDeleted",
+      header: "Account Status",
       accessorKey: "isDeleted",
       cell: ({ getValue }: any) => <Pills status={getValue().toString()} />,
     },
@@ -48,6 +66,7 @@ export default function Admin_View(): React.ReactElement {
           Url="admin"
           Columns={columns}
           Data={retrieveData}
+          additionalFunctionality = {test}
           subheader="Manage user access of your system..."
         />
       </div>
