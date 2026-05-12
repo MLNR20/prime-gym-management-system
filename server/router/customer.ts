@@ -64,7 +64,7 @@ customerRouter.get("/show/", authMiddleware, async (request: RequestWithUser, re
       page,
       limit,
       search,
-      fields: ["first_name", "last_name", "email"],
+      fields: ["first_name", "last_name", "email", "subscription_type", "status"],
     });
 
     const admin = request.admin;

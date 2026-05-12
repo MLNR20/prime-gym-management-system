@@ -28,7 +28,7 @@ lockerRouter.get("/", authMiddleware, async(Request:RequestWithUser, Response)=>
 
 
 
-//RETRIVE CUSTOMER
+//RETRIVE LOCKER
 lockerRouter.get(
   "/show/",
   authMiddleware,
@@ -36,9 +36,13 @@ lockerRouter.get(
     try {
       const limit = parseInt(request.query.limit as string) || 10;
       const page = parseInt(request.query.page as string) || 1;
-      const result = await lockerRepository.paginate({
+      const search = (request.query.search as string)   || "";
+
+      const result = await lockerRepository.search({
         page,
         limit,
+        search,
+        fields: ["locker_number"],
       });
       const admin = request.admin;
       await LogsRepository.logAction(

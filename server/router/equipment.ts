@@ -1,4 +1,4 @@
-import  express  from "express";
+import express from "express";
 import equipmentRepository from "../repository/equipmentRepository";
 import LogsRepository from "../repository/logsRepository";
 import { RequestWithUser } from "../middleware/types/express";
@@ -6,23 +6,24 @@ import { authMiddleware } from "../middleware/middleware";
 
 const equipmentRouter = express.Router();
 
-
 //VIEW EQUIPMENT
-equipmentRouter.get("/", authMiddleware, async(Request: RequestWithUser, Response)=>{
-    try
-    {
-        const retrieveEquipment = await equipmentRepository.findAll();
-        const admin = Request.admin; 
-        await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} accessed equipment list at ${new Date().toISOString()}`);
-        return Response.status(200).json(retrieveEquipment)
+equipmentRouter.get(
+  "/",
+  authMiddleware,
+  async (Request: RequestWithUser, Response) => {
+    try {
+      const retrieveEquipment = await equipmentRepository.findAll();
+      const admin = Request.admin;
+      await LogsRepository.logAction(
+        admin!._id.toString(),
+        `${admin!.first_name} ${admin?.last_name} accessed equipment list at ${new Date().toISOString()}`,
+      );
+      return Response.status(200).json(retrieveEquipment);
+    } catch (error) {
+      return Response.status(500).json({ message: "Equipment not retrieved!" });
     }
-    catch(error)
-    {
-        return Response.status(500).json({message:"Equipment not retrieved!"})
-    }
-})
-
-
+  },
+);
 
 //RETRIVE EQUIPMENT
 equipmentRouter.get(
@@ -32,10 +33,15 @@ equipmentRouter.get(
     try {
       const limit = parseInt(request.query.limit as string) || 10;
       const page = parseInt(request.query.page as string) || 1;
-      const result = await equipmentRepository.paginate({
+      const search = (request.query.search as string) || "";
+
+      const result = await equipmentRepository.search({
         page,
         limit,
+        search,
+        fields: ["equipment_name"],
       });
+
       const admin = request.admin;
       await LogsRepository.logAction(
         admin!._id.toString(),
@@ -49,88 +55,106 @@ equipmentRouter.get(
   },
 );
 
-
 //RETRIEVE EQUIPMENT
-equipmentRouter.get("/:id", authMiddleware, async(Request: RequestWithUser, Response)=>{
-    try
-    {
-        const retrieveEquipment = await equipmentRepository.findById(Request.params.id!);
+equipmentRouter.get(
+  "/:id",
+  authMiddleware,
+  async (Request: RequestWithUser, Response) => {
+    try {
+      const retrieveEquipment = await equipmentRepository.findById(
+        Request.params.id!,
+      );
 
-        if(!retrieveEquipment)
-        {
-            return Response.status(404).json("Failed to retrieve equipment")
-        }
+      if (!retrieveEquipment) {
+        return Response.status(404).json("Failed to retrieve equipment");
+      }
 
-        const admin = Request.admin; 
-        await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} accessed equipment at ${new Date().toISOString()}`);
+      const admin = Request.admin;
+      await LogsRepository.logAction(
+        admin!._id.toString(),
+        `${admin!.first_name} ${admin?.last_name} accessed equipment at ${new Date().toISOString()}`,
+      );
 
-        return Response.status(200).json(retrieveEquipment);
+      return Response.status(200).json(retrieveEquipment);
+    } catch (error) {
+      return Response.status(500).json({ message: "Equipment not retrieved!" });
     }
-    catch(error)
-    {
-        return Response.status(500).json({message:"Equipment not retrieved!"})
-    }
-})
+  },
+);
 
 //CREATE EQUIPMENT
-equipmentRouter.post("/", authMiddleware, async(Request: RequestWithUser, Response)=>{
-    try
-    {
-        const newEquipment = await equipmentRepository.create(Request.body);
-        const admin = Request.admin; 
-        await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created equipment at ${new Date().toISOString()}`);
-        return Response.status(200).json(newEquipment);
+equipmentRouter.post(
+  "/",
+  authMiddleware,
+  async (Request: RequestWithUser, Response) => {
+    try {
+      const newEquipment = await equipmentRepository.create(Request.body);
+      const admin = Request.admin;
+      await LogsRepository.logAction(
+        admin!._id.toString(),
+        `${admin!.first_name} ${admin?.last_name} created equipment at ${new Date().toISOString()}`,
+      );
+      return Response.status(200).json(newEquipment);
+    } catch (error) {
+      return Response.status(500).json({ message: "Equipment not created" });
     }
-    catch(error)
-    {
-        return Response.status(500).json({message:"Equipment not created"})
-    }
-})
+  },
+);
 
 //DELETE EQUIPMENT
-equipmentRouter.delete("/:id", authMiddleware, async(Request:RequestWithUser, Response)=>{
-    try
-    {
-        const id = Request.params.id!;
-        const deleteEquipment = await equipmentRepository.delete(id);
+equipmentRouter.delete(
+  "/:id",
+  authMiddleware,
+  async (Request: RequestWithUser, Response) => {
+    try {
+      const id = Request.params.id!;
+      const deleteEquipment = await equipmentRepository.delete(id);
 
-        if(!deleteEquipment)
-        {
-            return Response.status(404).json({message: "Failed to delete equipment"})
-        }
+      if (!deleteEquipment) {
+        return Response.status(404).json({
+          message: "Failed to delete equipment",
+        });
+      }
 
-        const admin = Request.admin; 
-        await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} deleted equipment at ${new Date().toISOString()}`);
-        return Response.status(204).json({message:"Equipment deleted succesfully"})
+      const admin = Request.admin;
+      await LogsRepository.logAction(
+        admin!._id.toString(),
+        `${admin!.first_name} ${admin?.last_name} deleted equipment at ${new Date().toISOString()}`,
+      );
+      return Response.status(204).json({
+        message: "Equipment deleted succesfully",
+      });
+    } catch (error) {
+      return Response.status(500).json({ message: "Delete equipment failed!" });
     }
-    catch(error)
-    {
-        return Response.status(500).json({message:"Delete equipment failed!"})
-    }
-})
+  },
+);
 
 //UPDATe EQUIPMENT
-equipmentRouter.put("/:id", authMiddleware, async(Request:RequestWithUser, Response)=>{
-    try
-    {
-        const id = Request.params.id!;
-        const updateEquiment = await equipmentRepository.update(id, Request.body);
+equipmentRouter.put(
+  "/:id",
+  authMiddleware,
+  async (Request: RequestWithUser, Response) => {
+    try {
+      const id = Request.params.id!;
+      const updateEquiment = await equipmentRepository.update(id, Request.body);
 
-        if(!updateEquiment)
-        {
-            return Response.status(404).json({message: "Failed to update equipment"})
-        }
+      if (!updateEquiment) {
+        return Response.status(404).json({
+          message: "Failed to update equipment",
+        });
+      }
 
-        const admin = Request.admin; 
-        await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} updated equipment at ${new Date().toISOString()}`);
-        return Response.status(200).json(updateEquiment)
+      const admin = Request.admin;
+      await LogsRepository.logAction(
+        admin!._id.toString(),
+        `${admin!.first_name} ${admin?.last_name} updated equipment at ${new Date().toISOString()}`,
+      );
+      return Response.status(200).json(updateEquiment);
+    } catch (error) {
+      return Response.status(500).json({ message: "Delete equipment failed!" });
     }
-    catch(error)
-    {
-        return Response.status(500).json({message:"Delete equipment failed!"})
-    }
-})
+  },
+);
 
-
-
-export default equipmentRouter
+export default equipmentRouter;

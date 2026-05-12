@@ -5,7 +5,6 @@ import { authMiddleware } from "../middleware/middleware";
 import { RequestWithUser } from "../middleware/types/express";
 import { Types } from "mongoose";
 
-
 const adminRouter = express.Router();
 
 adminRouter.get(
@@ -35,10 +34,15 @@ adminRouter.get(
     try {
       const limit = parseInt(req.query.limit as string) || 10;
       const page = parseInt(req.query.page as string) || 1;
-      const result = await adminRepository.paginate({
+      const search = (req.query.search as string) || "";
+
+      const result = await adminRepository.search({
         page,
         limit,
+        search,
+        fields: ["first_name", "last_name", "email"],
       });
+
       const admin = req.admin;
       await LogsRepository.logAction(
         admin!._id.toString(),
@@ -69,7 +73,9 @@ adminRouter.patch(
       );
 
       await adminRepository.deactivateAccount((adminId as any)._id.toString());
-      res.status(204).json({message:"Admin account successfully deleted!", adminId});
+      res
+        .status(204)
+        .json({ message: "Admin account successfully deleted!", adminId });
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: "Error in detailing activation" });

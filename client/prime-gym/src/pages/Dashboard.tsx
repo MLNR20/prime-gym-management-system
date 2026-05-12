@@ -53,7 +53,7 @@ export default function Dashboard(): React.ReactElement {
 
 
 
-  console.log("Dashboard dat II", data);
+  console.log("Dashboard data II", data);
   console.log(fetchLogRecords);
 
   const columns = [

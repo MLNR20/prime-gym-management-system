@@ -28,6 +28,7 @@ SubscriptionHistoryRepositoryRouter.get(
     try {
       const limit = parseInt(request.query.limit as string) || 10;
       const page = parseInt(request.query.page as string) || 1;
+      const search = (request.query.search as string) || "";
       const pipeline = [
         {
           $addFields: {
@@ -61,11 +62,15 @@ SubscriptionHistoryRepositoryRouter.get(
           },
         },
       ];
+
       const result = await SubscriptionHistoryRepository.paginateWithLookup({
         page,
         limit,
         pipeline,
+        search,
+         fields: ["first_name", "last_name", "dateRenewed", "subscription_type"]
       });
+
       const admin = request.admin;
       await LogsRepository.logAction(
         admin!._id.toString(),

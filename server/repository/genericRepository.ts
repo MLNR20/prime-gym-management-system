@@ -62,12 +62,24 @@ class GenericRepository<T> {
     page = 1,
     limit = 10,
     pipeline = [],
+    search = "",
+    fields = [],
   }: {
     page?: number;
     limit?: number;
     pipeline?: any[];
+    search?: string;
+    fields?: string[];
   }) {
     const skip = (page - 1) * limit;
+
+    let query: any = {};
+
+    if (search && fields.length > 0) {
+      query.$or = fields.map((field) => ({
+        [field]: { $regex: search, $options: "i" },
+      }));
+    }
 
     const dataPipeline = [
       ...pipeline, // your joins go here
@@ -122,12 +134,32 @@ class GenericRepository<T> {
   }) {
     const skip = (page - 1) * limit;
 
-    let query: any = { isDeleted: false };
+    let query: any = {};
 
     if (search && fields.length > 0) {
-      query.$or = fields.map((field) => ({
-        [field]: { $regex: search, $options: "i" },
-      }));
+      query.$or = fields.map((field) => {
+        // numeric field handling
+        if (field === "locker_number") {
+          const parsedNumber = parseInt(search);
+
+          // prevent NaN query
+          if (isNaN(parsedNumber)) {
+            return {};
+          }
+
+          return {
+            [field]: parsedNumber,
+          };
+        }
+
+        // string field handling
+        return {
+          [field]: {
+            $regex: search,
+            $options: "i",
+          },
+        };
+      });
     }
 
     const data = await this.model.find(query).skip(skip).limit(limit);
