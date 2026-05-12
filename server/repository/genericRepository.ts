@@ -75,23 +75,20 @@ class GenericRepository<T> {
 
     let query: any = {};
 
-   if (search && fields.length > 0) {
+    if (search && fields.length > 0) {
       query.$or = fields.map((field) => {
-        // numeric field handling
         if (field === "amount") {
-          const parsedNumber = parseInt(search);
-
-          // prevent NaN query
-          if (isNaN(parsedNumber)) {
-            return {};
-          }
-
           return {
-            [field]: parsedNumber,
+            $expr: {
+              $regexMatch: {
+                input: { $toString: `$${field}` },
+                regex: search,
+                options: "i",
+              },
+            },
           };
         }
 
-        // string field handling
         return {
           [field]: {
             $regex: search,
@@ -161,21 +158,18 @@ class GenericRepository<T> {
 
     if (search && fields.length > 0) {
       query.$or = fields.map((field) => {
-        // numeric field handling
         if (field === "locker_number") {
-          const parsedNumber = parseInt(search);
-
-          // prevent NaN query
-          if (isNaN(parsedNumber)) {
-            return {};
-          }
-
           return {
-            [field]: parsedNumber,
+            $expr: {
+              $regexMatch: {
+                input: { $toString: `$${field}` },
+                regex: search,
+                options: "i",
+              },
+            },
           };
         }
 
-        // string field handling
         return {
           [field]: {
             $regex: search,
