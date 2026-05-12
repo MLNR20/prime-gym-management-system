@@ -75,19 +75,42 @@ class GenericRepository<T> {
 
     let query: any = {};
 
-    if (search && fields.length > 0) {
-      query.$or = fields.map((field) => ({
-        [field]: { $regex: search, $options: "i" },
-      }));
+   if (search && fields.length > 0) {
+      query.$or = fields.map((field) => {
+        // numeric field handling
+        if (field === "amount") {
+          const parsedNumber = parseInt(search);
+
+          // prevent NaN query
+          if (isNaN(parsedNumber)) {
+            return {};
+          }
+
+          return {
+            [field]: parsedNumber,
+          };
+        }
+
+        // string field handling
+        return {
+          [field]: {
+            $regex: search,
+            $options: "i",
+          },
+        };
+      });
     }
 
+    const matchStage = Object.keys(query).length > 0 ? [{ $match: query }] : [];
+
     const dataPipeline = [
-      ...pipeline, // your joins go here
+      ...pipeline,
+      ...matchStage,
       { $skip: skip },
       { $limit: limit },
     ];
 
-    const countPipeline = [...pipeline, { $count: "total" }];
+    const countPipeline = [...pipeline, ...matchStage, { $count: "total" }];
 
     const [data, countResult] = await Promise.all([
       this.model.aggregate(dataPipeline),

@@ -68,7 +68,7 @@ SubscriptionHistoryRepositoryRouter.get(
         limit,
         pipeline,
         search,
-         fields: ["first_name", "last_name", "dateRenewed", "subscription_type"]
+        fields: ["first_name", "last_name", "dateRenewed",  "amount","subscription_type"]
       });
 
       const admin = request.admin;

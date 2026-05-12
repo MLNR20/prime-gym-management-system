@@ -1,8 +1,7 @@
 import {
   useReactTable,
   getCoreRowModel,
-  flexRender,
-  getFilteredRowModel,
+  flexRender
 } from "@tanstack/react-table";
 
 import { useState } from "react";
@@ -28,30 +27,28 @@ export default function Tables({
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
 
-  const changeDataLimits = useFetchData({
-    url: `${url}/show/?page=${page}&limit=${limit}`,
+ const changeDataLimits = useFetchData({
+    url: `${url}/show`,
+    page,
+    limit,
+    search: globalFilter,
   });
+
 
   const tableData = (changeDataLimits as any).data ?? data ?? [];
   const totalPage = (changeDataLimits as any).meta?.totalPages;
   const pages = getWindowedPages(page, totalPage ?? 1);
 
-  console.log(url);
-  console.log(changeDataLimits);
   const table = useReactTable({
     data: tableData,
     columns,
-    state: {
-      globalFilter,
-    },
     meta: {
       page,
       limit,
     },
-    onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
   });
+
   const rowCount = table.getRowModel().rows.length;
 
   return (
@@ -64,7 +61,7 @@ export default function Tables({
             type="text"
             placeholder="Search details here..."
             value={globalFilter}
-            onChange={(e) => setGlobalFilter(e.target.value)}
+            onChange={(e) => {setGlobalFilter(e.target.value);setPage(1);}}
             className="input input-bordered h-12 border bg-white border-gray-400 w-100"
           ></input>
         </div>
