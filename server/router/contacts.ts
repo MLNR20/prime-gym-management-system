@@ -1,4 +1,4 @@
-import express, { Request, response, Response } from "express";
+import express, { response, Response } from "express";
 import contactRepository from "../repository/contactRepository";
 import LogsRepository from "../repository/logsRepository";
 import { authMiddleware } from "../middleware/middleware";

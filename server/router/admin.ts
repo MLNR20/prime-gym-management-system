@@ -3,7 +3,6 @@ import LogsRepository from "../repository/logsRepository";
 import adminRepository from "../repository/adminRepository";
 import { authMiddleware } from "../middleware/middleware";
 import { RequestWithUser } from "../middleware/types/express";
-import { Types } from "mongoose";
 
 const adminRouter = express.Router();
 

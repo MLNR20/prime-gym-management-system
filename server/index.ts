@@ -14,6 +14,7 @@ import logsRouter from "./router/logs";
 import { subscriptionCron } from "./crons/subscriptionCron";
 import SubscriptionHistoryRepositoryRouter from "./router/subscriptionhistory";
 import adminRouter from "./router/admin";
+import attendanceRouter from "./router/attendance";
 
 const app: Application = express();
 const PORT = process.env.PORT ?? 3002;
@@ -30,6 +31,7 @@ app.use("/equipment", equipmentRouter);
 app.use("/logs", logsRouter);
 app.use("/subscription", SubscriptionHistoryRepositoryRouter)
 app.use("/admin", adminRouter);
+app.use("/attendance", attendanceRouter);
 
 
 mongoose.connect(databaseConnectionString).then(()=>{

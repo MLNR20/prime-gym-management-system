@@ -1,28 +1,45 @@
-import express,{Request,response,Response} from "express"
+import express,{request, response} from "express"
 import { authMiddleware } from "../middleware/middleware";
 import { RequestWithUser } from "../middleware/types/express";
 import LogsRepository from "../repository/logsRepository";
 import lockerRepository from "../repository/lockerRepository";
-import contactRouter from "./contacts";
-import contactRepository from "../repository/contactRepository";
+
 
 const lockerRouter = express.Router();
 
 
 //RETRIEVE LOCKER
-lockerRouter.get("/", authMiddleware, async(Request:RequestWithUser, Response)=>{
+lockerRouter.get("/", authMiddleware, async(request:RequestWithUser, response)=>{
     try
     {
         const retrieveLockers = await lockerRepository.findAll();
 
-        const admin = Request.admin; 
+        const admin = request.admin; 
         await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} requested locker list at ${new Date().toISOString()}`);
 
-        return Response.status(200).json(retrieveLockers);
+        return response.status(200).json(retrieveLockers);
     }
     catch(error)
     {
-        return Response.status(500).json({message:"Locker retrieval failed"})
+        return response.status(500).json({message:"Locker retrieval failed"})
+    }
+})
+
+
+//RETRIEVE ACTIVE LOCKER
+lockerRouter.get("/find-active", authMiddleware, async(request: RequestWithUser, response)=>{
+    try
+    {
+        const retrieveActiveLockers = await lockerRepository.findActiveLockerDocument(false);
+        const admin = request.admin; 
+        await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} requested awaited locker list at ${new Date().toISOString()}`);
+        return response.status(200).json(retrieveActiveLockers);
+
+    }
+    catch(error)
+    {
+        console.log(error);
+        return response.status(500).json({message:"Locker retrieval failed"})
     }
 })
 
@@ -59,114 +76,114 @@ lockerRouter.get(
 
 
 //RETRIEVE LOCKER BY ID
-lockerRouter.get("/:id", authMiddleware, async(Request:RequestWithUser, Response)=>{
+lockerRouter.get("/:id", authMiddleware, async(request:RequestWithUser, response)=>{
     try
     {
-        const locker = await lockerRepository.findById(Request.params.id!);    
+        const locker = await lockerRepository.findById(request.params.id!);    
 
         if (!locker) {
             return response.status(404).json({ message: "Locker not found" });
         }
 
-        const admin = Request.admin; 
+        const admin = request.admin; 
         await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} requested locker details at ${new Date().toISOString()}`);
         
-        return Response.status(200).json(locker);
+        return response.status(200).json(locker);
     }
     catch(error)
     {
-        return Response.status(500).json({message:"Locker retrieval failed"})
+        return response.status(500).json({message:"Locker retrieval failed"})
     }
 })
 
 
 //CREATE LOCKER
-lockerRouter.post("/", authMiddleware, async(Request:RequestWithUser, Response)=>{
+lockerRouter.post("/", authMiddleware, async(request:RequestWithUser, response)=>{
     try
     {
-        const lockerNumber = Request.body.lockerNumber;
+        const lockerNumber = request.body.lockerNumber;
 
         if(!lockerNumber)
         {
-            return Response.status(500).json({message: "Locker number is required!"})
+            return response.status(500).json({message: "Locker number is required!"})
         }
 
-        const admin = Request.admin; 
+        const admin = request.admin; 
         await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created new locker at ${new Date().toISOString()}`);
         const newLocker = await lockerRepository.create({locker_number:lockerNumber});
 
-        return Response.status(201).json(newLocker);
+        return response.status(201).json(newLocker);
     }
     catch(error)
     {
-        return Response.status(500).json({message:"Locker creation failed"})
+        return response.status(500).json({message:"Locker creation failed"})
     }
 })
 
 //UPDATE LOCKER
-lockerRouter.put("/:id", authMiddleware, async(Request:RequestWithUser, Response)=>{
+lockerRouter.put("/:id", authMiddleware, async(request:RequestWithUser, response)=>{
     try
     {
-        const locker = await lockerRepository.findById(Request.params.id!);    
+        const locker = await lockerRepository.findById(request.params.id!);    
 
         if (!locker) {
             return response.status(404).json({ message: "Locker not found" });
         }
 
-        const admin = Request.admin; 
+        const admin = request.admin; 
         await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} updated locker at ${new Date().toISOString()}`);
-        const updatedLocker = await lockerRepository.update(Request.params.id!, Request.body);
+        const updatedLocker = await lockerRepository.update(request.params.id!, request.body);
 
-        return Response.status(200).json(updatedLocker);
+        return response.status(200).json(updatedLocker);
     }
     catch(error)
     {
-        return Response.status(500).json({message:"Locker cannot be updated"})
+        return response.status(500).json({message:"Locker cannot be updated"})
     }
 })
 
 
 //SOFT DELETE LOCKER
-lockerRouter.patch("/:id", authMiddleware, async(Request:RequestWithUser, Response)=>{
+lockerRouter.patch("/:id", authMiddleware, async(request:RequestWithUser, response)=>{
     try
     {
-        const locker = await lockerRepository.findById(Request.params.id!);    
+        const locker = await lockerRepository.findById(request.params.id!);    
 
         if (!locker) {
             return response.status(404).json({ message: "Locker not found" });
         }
 
-        const admin = Request.admin; 
+        const admin = request.admin; 
         await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} deleted locker at ${new Date().toISOString()}`);
 
-        await lockerRepository.update(Request.params.id!, {is_active: false})
-        return Response.status(204).json({message:"Locker successfully deleted"});
+        await lockerRepository.update(request.params.id!, {is_active: false})
+        return response.status(204).json({message:"Locker successfully deleted"});
     }
     catch(error)
     {
-        return Response.status(500).json({message:"Locker cannot be deleted"})
+        return response.status(500).json({message:"Locker cannot be deleted"})
     }
 })
 
 //HARD DELETE LOCKER
-lockerRouter.delete("/:id", authMiddleware, async(Request:RequestWithUser, Response)=>{
+lockerRouter.delete("/:id", authMiddleware, async(request:RequestWithUser, response)=>{
     try
     {
-        const locker = await lockerRepository.findById(Request.params.id!);    
+        const locker = await lockerRepository.findById(request.params.id!);    
 
         if (!locker) {
             return response.status(404).json({ message: "Locker not found" });
         }
 
-        const admin = Request.admin; 
+        const admin = request.admin; 
         await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} successfully deleted locker at ${new Date().toISOString()}`);
 
-       await lockerRepository.delete(Request.params.id!);
-       return Response.status(204).json({message:"Locker successfully deleted"});
+       await lockerRepository.delete(request.params.id!);
+       return response.status(204).json({message:"Locker successfully deleted"});
     }
     catch(error)
     {
-        return Response.status(500).json({message:"Locker cannot be deleted"})
+        return response.status(500).json({message:"Locker cannot be deleted"})
     }
 })
 export default lockerRouter;
