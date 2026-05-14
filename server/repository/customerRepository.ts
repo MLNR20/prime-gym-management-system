@@ -1,6 +1,7 @@
 import Customer, { ICustomer, ICustomerDocument } from "../models/customer";
 import GenericRepository from "./genericRepository";
 import { ICustomerRepository } from "./interface/customerRepositoryInterface";
+import lockerAssignmentRepository from "./lockerAssignmentRepository";
 
 export class CustomerRepository extends GenericRepository<ICustomerDocument> implements ICustomerRepository
 {
@@ -38,8 +39,6 @@ export class CustomerRepository extends GenericRepository<ICustomerDocument> imp
     return result;
   }
 
-  
-
   async retrievePaidCustomerAmountByMonth(): Promise<number> {
     const dateNow = new Date();
     const date30DaysAgo = new Date();
@@ -64,6 +63,18 @@ export class CustomerRepository extends GenericRepository<ICustomerDocument> imp
 
     return result[0]?.totalAmount ?? 0;
   }
+
+  async findAvailableCustomerIds(): Promise<ICustomer[]> {
+    const borrowedUserLockerIds = await lockerAssignmentRepository.getActiveCustomerIds();
+
+    return this.model
+      .find({
+        isDeleted: false,
+        _id: { $nin: borrowedUserLockerIds },
+      })
+      .select("id customer_id first_name last_name isDeleted");
+  }
+
   async getTotalAmountPaid(): Promise<number> {
     const result = await this.model.aggregate([
       { $group: { _id: null, total: { $sum: "$amount_paid" } } },

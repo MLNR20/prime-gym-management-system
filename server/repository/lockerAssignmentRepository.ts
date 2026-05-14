@@ -13,6 +13,13 @@ export class LockerAssignmentRepository extends GenericRepository<ILockerAssignm
         return count || 0;
     }
 
+
+    async getActiveCustomerIds(): Promise<String[]> {
+       return this.model.distinct("customer_id", {
+            isDeleted: false,
+        });
+    }
+
     async getAvailableLockerIds(): Promise<String[]> {
         return this.model.distinct("locker_id", {
             status: "Borrowed"

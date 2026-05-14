@@ -137,6 +137,25 @@ customerRouter.get("/status/paid", authMiddleware, async (request: RequestWithUs
   }
 });
 
+
+//RETRIEVE CUSTOMER LOCKER DETAILS
+customerRouter.get("/available-users-lockers", authMiddleware, async (request: RequestWithUser, response) => {
+  try {
+    const customers = await customerRepository.findAvailableCustomerIds();
+    const admin = request.admin;
+    await LogsRepository.logAction(
+      admin!._id.toString(),
+      `${admin!.first_name} ${admin?.last_name} accessed customers locker list at ${new Date().toISOString()}`,
+    );
+
+    response.status(200).json(customers);
+  } catch (error) {
+    console.error(error);
+    response.status(500).json({ message: "Error fetching customers" });
+  }
+});
+
+
 // RETRIEVE EXPIRED SUBSCRIPTIONS
 customerRouter.get("/status/expired", authMiddleware, async (request: RequestWithUser, response) => {
   try {
