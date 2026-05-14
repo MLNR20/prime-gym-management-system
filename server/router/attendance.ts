@@ -33,7 +33,7 @@ attendanceRouter.post(
         req.body.customer_id,
       );
 
-      const lockerDetails = await lockerRepository.findById(req.body.locker_id)
+      const lockerDetails = await lockerRepository.findById(req.body.locker_id);
 
       const admin = req.admin;
       await logsRepository.logAction(
@@ -57,17 +57,21 @@ attendanceRouter.put(
   authMiddleware,
   async (req: RequestWithUser, res: Response) => {
     try {
-
       const { id } = req.params;
 
       if (!id) {
         res.status(404).json({ message: "Attendance Id is missing." });
       }
 
-      const lockerAssignmentDetails = await lockerAssignmentRepository.findById(String(id))
-      if(!lockerAssignmentDetails) res.status(404).json({ message: "Attendance Details is missing." });
-      const lockerDetails = await lockerRepository.findById(String(lockerAssignmentDetails!._id))
-    
+      const lockerAssignmentDetails = await lockerAssignmentRepository.findById(
+        String(id),
+      );
+      if (!lockerAssignmentDetails)
+        res.status(404).json({ message: "Attendance Details is missing." });
+      const lockerDetails = await lockerRepository.findById(
+        String(lockerAssignmentDetails!._id),
+      );
+
       const admin = req.admin;
       await logsRepository.logAction(
         admin!._id.toString(),
@@ -79,6 +83,78 @@ attendanceRouter.put(
     } catch (error) {
       res.status(500).json({
         message: "Cannot create attendance",
+      });
+    }
+  },
+);
+
+attendanceRouter.get(
+  "/show/",
+  authMiddleware,
+  async (req: RequestWithUser, res: Response) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 10;
+      const page = parseInt(req.query.page as string) || 1;
+      const search = (req.query.search as string) || "";
+      const pipeline = [
+              {
+                $addFields: {
+                  customer_id: { $toObjectId: "$customer_id" }, 
+                  locker_id: { $toObjectId: "$locker_id" }, 
+                },
+              },
+              {
+                $lookup: {
+                  from: "Customer", 
+                  localField: "customer_id",
+                  foreignField: "_id",
+                  as: "customer",
+                },
+              },
+              {
+                $lookup: {
+                  from: "Locker", 
+                  localField: "locker_id",
+                  foreignField: "_id",
+                  as: "locker",
+                },
+              },
+              {
+                $unwind: {
+                  path: "$customer",
+                  preserveNullAndEmptyArrays: true,
+                },
+              },
+              {
+                $project: {
+                  _id: 1,
+                  first_name: "$customer.first_name",
+                  last_name: "$customer.last_name",
+                  status: 1,
+                  time_in: 1,
+                  time_out: 1,
+                  locker_number: "$locker.locker_number"
+                },
+              },
+            ];
+
+      const result = await lockerAssignmentRepository.paginateWithLookup({
+        page,
+        limit,
+        pipeline,
+        search,
+        fields: ["first_name", "last_name", "locker_number", "status"],
+      });
+
+      const admin = req.admin;
+      await logsRepository.logAction(
+        admin!._id.toString(),
+        `${admin!.first_name} ${admin?.last_name} accessed subscription history list at ${new Date().toISOString()}`,
+      );
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(500).json({
+        message: "Cannot retrieve attendance",
       });
     }
   },
