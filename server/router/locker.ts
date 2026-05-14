@@ -3,7 +3,7 @@ import { authMiddleware } from "../middleware/middleware";
 import { RequestWithUser } from "../middleware/types/express";
 import LogsRepository from "../repository/logsRepository";
 import lockerRepository from "../repository/lockerRepository";
-
+import lockerAssignmentRepository from "../repository/lockerAssignmentRepository";
 
 const lockerRouter = express.Router();
 
@@ -73,6 +73,21 @@ lockerRouter.get(
     }
   },
 );
+
+lockerRouter.get("/active-lockers", authMiddleware, async(request:RequestWithUser, response)=>{
+    try
+    {
+        const locker = await lockerRepository.findAvailableLockers();
+        const admin = request.admin; 
+        await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} requested active locker details at ${new Date().toISOString()}`);
+        
+        return response.status(200).json(locker);
+    }
+    catch(error)
+    {
+        return response.status(500).json({message:"Locker retrieval failed"})
+    }
+})
 
 
 //RETRIEVE LOCKER BY ID

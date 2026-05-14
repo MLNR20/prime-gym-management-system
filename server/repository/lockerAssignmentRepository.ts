@@ -12,6 +12,18 @@ export class LockerAssignmentRepository extends GenericRepository<ILockerAssignm
         });
         return count || 0;
     }
+
+    async getAvailableLockerIds(): Promise<String[]> {
+        return this.model.distinct("locker_id", {
+            status: "Borrowed"
+        });
+    }
+
+    async findAvailableLockers(): Promise<ILockerAssignmentDocument[]> {
+        return this.model.find({
+            status: { $ne: "Borrowed" }
+        });
+    }
 }
 
 

@@ -31,6 +31,11 @@ export class AttendanceService {
       throw new Error(`Locker with id ${locker_id} not found`); 
     }
 
+    if(verifyLockerId.is_active === false) 
+    {
+      throw new Error(`Deleted locker cannot ${locker_id} not create attendance`); 
+    }
+
     const preventDuplicateBorrows : number = await this.lockerAssignmentRepository.preventDuplicateBorrows(String(verifyCustomerId._id), String(verifyLockerId._id));
 
     if(preventDuplicateBorrows > 0)
@@ -46,6 +51,6 @@ export class AttendanceService {
   {
     const locker_assignment = await this.lockerAssignmentRepository.findById(locker_assignment_id);
     if(!locker_assignment) throw new Error("Locker Key cannot be returned");
-    await this.lockerAssignmentRepository.updateSpecificDetails(String(locker_assignment._id) ,{status: "Borrowed", time_out: String(new Date())})
+    await this.lockerAssignmentRepository.updateSpecificDetails(String(locker_assignment._id) ,{status: "Returned", time_out: String(new Date())})
   }
 }
