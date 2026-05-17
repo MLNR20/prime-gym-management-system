@@ -263,6 +263,7 @@ export default function Customer_View(): React.ReactElement {
           header="Customer Management"
           Columns={columns}
           Data={customerData}
+          ButtonAdditionalString = "Approve"
           additionalFunctionality={approveForm}
           url="customers"
           DeleteType="Soft Delete"

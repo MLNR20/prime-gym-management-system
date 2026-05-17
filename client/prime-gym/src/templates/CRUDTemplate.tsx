@@ -11,16 +11,17 @@ interface DataTables{
     url: string;
     Columns: any[];
     ButtonString: string;
+    ButtonAdditionalString?: string;
     DeleteType: string;
     RedirectAddUrl: string;
 }
 
-export default function CRUDTemplate({header, subheader, url, Data, additionalFunctionality, RedirectAddUrl, DeleteType, Columns, ButtonString}: DataTables): React.ReactElement {
+export default function CRUDTemplate({header, ButtonAdditionalString, subheader, url, Data, additionalFunctionality, RedirectAddUrl, DeleteType, Columns, ButtonString}: DataTables): React.ReactElement {
   return (
     <div className="bg-white p-16 rounded-lg">
       <Header subheader={subheader} header={header} />
       <Link to={RedirectAddUrl}><button className="btn btn-success mb-4 mt-4 text-white">{ButtonString}</button></Link>
-      <CRUDTables data={Data} url={url} additionalFunctionality={additionalFunctionality} deleteType={DeleteType} columns={Columns}/>
+      <CRUDTables data={Data} url={url} buttonString={ButtonAdditionalString} additionalFunctionality={additionalFunctionality} deleteType={DeleteType} columns={Columns}/>
     </div>
   );
 }

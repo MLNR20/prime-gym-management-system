@@ -15,6 +15,7 @@ interface TableProps {
   columns: any[];
   url: string;
   deleteType: string;
+  buttonString?: string;
   additionalFunctionality?: (row?: any) => void;
 }
 
@@ -22,6 +23,7 @@ export default function CRUDTables({
   columns,
   url,
   deleteType,
+  buttonString,
   additionalFunctionality,
 }: TableProps): React.ReactElement {
   const [selectedRow, setSelectedRow] = useState<any>(null);
@@ -139,12 +141,12 @@ export default function CRUDTables({
                   </td>
                 ))}
                 <td className="border-b  flex gap-2 border-gray-300">
-                  {url === "customers" && (
+                  {url === "customers" || url==="attendance" && (
                     <button
                       className="btn btn-primary"
                       onClick={() => additionalFunctionality?.(row.original)}
                     >
-                      Approve
+                      {buttonString}
                     </button>
                   )}
                   <button
