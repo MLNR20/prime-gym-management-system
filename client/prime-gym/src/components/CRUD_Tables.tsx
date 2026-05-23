@@ -57,15 +57,15 @@ export default function CRUDTables({
   const redirectURL = useNavigate();
   const rowCount = table.getRowModel().rows.length;
 
-  function deleteEntry() {
+  async function deleteEntry() {
     try {
-      alert(selectedRow);
       if (deleteType === "Hard Delete")
-        deleteData({ url: url, id: selectedRow });
+        await deleteData({ url: url, id: selectedRow });
       if (deleteType === "Soft Delete")
-        softDeleteData({ url: url, id: selectedRow });
+        await softDeleteData({ url: url, id: selectedRow });
       const modal = document.getElementById("my_modal_5");
       if (modal instanceof HTMLDialogElement) modal.close();
+      window.location.reload();
     } catch (error) {
       console.error(error);
     }

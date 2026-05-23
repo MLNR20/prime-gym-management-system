@@ -160,4 +160,37 @@ attendanceRouter.get(
   },
 );
 
+attendanceRouter.delete(
+  "/:id",
+  authMiddleware,
+  async (req: RequestWithUser, res: Response) => {
+    try {
+      const { id } = req.params;
+
+      if (!id) {
+        return res.status(404).json({ message: "Attendance Id is missing." });
+      }
+
+      const deletedAssignment = await lockerAssignmentRepository.delete(id);
+
+      if (!deletedAssignment) {
+        return res.status(404).json({ message: "Attendance record not found." });
+      }
+
+      const admin = req.admin;
+      await logsRepository.logAction(
+        admin!._id.toString(),
+        `${admin!.first_name} ${admin?.last_name} deleted attendance record ${id} at ${new Date().toISOString()}`,
+      );
+
+      res.status(204).send();
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        message: "Cannot delete attendance",
+      });
+    }
+  }
+);
+
 export default attendanceRouter;
