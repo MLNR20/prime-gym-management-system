@@ -108,7 +108,7 @@ export default function CRUDTables({
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className="text-black text-[0.950rem] p-5 bg-gray-300"
+                    className="text-black text-[0.950rem] p-5 bg-gray-100"
                   >
                     {header.isPlaceholder
                       ? null
@@ -118,7 +118,7 @@ export default function CRUDTables({
                       )}
                   </th>
                 ))}
-                <th className="text-black text-[0.950rem] p-5 bg-gray-300">
+                <th className="text-black text-[0.950rem] p-5 bg-gray-100">
                   Actions
                 </th>
               </tr>
