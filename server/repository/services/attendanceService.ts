@@ -14,11 +14,17 @@ export class AttendanceService {
     this.customerRepository = customerRepository;
   }
 
-  async createAttendance(locker_id: string, customer_id:string) : Promise<boolean>
+  async createAttendance(locker_id: string, customer_id:string, time_in?: string) : Promise<boolean>
   {
     const verifyLockerId = await this.lockerRepository.findById(locker_id);
     const verifyCustomerId = await this.customerRepository.findById(customer_id);
-    const timeIn = new Date();
+    let timeIn = new Date();
+    if (time_in) {
+      const parsed = new Date(time_in);
+      if (!isNaN(parsed.getTime())) {
+        timeIn = parsed;
+      }
+    }
     const lockerStatus = "Borrowed";
     
     if(!verifyCustomerId) 

@@ -56,6 +56,9 @@ export default function Edit_Lockers(): React.ReactElement {
           id,
         });
 
+
+        console.log(result)
+
         if (result) {
           reset(result);
         }

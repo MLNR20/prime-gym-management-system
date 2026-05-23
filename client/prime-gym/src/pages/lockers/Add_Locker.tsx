@@ -40,8 +40,8 @@ export default function Add_Locker(): React.ReactElement {
       <div className="flex-1 p-24   overflow-auto">
         <div className="bg-white p-16 rounded-lg">
           <Header
-            subheader="Hey, there! Let's create a contact!"
-            header="Add Contact"
+            subheader="Hey, there! Let's create a locker!"
+            header="Add Locker"
           />
           <form onSubmit={handleSubmit(onSubmit)} className="w-full my-12">
             <div className="flex w-full my-6 flex-col gap-2">

@@ -3,8 +3,7 @@ import GenericRepository from "./genericRepository";
 import { ICustomerRepository } from "./interface/customerRepositoryInterface";
 import lockerAssignmentRepository from "./lockerAssignmentRepository";
 
-export class CustomerRepository extends GenericRepository<ICustomerDocument> implements ICustomerRepository
-{
+export class CustomerRepository extends GenericRepository<ICustomerDocument> implements ICustomerRepository {
   async findByFirstName(first_name: string): Promise<ICustomerDocument | null> {
     return this.model.findOne({ first_name });
   }
