@@ -6,6 +6,7 @@ import useFetchData from "../data/fetchData";
 import TableTemplate from "../templates/TableTemplate";
 import DoughnutChart from "../charts/Doughtnut";
 import SubscriptionLineChart from "../charts/Line";
+import { Users, UserX, TrendingUp, Wallet } from "lucide-react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -30,31 +31,23 @@ export default function Dashboard(): React.ReactElement {
     Legend,
   );
 
-
   const fetchDashboardData = useFetchData({
     url: "customers/retrieve-stats/",
   }) || [];
 
-    const fetchhistory = useFetchData({
+  const fetchhistory = useFetchData({
     url: "customers/monthly-breakdown",
   }) || [];
-
 
   const fetchLogRecords = useFetchData({
     url: "logs",
   });
 
-  
   useEffect(() => {
     if (fetchDashboardData) {
       setData(fetchDashboardData);
     }
   }, [fetchDashboardData]);
-
-
-
-  console.log("Dashboard data II", data);
-  console.log(fetchLogRecords);
 
   const columns = [
     {
@@ -71,12 +64,44 @@ export default function Dashboard(): React.ReactElement {
     },
   ];
 
-  
-if (!data || !fetchhistory) {
-  return <div>Loading...</div>;
-}
+  if (!data || !fetchhistory) {
+    return <div>Loading...</div>;
+  }
 
-
+  const statCards = [
+    {
+      key: "activeUsers",
+      header: "Active Members",
+      subheader: "Members with a Paid subscription",
+      figure: data?.activeUsers?.toString() ?? "0",
+      icon: <Users size={20} className="text-green-600" />,
+      iconBg: "bg-green-100",
+    },
+    {
+      key: "inactiveUsers",
+      header: "Expired Members",
+      subheader: "Members with an Expired subscription",
+      figure: data?.inactiveUsers?.toString() ?? "0",
+      icon: <UserX size={20} className="text-red-500" />,
+      iconBg: "bg-red-100",
+    },
+    {
+      key: "monthlyTotalSum",
+      header: "Monthly Revenue",
+      subheader: "Total earnings in the last 30 days",
+      figure: `₱${Number(data?.monthlyTotalSum ?? 0).toLocaleString()}`,
+      icon: <TrendingUp size={20} className="text-blue-600" />,
+      iconBg: "bg-blue-100",
+    },
+    {
+      key: "totalSum",
+      header: "All-Time Revenue",
+      subheader: "Cumulative revenue since launch",
+      figure: `₱${Number(data?.totalSum ?? 0).toLocaleString()}`,
+      icon: <Wallet size={20} className="text-purple-600" />,
+      iconBg: "bg-purple-100",
+    },
+  ];
 
   return (
     <div className="flex h-screen p-6 md:p-0 lg:p-0 lg:flex-row md:flex-row flex-col overflow-hidden">
@@ -92,28 +117,18 @@ if (!data || !fetchhistory) {
           subheader="Welcome back! Let's take a look how your gym is performing..."
         />
         <div className="flex gap-4 flex-col lg:w-full lg:flex-row">
-          <Cards
-            Card_Figure={data?.monthlyTotalSum?.toString() || "0"}
-            Card_Header="Monthly Subscription Income"
-            Card_Subheader="Your total earnings this month..."
-          />
-          <Cards
-            Card_Figure={data?.monthlyTotalSum?.toString() || "0"}
-            Card_Header="Monthly Subscription Income"
-            Card_Subheader="Your total earnings this month..."
-          />
-          <Cards
-            Card_Figure={data?.monthlyTotalSum?.toString() || "0"}
-            Card_Header="Monthly Subscription Income"
-            Card_Subheader="Your total earnings this month..."
-          />
-          <Cards
-            Card_Figure={data?.monthlyTotalSum?.toString() || "0"}
-            Card_Header="Monthly Subscription Income"
-            Card_Subheader="Your total earnings this month..."
-          />
+          {statCards.map((card) => (
+            <Cards
+              key={card.key}
+              Card_Figure={card.figure}
+              Card_Header={card.header}
+              Card_Subheader={card.subheader}
+              icon={card.icon}
+              iconBg={card.iconBg}
+            />
+          ))}
         </div>
-   
+
         <div className="flex flex-row h-fit gap-4">
           <SubscriptionLineChart subMonthsData={fetchhistory || []}/>
           <DoughnutChart 

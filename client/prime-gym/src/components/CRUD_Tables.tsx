@@ -81,7 +81,7 @@ export default function CRUDTables({
             type="text"
             placeholder="Search details here..."
             value={globalFilter}
-            onChange={(e) => {setGlobalFilter(e.target.value);setPage(1);}}
+            onChange={(e) => { setGlobalFilter(e.target.value); setPage(1); }}
             className="input input-bordered h-12 border bg-white border-gray-400 w-100"
           ></input>
         </div>
@@ -113,9 +113,9 @@ export default function CRUDTables({
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
                   </th>
                 ))}
                 <th className="text-black text-[0.950rem] p-5 bg-gray-300">
@@ -141,7 +141,7 @@ export default function CRUDTables({
                   </td>
                 ))}
                 <td className="border-b  flex gap-2 border-gray-300">
-                  {url === "customers" || url==="attendance" && (
+                  {(url === "customers" || url === "attendance") && (
                     <button
                       className="btn btn-primary"
                       onClick={() => additionalFunctionality?.(row.original)}
