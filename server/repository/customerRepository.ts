@@ -70,9 +70,10 @@ export class CustomerRepository extends GenericRepository<ICustomerDocument> imp
     return this.model
       .find({
         isDeleted: false,
+        status: "Paid",
         _id: { $nin: borrowedUserLockerIds },
       })
-      .select("id customer_id first_name last_name isDeleted");
+      .select("id customer_id first_name last_name isDeleted status");
   }
 
   async getTotalAmountPaid(): Promise<number> {

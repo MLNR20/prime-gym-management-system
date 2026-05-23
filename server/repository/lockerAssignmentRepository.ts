@@ -16,7 +16,7 @@ export class LockerAssignmentRepository extends GenericRepository<ILockerAssignm
 
     async getActiveCustomerIds(): Promise<String[]> {
        return this.model.distinct("customer_id", {
-            isDeleted: false,
+            status: "Borrowed",
         });
     }
 
