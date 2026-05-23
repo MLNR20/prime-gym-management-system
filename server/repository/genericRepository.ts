@@ -75,6 +75,13 @@ class GenericRepository<T> {
 
     let query: any = {};
 
+    if (this.model.schema.paths.isDeleted) {
+      query.isDeleted = { $ne: true };
+    }
+    if (this.model.schema.paths.is_active) {
+      query.is_active = { $ne: false };
+    }
+
     if (search && fields.length > 0) {
       query.$or = fields.map((field) => {
         if (field === "amount") {
@@ -155,6 +162,13 @@ class GenericRepository<T> {
     const skip = (page - 1) * limit;
 
     let query: any = {};
+
+    if (this.model.schema.paths.isDeleted) {
+      query.isDeleted = { $ne: true };
+    }
+    if (this.model.schema.paths.is_active) {
+      query.is_active = { $ne: false };
+    }
 
     if (search && fields.length > 0) {
       query.$or = fields.map((field) => {

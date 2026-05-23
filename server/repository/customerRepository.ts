@@ -14,7 +14,7 @@ export class CustomerRepository extends GenericRepository<ICustomerDocument> imp
   }
 
   async countUsersBasedOnTheirStatus(status: string): Promise<Number> {
-    return this.model.countDocuments({ status });
+    return this.model.countDocuments({ status, isDeleted: false });
   }
 
   async subscriptionsByMonth(): Promise<ICustomerDocument[]> {
