@@ -143,7 +143,7 @@ export default function Sidebar(): React.ReactElement {
                 <div className="collapse-content  p-0 min-h-0 text-sm">
                   <div className="grid grid-cols-1 mt-2 w-full gap-1.5">
                     <li className="mt-1">
-                      <Link to="/profile">
+                      <Link to="/exercises">
                         <div className="flex flex-row gap-2 p-1 w-full items-start">
                           <Dumbbell color="gray" />
                           Exercises
@@ -151,7 +151,7 @@ export default function Sidebar(): React.ReactElement {
                       </Link>
                     </li>
                     <li className="mt-1">
-                      <Link to="/profile">
+                      <Link to="/programs">
                         <div className="flex flex-row gap-2 p-1 w-full items-start">
                           <SportShoe color="gray" />
                           Programs

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -40,9 +40,15 @@ export default function CRUDTables({
   });
 
   const tableData = changeDataLimits.data ?? [];
-  const totalPage = changeDataLimits.meta?.totalPages ?? 1;
+  const totalPage = changeDataLimits.meta?.totalPages;
 
-  const pages = getWindowedPages(page, totalPage ?? 1);
+  useEffect(() => {
+    if (typeof totalPage === "number" && totalPage > 0 && page > totalPage) {
+      setPage(totalPage);
+    }
+  }, [page, totalPage]);
+
+  const pages = getWindowedPages(page, Number.isFinite(totalPage) ? totalPage : 1);
 
   const table = useReactTable({
     data: tableData,
@@ -88,7 +94,10 @@ export default function CRUDTables({
         <div className="flex flex-row items-center justify-end  w-1/2 gap-2">
           <h4>Showing</h4>
           <select
-            onChange={(e) => setLimit(parseInt(e.target.value))}
+            onChange={(e) => {
+              setLimit(parseInt(e.target.value));
+              setPage(1);
+            }}
             className="select w-fit h-12 border bg-white border-gray-400 "
           >
             <option value="10">10</option>
@@ -141,12 +150,12 @@ export default function CRUDTables({
                   </td>
                 ))}
                 <td className="border-b  flex gap-2 border-gray-300">
-                  {(url === "customers" || url === "attendance") && (
+                  {(url === "customers" || url === "attendance" || url === "programs") && (
                     <button
                       className="btn btn-primary"
                       onClick={() => additionalFunctionality?.(row.original)}
                     >
-                      {buttonString}
+                      {buttonString ?? (url === "programs" ? "Assign Exercises" : "Action")}
                     </button>
                   )}
                   <button

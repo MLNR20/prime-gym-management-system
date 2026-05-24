@@ -42,6 +42,33 @@ exerciseRouter.get("/", authMiddleware, async (request:RequestWithUser, response
   }
 });
 
+// PAGINATED EXERCISE LIST
+exerciseRouter.get("/show/", authMiddleware, async (request: RequestWithUser, response) => {
+  try {
+    const limit = parseInt(request.query.limit as string) || 10;
+    const page = parseInt(request.query.page as string) || 1;
+    const search = (request.query.search as string) || "";
+
+    const result = await ExerciseRepository.search({
+      page,
+      limit,
+      search,
+      fields: ["exercise_name", "target_area"],
+    });
+
+    const admin = request.admin;
+    await LogsRepository.logAction(
+      admin!._id.toString(),
+      `${admin!.first_name} ${admin?.last_name} accessed exercises list at ${new Date().toISOString()}`,
+    );
+
+    response.status(200).json(result);
+  } catch (error) {
+    console.error(error);
+    response.status(500).json({ message: "Error fetching exercises" });
+  }
+});
+
 
 //RETRIEVE EXERCISE FOR EDITING
 exerciseRouter.get("/:id", authMiddleware, async(request:RequestWithUser, response)=>{

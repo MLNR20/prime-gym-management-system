@@ -19,6 +19,13 @@ import Admin_View from '../pages/admin/Admin_View'
 import Attendance_View from '../pages/attendance/Attendance_View'
 import Add_Attendance from '../pages/attendance/Add_Attendance'
 import Edit_Attendance from '../pages/attendance/Edit_Attendance'
+import Exercise_View from '../pages/exercises/Exercise_View'
+import Add_Exercise from '../pages/exercises/Add_Exercise'
+import Edit_Exercise from '../pages/exercises/Edit_Exercise'
+import Program_View from '../pages/programs/Program_View'
+import Add_Program from '../pages/programs/Add_Program'
+import Edit_Program from '../pages/programs/Edit_Program'
+import Program_Manage from '../pages/programs/Program_Manage'
 // ...other imports
 
 export default function Router() {
@@ -41,6 +48,13 @@ export default function Router() {
         <Route path="/attendance" element={<Attendance_View/>}/>
         <Route path="/add_attendance" element={<Add_Attendance/>}/>
         <Route path="/attendance/:id" element={<Edit_Attendance/>}/>
+        <Route path="/exercises" element={<Exercise_View/>}/>
+        <Route path="/add_exercise" element={<Add_Exercise/>}/>
+        <Route path="/exercises/:id" element={<Edit_Exercise/>}/>
+        <Route path="/programs" element={<Program_View/>}/>
+        <Route path="/add_program" element={<Add_Program/>}/>
+        <Route path="/programs/:id" element={<Edit_Program/>}/>
+        <Route path="/programs/:id/manage" element={<Program_Manage/>}/>
         <Route path="/customers" element={<Customer_View/>}/>
         <Route path='/add_customers' element={<Add_Customers/>}/>
         <Route path='/add_locker' element={<Add_Locker/>}/>

@@ -11,6 +11,7 @@ import exerciseRouter from "./router/exercise";
 import lockerRouter from "./router/locker";
 import equipmentRouter from "./router/equipment";
 import logsRouter from "./router/logs";
+import programRouter from "./router/program";
 import { subscriptionCron } from "./crons/subscriptionCron";
 import SubscriptionHistoryRepositoryRouter from "./router/subscriptionhistory";
 import adminRouter from "./router/admin";
@@ -29,6 +30,7 @@ app.use("/contacts", contactRouter);
 app.use("/lockers", lockerRouter);
 app.use("/equipment", equipmentRouter);
 app.use("/logs", logsRouter);
+app.use("/programs", programRouter);
 app.use("/subscription", SubscriptionHistoryRepositoryRouter)
 app.use("/admin", adminRouter);
 app.use("/attendance", attendanceRouter);

@@ -4,7 +4,7 @@ import {
   flexRender
 } from "@tanstack/react-table";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useFetchData from "../data/fetchData";
 import getWindowedPages from "../utils/getWindowedPages";
 interface TableProps {
@@ -23,7 +23,6 @@ export default function Tables({
 
 
   const [globalFilter, setGlobalFilter] = useState("");
-  const [row, setRow] = useState<any>(null);
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
 
@@ -37,7 +36,14 @@ export default function Tables({
 
   const tableData = (changeDataLimits as any).data ?? data ?? [];
   const totalPage = (changeDataLimits as any).meta?.totalPages;
-  const pages = getWindowedPages(page, totalPage ?? 1);
+
+  useEffect(() => {
+    if (typeof totalPage === "number" && totalPage > 0 && page > totalPage) {
+      setPage(totalPage);
+    }
+  }, [page, totalPage]);
+
+  const pages = getWindowedPages(page, Number.isFinite(totalPage) ? totalPage : 1);
 
   const table = useReactTable({
     data: tableData,
@@ -68,7 +74,10 @@ export default function Tables({
         <div className="flex flex-row items-center justify-end  w-1/2 gap-2">
           <h4>Showing</h4>
           <select
-            onChange={(e) => setLimit(parseInt(e.target.value))}
+            onChange={(e) => {
+              setLimit(parseInt(e.target.value));
+              setPage(1);
+            }}
             className="select w-fit h-12 border bg-white border-gray-400 "
           >
             <option value="10">10</option>
@@ -124,7 +133,7 @@ export default function Tables({
               ))}
               {url === "admin" && (
                 <td className="border-b p-5 border-gray-300">
-                <button className="btn text-white btn-error" onClick={() => {setRow(row); additionalFunctionality?.((row as any).original?._id)}}>Delete</button>
+                <button className="btn text-white btn-error" onClick={() => additionalFunctionality?.((row as any).original?._id)}>Delete</button>
                 </td>
               )}
             </tr>

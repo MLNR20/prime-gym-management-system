@@ -3,7 +3,8 @@ import { Schema, model, Document } from "mongoose";
 export interface IProgram {
   program_name: string;
   description:string;
-  date_assigned:Date;
+  date_assigned:Date | string;
+  exercises?: any[];
   createdAt: Date;
   updatedAt: Date
 }
@@ -15,6 +16,7 @@ const programSchema = new Schema<IProgramDocument>(
   {
     program_name: { type: String, required: true, trim: true },
     description: { type: String, required: true, trim: true },
+    date_assigned: { type: Date },
     createdAt: { type: Date, default: Date.now },
     updatedAt: {type:Date, default: Date.now}
   },
