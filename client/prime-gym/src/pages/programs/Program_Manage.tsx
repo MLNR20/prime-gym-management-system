@@ -14,6 +14,10 @@ export default function Program_Manage(): React.ReactElement {
   const allExercises: any[] = Array.isArray(exercisesData) ? exercisesData : exercisesData.data || [];
   const [loading, setLoading] = useState(false);
 
+  // Filter States
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedTargetArea, setSelectedTargetArea] = useState("");
+
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -93,6 +97,18 @@ export default function Program_Manage(): React.ReactElement {
 
   const assignedIds = assigned.map((a) => String(a._id));
 
+  // Dynamically collect unique target areas from the available exercises list
+  const targetAreas = Array.from(
+    new Set(allExercises.map((ex: any) => ex.target_area).filter(Boolean))
+  ).sort() as string[];
+
+  // Filter logic
+  const filteredExercises = allExercises.filter((ex: any) => {
+    const matchesSearch = ex.exercise_name?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesArea = selectedTargetArea ? ex.target_area === selectedTargetArea : true;
+    return matchesSearch && matchesArea;
+  });
+
   return (
     <div className="flex background-white h-screen overflow-hidden">
       <div className="w-64">
@@ -117,6 +133,7 @@ export default function Program_Manage(): React.ReactElement {
           </div>
 
           <div className="grid grid-cols-2 gap-6">
+            {/* Left Column: Assigned Exercises */}
             <div>
               <h3 className="font-semibold mb-2">Assigned Exercises ({assigned.length})</h3>
               <div className="space-y-2">
@@ -137,12 +154,39 @@ export default function Program_Manage(): React.ReactElement {
               </div>
             </div>
 
+            {/* Right Column: Available Exercises with Filter Options */}
             <div>
               <h3 className="font-semibold mb-2">Available Exercises</h3>
-              <div className="space-y-2 max-h-96 overflow-auto">
-                {allExercises.length === 0 && <p className="text-gray-500">No exercises available.</p>}
-                {allExercises.map((ex: any) => (
-                  <div key={ex._id} className="flex items-center justify-between p-3 border rounded">
+
+              {/* Filters Container */}
+              <div className="flex gap-2 mb-4">
+                <input
+                  type="text"
+                  placeholder="Search exercises..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="input input-bordered h-10 border bg-white border-gray-400 flex-1 text-sm"
+                />
+                <select
+                  value={selectedTargetArea}
+                  onChange={(e) => setSelectedTargetArea(e.target.value)}
+                  className="select select-bordered h-10 min-h-10 border bg-white border-gray-400 text-sm w-44"
+                >
+                  <option value="">All Areas</option>
+                  {targetAreas.map((area) => (
+                    <option key={area} value={area}>
+                      {area}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2 max-h-96 overflow-auto border p-2 rounded">
+                {filteredExercises.length === 0 && (
+                  <p className="text-gray-500 p-2">No exercises found.</p>
+                )}
+                {filteredExercises.map((ex: any) => (
+                  <div key={ex._id} className="flex items-center justify-between p-3 border rounded bg-white">
                     <div>
                       <div className="font-medium">{ex.exercise_name}</div>
                       <div className="text-sm text-gray-500">{ex.target_area} • {ex.reps} reps • {ex.sets} sets</div>

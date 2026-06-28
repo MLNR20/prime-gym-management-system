@@ -5,6 +5,7 @@ export interface IExpense {
   unit_price: number
   quantity: number;
   categories: string;
+  due_date: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -28,12 +29,13 @@ const expensesSchema = new Schema<IExpenseDocument>(
     unit_price: { type: Number, required: true, trim: true },
     quantity: {type: Number, required:true},
     categories: { type: String, enum: Object.values(Categories), required:true, trim: true },
+    due_date: {type: Date, required:true},
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
   },
   { collection: "Expense" }
 );
 
-const Logs = model<IExpenseDocument>("expensesSchema", expensesSchema);
+const Expenses = model<IExpenseDocument>("Expenses", expensesSchema);
 
-export default Logs;
+export default Expenses;

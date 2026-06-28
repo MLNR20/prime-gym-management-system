@@ -4,11 +4,15 @@ import Header from "../../components/Header";
 import { Link, useNavigate } from "react-router-dom";
 import createData from "../../data/createData";
 import useFetchData from "../../data/fetchData";
+import getWindowedPages from "../../utils/getWindowedPages";
 
 export default function Program_View(): React.ReactElement {
   const navigate = useNavigate();
 
-  const programsList = useFetchData({ url: "programs" }) as any;
+  const [page, setPage] = useState(1);
+  const programsData = useFetchData({ url: "programs/show", page, limit: 10 }) as any;
+  const programsList = programsData.data ?? [];
+  const totalPages = programsData.meta?.totalPages ?? 1;
 
   const [generatedTitle, setGeneratedTitle] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -55,7 +59,6 @@ export default function Program_View(): React.ReactElement {
 
     const title = `${pick} — ${suf}`;
 
-    // small delay to feel like generation
     setTimeout(() => {
       setGeneratedTitle(title);
       setIsGenerating(false);
@@ -78,15 +81,15 @@ export default function Program_View(): React.ReactElement {
       const res = await createData({ url: "programs", data: payload });
       if (res) {
         alert("Program created");
-        navigate("/programs");
+        setPage(1); // Go back to first page to see the new program
+        setGeneratedTitle("");
+        window.location.reload();
       }
     } catch (err) {
       console.error(err);
       alert("Failed to create program");
     }
   }
-
-  
 
   return (
     <div className="flex background-white h-screen overflow-hidden">
@@ -124,49 +127,85 @@ export default function Program_View(): React.ReactElement {
           </div>
           <div className="mt-6">
             {Array.isArray(programsList) && programsList.length > 0 ? (
-                <div className="mt-4">
-
-                  {programsList.map((p: any) => {
-                    const exercises = assignedMap[p._id] || [];
-                    return (
-                      <div key={p._id} className="mt-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="py-1 font-semibold">{p.program_name}</p>
-                            <div className="text-xs text-gray-500">{exercises.length} assigned exercise{exercises.length !== 1 ? "s" : ""}</div>
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            <Link to={`/programs/${p._id}/manage`}>
-                              <button className="btn btn-sm btn-outline">Manage</button>
-                            </Link>
-                            <Link to={`/programs/${p._id}`}>
-                              <button className="btn btn-ghost btn-sm">View</button>
-                            </Link>
-                          </div>
+              <div className="mt-4">
+                {programsList.map((p: any) => {
+                  const exercises = assignedMap[p._id] || [];
+                  return (
+                    <div key={p._id} className="mt-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="py-1 font-semibold">{p.program_name}</p>
+                          <div className="text-xs text-gray-500">{exercises.length} assigned exercise{exercises.length !== 1 ? "s" : ""}</div>
                         </div>
 
-                        <div className="mt-3 grid grid-cols-3 gap-2">
-                          {exercises.length === 0 ? (
-                            <div className="text-sm text-gray-500 col-span-3">No exercises assigned.</div>
-                          ) : (
-                            exercises.map((ex: any) => (
-                              <div key={ex._id} className="px-3 py-2 bg-gray-50 border rounded text-sm">
-                                <div className="font-medium">{ex.exercise_name}</div>
-                                <div className="text-xs text-gray-500">{ex.target_area} • {ex.reps}x{ex.sets}</div>
-                              </div>
-                            ))
-                          )}
+                        <div className="flex items-center gap-2">
+                          <Link to={`/programs/${p._id}/manage`}>
+                            <button className="btn btn-sm btn-outline">Manage</button>
+                          </Link>
+                          <Link to={`/programs/${p._id}`}>
+                            <button className="btn btn-ghost btn-sm">View</button>
+                          </Link>
                         </div>
-
-                        <hr className="border-t border-2 border-gray-200 mt-4" />
                       </div>
-                    );
-                  })}
+
+                      <div className="mt-3 grid grid-cols-3 gap-2">
+                        {exercises.length === 0 ? (
+                          <div className="text-sm text-gray-500 col-span-3">No exercises assigned.</div>
+                        ) : (
+                          exercises.map((ex: any) => (
+                            <div key={ex._id} className="px-3 py-2 bg-gray-50 border rounded text-sm">
+                              <div className="font-medium">{ex.exercise_name}</div>
+                              <div className="text-xs text-gray-500">{ex.target_area} • {ex.reps}x{ex.sets}</div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+
+                      <hr className="border-t border-2 border-gray-200 mt-4" />
+                    </div>
+                  );
+                })}
+
+                {/* Pagination Controls */}
+                <div className="flex gap-2 justify-center items-center mt-8">
+                  <button
+                    className={
+                      page === 1
+                        ? "text-gray-400 font-normal btn bg-transparent border-none"
+                        : "hover:bg-black hover:text-white bg-transparent btn border-none text-black"
+                    }
+                    disabled={page === 1}
+                    onClick={() => setPage((p) => p - 1)}
+                  >
+                    Prev
+                  </button>
+
+                  {getWindowedPages(page, totalPages).map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => setPage(p)}
+                      className={`btn border-none ${page === p ? "btn-neutral" : "btn-outline"}`}
+                    >
+                      {p}
+                    </button>
+                  ))}
+
+                  <button
+                    className={
+                      page === totalPages
+                        ? "text-gray-400 font-normal btn bg-transparent border-none"
+                        : "hover:bg-black hover:text-white btn bg-transparent border-none text-black"
+                    }
+                    disabled={page === totalPages}
+                    onClick={() => setPage((p) => p + 1)}
+                  >
+                    Next
+                  </button>
                 </div>
-              ) : (
-                <p className="text-sm text-gray-500">No programs found.</p>
-              )}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-500">No programs found.</p>
+            )}
           </div>
         </div>
       </div>

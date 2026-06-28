@@ -15,6 +15,7 @@ import {
   BookUser,
   Package2,
   SportShoe,
+  Wrench,
 } from "lucide-react";
 import fitwatch from "../assets/fitwatch.png";
 
@@ -181,6 +182,14 @@ export default function Sidebar(): React.ReactElement {
                       </Link>
                     </li>
                     <li className="mt-1">
+                      <Link to="/equipment">
+                        <div className="flex flex-row gap-2 p-1 w-full items-start">
+                          <Wrench color="gray" />
+                          Equipment
+                        </div>
+                      </Link>
+                    </li>
+                    <li className="mt-1">
                       <Link to="/admin">
                         <div className="flex flex-row gap-2 p-1 w-full items-start">
                           <BookUser color="gray" />
@@ -189,7 +198,7 @@ export default function Sidebar(): React.ReactElement {
                       </Link>
                     </li>
                     <li className="mt-1">
-                      <Link to="/profile">
+                      <Link to="/inventory">
                         <div className="flex flex-row gap-2 p-1 w-full items-start">
                           <Package2 color="gray" />
                           Inventory

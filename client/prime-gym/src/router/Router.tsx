@@ -26,6 +26,9 @@ import Program_View from '../pages/programs/Program_View'
 import Add_Program from '../pages/programs/Add_Program'
 import Edit_Program from '../pages/programs/Edit_Program'
 import Program_Manage from '../pages/programs/Program_Manage'
+import Inventory_View from '../pages/inventory/Inventory_View'
+import Add_Inventory from '../pages/inventory/Add_Inventory'
+import Edit_Inventory from '../pages/inventory/Edit_Inventory'
 // ...other imports
 
 export default function Router() {
@@ -58,6 +61,9 @@ export default function Router() {
         <Route path="/customers" element={<Customer_View/>}/>
         <Route path='/add_customers' element={<Add_Customers/>}/>
         <Route path='/add_locker' element={<Add_Locker/>}/>
+        <Route path="/inventory" element={<Inventory_View/>}/>
+        <Route path="/add_inventory" element={<Add_Inventory/>}/>
+        <Route path="/inventory/:id" element={<Edit_Inventory/>}/>
       </Routes>
     </BrowserRouter>
   )

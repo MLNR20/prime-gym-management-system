@@ -121,7 +121,7 @@ export default function Tables({
           {table.getRowModel().rows.map((row) => (
             <tr
               key={row.id}
-              className="bg-white  border-2 border-indigo-200 border-b-gray-300"
+              className="odd:bg-white even:bg-gray-100 border-2 border-indigo-200 border-b-gray-300"
             >
               {row.getVisibleCells().map((cell) => (
                 <td
