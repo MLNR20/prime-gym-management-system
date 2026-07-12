@@ -50,6 +50,23 @@ inventoryRouter.get(
   },
 );
 
+// GET INVENTORY ITEMS AVAILABLE FOR SALE
+inventoryRouter.get(
+  "/for-sale",
+  authMiddleware,
+  async (_request: RequestWithUser, response) => {
+    try {
+      const items = await inventoryRepository.findAll();
+      const forSale = items.filter(
+        (item) => item.is_for_sale && item.quantity > 0
+      );
+      return response.status(200).json(forSale);
+    } catch (error) {
+      return response.status(500).json({ message: "For-sale inventory not retrieved!" });
+    }
+  },
+);
+
 // GET SINGLE INVENTORY ITEM
 inventoryRouter.get(
   "/:id",

@@ -1,5 +1,5 @@
 import React from "react";
-import HeaderMd from "../components/HeadersMd";
+import Header from "../components/Header";
 import Tables from "../components/Tables";
 
 interface DataTables{
@@ -14,7 +14,7 @@ interface DataTables{
 export default function TableTemplate({header, subheader, Data, Url, Columns, additionalFunctionality}: DataTables): React.ReactElement {
   return (
     <div className="bg-white p-16 rounded-lg">
-      <HeaderMd subheader={subheader} header={header} />
+      <Header subheader={subheader} header={header} />
       <Tables data={Data} url={Url} columns={Columns} additionalFunctionality={additionalFunctionality}/>
     </div>
   );

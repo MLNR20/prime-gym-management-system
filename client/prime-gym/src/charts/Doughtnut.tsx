@@ -23,19 +23,31 @@ export default function DoughnutChart({
     datasets: [
       {
         data: [activeUsers, inactiveUsers],
-        backgroundColor: ["#6FFEA3", "#FB7C7C"], // green / red
+        backgroundColor: ["#6FFEA3", "#FB7C7C"],
         borderWidth: 1
       }
     ]
   };
-return (
-  <div className="bg-white  rounded-lg p-6 max-w-96 h-fit"
-  >
-    <div className="mb-4">
-      <h1 className="text-lg font-semibold black mb-2">Subscriber Breakdown</h1>
-      <h2 className="text-md  font-light text-gray-500">Your subscriber's activity...</h2>
-    </div>   
-    <Doughnut data={data} className="" />
-  </div>
-);
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "bottom" as const,
+      },
+    },
+  };
+
+  return (
+    <div className="bg-white rounded-2xl p-8 flex flex-col w-full h-full shadow-sm">
+      <HeaderMd
+        header="Subscriber Breakdown"
+        subheader="Your subscriber's activity..."
+      />
+      <div className="flex-1 relative min-h-0" style={{ minHeight: "300px" }}>
+        <Doughnut data={data} options={options} />
+      </div>
+    </div>
+  );
 }

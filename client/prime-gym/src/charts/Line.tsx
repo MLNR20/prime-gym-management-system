@@ -9,6 +9,7 @@ import {
 } from "chart.js";
 
 import { Line } from "react-chartjs-2";
+import HeaderMd from "../components/HeadersMd";
 
 ChartJS.register(
   CategoryScale,
@@ -112,17 +113,13 @@ export default function SubscriptionLineChart({ subMonthsData }: Props) {
   };
 
   return (
-    <div className="w-full rounded-lg bg-white p-6 h-106 flex flex-col">
-      <div className="mb-4">
-        <h1 className="text-lg font-semibold text-black mb-2">
-          Subscriber Breakdown
-        </h1>
-        <h2 className="text-md font-light text-gray-500">
-          Your recent gym span over ...
-        </h2>
-      </div>
+    <div className="w-full h-full rounded-2xl bg-white p-8 flex flex-col shadow-sm">
+      <HeaderMd
+        header="Monthly Subscription Trend"
+        subheader="Your recent subscription activity over time..."
+      />
 
-      <div className="flex-1 relative">
+      <div className="flex-1 relative min-h-0" style={{ height: "340px" }}>
         <Line data={data} options={options} />
       </div>
     </div>

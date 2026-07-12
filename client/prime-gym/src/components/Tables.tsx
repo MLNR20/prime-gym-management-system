@@ -58,7 +58,7 @@ export default function Tables({
   const rowCount = table.getRowModel().rows.length;
 
   return (
-    <div className="overflow-x-auto mt-6">
+    <div className="overflow-x-auto mt-2">
       <div className="mb-4 flex flex-row gap-auto w-full">
         {/*Search functionality whenever global filter is typed it changes the value and filters the value...*/}
         <div className="flex flex-row gap-5  items-center w-1/2 ">
@@ -96,7 +96,7 @@ export default function Tables({
               {headerGroup.headers.map((header) => (
                 <th
                   key={header.id}
-                  className="text-black text-[0.950rem] p-5 bg-gray-100"
+                  className="text-black font-bold text-[0.950rem] p-5 bg-gray-100"
                 >
                   {header.isPlaceholder
                     ? null

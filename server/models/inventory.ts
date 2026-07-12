@@ -7,6 +7,7 @@ export interface IInventory {
   quantity: number;
   unit_price: number;
   status: string;
+  is_for_sale: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -47,6 +48,7 @@ const inventorySchema = new Schema<IInventoryDocument>(
       default: InventoryStatus.available,
       trim: true,
     },
+    is_for_sale: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
   },

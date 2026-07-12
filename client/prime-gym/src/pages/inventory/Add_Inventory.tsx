@@ -12,6 +12,7 @@ type FormData = {
   quantity: number;
   unit_price: number;
   status: string;
+  is_for_sale: string;
 };
 
 export default function Add_Inventory(): React.ReactElement {
@@ -24,7 +25,13 @@ export default function Add_Inventory(): React.ReactElement {
 
   const onSubmit = async (data: FormData) => {
     try {
-      const result = await createData({ url: "inventory", data });
+      const result = await createData({
+        url: "inventory",
+        data: {
+          ...data,
+          is_for_sale: data.is_for_sale === "true",
+        },
+      });
       if (result) {
         navigate("/inventory");
       }
@@ -134,6 +141,22 @@ export default function Add_Inventory(): React.ReactElement {
                 </select>
                 {errors.status && (
                   <span className="text-red-500 text-sm">{errors.status.message}</span>
+                )}
+              </div>
+
+              {/* For Sale */}
+              <div className="flex flex-col gap-1">
+                <label className={labelClass}>For Sale</label>
+                <select
+                  defaultValue="false"
+                  className={selectClass(!!errors.is_for_sale)}
+                  {...register("is_for_sale", { required: "For sale selection is required" })}
+                >
+                  <option value="false">No</option>
+                  <option value="true">Yes</option>
+                </select>
+                {errors.is_for_sale && (
+                  <span className="text-red-500 text-sm">{errors.is_for_sale.message}</span>
                 )}
               </div>
             </div>

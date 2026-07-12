@@ -54,6 +54,17 @@ export default function Inventory_View(): React.ReactElement {
       },
     },
     {
+      header: "For Sale",
+      accessorKey: "is_for_sale",
+      cell: ({ row }: any) => (
+        <span
+          className={`badge ${row.original.is_for_sale ? "badge-info text-white" : "badge-ghost"}`}
+        >
+          {row.original.is_for_sale ? "Yes" : "No"}
+        </span>
+      ),
+    },
+    {
       header: "Date Added",
       accessorKey: "createdAt",
       cell: ({ row }: any) =>

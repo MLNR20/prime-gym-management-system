@@ -1,5 +1,5 @@
 import React from "react";
-import { Outlet, Link } from "react-router-dom";
+import { Outlet, Link, Navigate, useNavigate } from "react-router-dom";
 import {
   Gauge,
   Wallet,
@@ -14,12 +14,26 @@ import {
   ScrollText,
   BookUser,
   Package2,
+  ShoppingCart,
   SportShoe,
   Wrench,
 } from "lucide-react";
 import fitwatch from "../assets/fitwatch.png";
+import { useAuth } from "../context/AuthContext";
 
 export default function Sidebar(): React.ReactElement {
+  const { isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
   return (
     <div className="drawer md:drawer-open lg:drawer-open w-full">
       <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
@@ -70,7 +84,7 @@ export default function Sidebar(): React.ReactElement {
                       </Link>
                     </li>
                     <li>
-                      <Link to="/profile">
+                      <Link to="/analytics">
                         <div className="flex flex-row gap-2 p-1 w-full items-start">
                           <ChartArea color="gray" />
                           Analytics
@@ -205,6 +219,14 @@ export default function Sidebar(): React.ReactElement {
                         </div>
                       </Link>
                     </li>
+                    <li className="mt-1">
+                      <Link to="/sales">
+                        <div className="flex flex-row gap-2 p-1 w-full items-start">
+                          <ShoppingCart color="gray" />
+                          Sales
+                        </div>
+                      </Link>
+                    </li>
                     <li>
                       <Link to="/profile">
                         <div className="flex flex-row gap-2 p-1 w-full items-start">
@@ -236,12 +258,12 @@ export default function Sidebar(): React.ReactElement {
                       </Link>
                     </li>
                     <li className="mt-1">
-                      <Link to="/profile">
+                      <button onClick={handleLogout} className="w-full">
                         <div className="flex flex-row gap-2 p-1 w-full items-start">
                           <LogOut color="gray" />
                           Log Out
                         </div>
-                      </Link>
+                      </button>
                     </li>
                   </div>
                 </div>

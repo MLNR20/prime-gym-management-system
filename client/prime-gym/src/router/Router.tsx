@@ -1,7 +1,9 @@
 // src/router/Router.tsx
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { AuthProvider } from '../context/AuthContext'
 import Dashboard from '../pages/Dashboard'
 import Login from '../pages/login/Login'
+import Register from '../pages/login/Register'
 import Contact_View from '../pages/contacts/Contact_View'
 import Add_Contacts from '../pages/contacts/Add_Contacts'
 import Edit_Contacts from '../pages/contacts/Edit_Contacts'
@@ -29,14 +31,21 @@ import Program_Manage from '../pages/programs/Program_Manage'
 import Inventory_View from '../pages/inventory/Inventory_View'
 import Add_Inventory from '../pages/inventory/Add_Inventory'
 import Edit_Inventory from '../pages/inventory/Edit_Inventory'
+import Sales_View from '../pages/sales/Sales_View'
+import Add_Sales from '../pages/sales/Add_Sales'
+import Edit_Sales from '../pages/sales/Edit_Sales'
+import Analytics_View from '../pages/analytics/Analytics_View'
 // ...other imports
 
 export default function Router() {
   return (
     <BrowserRouter>
+      <AuthProvider>
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/login" element={<Login/>} />
+        <Route path="/register" element={<Register/>} />
+        <Route path="/analytics" element={<Analytics_View/>} />
         <Route path="/contacts" element={<Contact_View/>}/>
         <Route path="/add_contacts" element={<Add_Contacts/>}/>
         <Route path="/contacts/:id" element={<Edit_Contacts/>}/>
@@ -64,7 +73,11 @@ export default function Router() {
         <Route path="/inventory" element={<Inventory_View/>}/>
         <Route path="/add_inventory" element={<Add_Inventory/>}/>
         <Route path="/inventory/:id" element={<Edit_Inventory/>}/>
+        <Route path="/sales" element={<Sales_View/>}/>
+        <Route path="/add_sales" element={<Add_Sales/>}/>
+        <Route path="/sales/:id" element={<Edit_Sales/>}/>
       </Routes>
+      </AuthProvider>
     </BrowserRouter>
   )
 }
