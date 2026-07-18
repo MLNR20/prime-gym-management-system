@@ -4,7 +4,9 @@ import Header from "../../components/Header";
 import { Link, useNavigate } from "react-router-dom";
 import createData from "../../data/createData";
 import useFetchData from "../../data/fetchData";
+import softDeleteData from "../../data/softDeleteData";
 import getWindowedPages from "../../utils/getWindowedPages";
+import { Trash2 } from "lucide-react";
 
 export default function Program_View(): React.ReactElement {
   const navigate = useNavigate();
@@ -13,6 +15,7 @@ export default function Program_View(): React.ReactElement {
   const programsData = useFetchData({ url: "programs/show", page, limit: 10 }) as any;
   const programsList = programsData.data ?? [];
   const totalPages = programsData.meta?.totalPages ?? 1;
+  const totalItems = programsData.meta?.total ?? programsList.length;
 
   const [generatedTitle, setGeneratedTitle] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -65,6 +68,44 @@ export default function Program_View(): React.ReactElement {
     }, 250);
   }
 
+  async function deleteExercise(programId: string, exerciseId: string) {
+    if (!window.confirm("Remove this exercise from the program?")) {
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(`http://localhost:3002/programs/${programId}/exercises/${exerciseId}`, {
+        method: "DELETE",
+        headers: { Authorization: token ? `Bearer ${token}` : "" },
+      });
+      if (!res.ok) throw new Error("Failed to delete exercise");
+
+      setAssignedMap((prev) => ({
+        ...prev,
+        [programId]: (prev[programId] || []).filter((ex: any) => ex._id !== exerciseId),
+      }));
+    } catch (err) {
+      console.error(err);
+      alert("Failed to remove exercise");
+    }
+  }
+
+  async function deactivateProgram(programId: string) {
+    if (!window.confirm("Deactivate this program? Its assigned exercises will also be removed.")) {
+      return;
+    }
+
+    try {
+      await softDeleteData({ url: "programs", id: programId });
+      alert("Program deactivated");
+      window.location.reload();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to deactivate program");
+    }
+  }
+
   async function createProgramFromTitle() {
     if (!generatedTitle.trim()) {
       alert("Please generate or enter a program title first.");
@@ -98,7 +139,7 @@ export default function Program_View(): React.ReactElement {
       </div>
 
       <div className="flex-1 p-24 overflow-auto">
-        <div className="bg-white p-16 rounded-lg">
+        <div className="bg-white p-16 rounded-lg min-h-full flex flex-col">
           <Header subheader="Let's manage your training programs..." header="Program Management" />
           <div className="flex items-center justify-between my-6">
             <div className="flex items-center gap-4">
@@ -118,44 +159,63 @@ export default function Program_View(): React.ReactElement {
                 Create Program
               </button>
             </div>
-
-            <div>
-              <Link to="/add_program">
-                <button className="btn btn-primary text-white">Add Program</button>
-              </Link>
-            </div>
           </div>
-          <div className="mt-6">
+          <div className="mt-2 flex-1 flex flex-col">
             {Array.isArray(programsList) && programsList.length > 0 ? (
-              <div className="mt-4">
+              <div className="mt-2 flex-1 flex flex-col">
                 {programsList.map((p: any) => {
                   const exercises = assignedMap[p._id] || [];
                   return (
                     <div key={p._id} className="mt-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="py-1 font-semibold">{p.program_name}</p>
+                          <p className="font-semibold">{p.program_name}</p>
                           <div className="text-xs text-gray-500">{exercises.length} assigned exercise{exercises.length !== 1 ? "s" : ""}</div>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                          <Link to={`/programs/${p._id}/manage`}>
-                            <button className="btn btn-sm btn-outline">Manage</button>
-                          </Link>
-                          <Link to={`/programs/${p._id}`}>
-                            <button className="btn btn-ghost btn-sm">View</button>
-                          </Link>
+                        <div className="dropdown dropdown-end">
+                          <button tabIndex={0} className="btn btn-sm btn-outline">
+                            Actions ▾
+                          </button>
+                          <ul
+                            tabIndex={0}
+                            className="dropdown-content menu menu-sm bg-white border rounded-lg shadow-lg z-10 w-40 p-2 gap-1"
+                          >
+                            <li>
+                              <Link to={`/programs/${p._id}/manage`}>Manage</Link>
+                            </li>
+                            <li>
+                              <Link to={`/programs/${p._id}`}>View</Link>
+                            </li>
+                            <li>
+                              <button
+                                className="text-error"
+                                onClick={() => deactivateProgram(p._id)}
+                              >
+                                Delete
+                              </button>
+                            </li>
+                          </ul>
                         </div>
                       </div>
 
-                      <div className="mt-3 grid grid-cols-3 gap-2">
+                      <div className="mt-1 flex flex-wrap gap-2">
                         {exercises.length === 0 ? (
-                          <div className="text-sm text-gray-500 col-span-3">No exercises assigned.</div>
+                          <div className="text-sm text-gray-500">No exercises assigned.</div>
                         ) : (
                           exercises.map((ex: any) => (
-                            <div key={ex._id} className="px-3 py-2 bg-gray-50 border rounded text-sm">
-                              <div className="font-medium">{ex.exercise_name}</div>
-                              <div className="text-xs text-gray-500">{ex.target_area} • {ex.reps}x{ex.sets}</div>
+                            <div key={ex._id} className="px-3 py-2 bg-gray-50 border rounded text-sm flex items-start justify-between gap-2 w-64">
+                              <div>
+                                <div className="font-medium">{ex.exercise_name}</div>
+                                <div className="text-xs text-gray-500">{ex.target_area} • {ex.reps}x{ex.sets}</div>
+                              </div>
+                              <button
+                                className="btn btn-xs btn-ghost text-error group"
+                                title="Delete exercise"
+                                onClick={() => deleteExercise(p._id, ex._id)}
+                              >
+                                <Trash2 size={14} className="fill-transparent group-hover:fill-current" />
+                              </button>
                             </div>
                           ))
                         )}
@@ -167,7 +227,7 @@ export default function Program_View(): React.ReactElement {
                 })}
 
                 {/* Pagination Controls */}
-                <div className="flex gap-2 justify-center items-center mt-8">
+                <div className="flex gap-3 justify-start items-center mt-auto pt-8">
                   <button
                     className={
                       page === 1
@@ -201,6 +261,10 @@ export default function Program_View(): React.ReactElement {
                   >
                     Next
                   </button>
+
+                  <span className="text-sm text-gray-500">
+                    Showing {programsList.length} of {totalItems}
+                  </span>
                 </div>
               </div>
             ) : (

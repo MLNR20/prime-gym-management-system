@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/Sidebar";
 import Header from "../../components/Header";
 import Cards from "../../components/Cards";
-import useFetchData from "../../data/fetchData";
+import Pills from "../../components/Pills";
+import TableTemplate from "../../templates/TableTemplate";
+import { useFetchDataWithStatus } from "../../data/fetchData";
+import Skeleton from "../../components/Skeleton";
+import formatIsoDate from "../../utils/dateFormat";
 import { subscriptionColors } from "../../charts/Line";
 import {
   ShoppingCart,
@@ -21,10 +26,24 @@ import {
   Title,
   Tooltip,
   Legend,
+  Filler,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
+
+// ── gradient fill helper ─────────────────────────────────────────────────────
+function makeGradient(color: string) {
+  return (context: any) => {
+    const { chart } = context;
+    const { ctx, chartArea } = chart;
+    if (!chartArea) return "transparent";
+    const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+    gradient.addColorStop(0, `${color}66`);
+    gradient.addColorStop(1, `${color}00`);
+    return gradient;
+  };
+}
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 function fmt(n: number | null | undefined) {
@@ -62,7 +81,8 @@ function buildLineData(
         return found ? valueKey(found) : 0;
       }),
       borderColor: c,
-      backgroundColor: c,
+      backgroundColor: makeGradient(c),
+      fill: true,
       tension: 0.4,
       pointRadius: 3,
       pointHoverRadius: 6,
@@ -108,14 +128,13 @@ function HighlightCard({
   iconBg: string;
 }) {
   return (
-    <div className="bg-white rounded-lg p-5 flex items-center gap-4 flex-1 min-w-0">
-      <div className={`p-3 rounded-xl shrink-0 ${iconBg}`}>{icon}</div>
-      <div className="min-w-0">
-        <p className="text-sm text-gray-500 font-medium truncate">{title}</p>
-        <p className="text-2xl font-extrabold truncate">{value}</p>
-        <p className="text-xs text-gray-400 truncate">{subtitle}</p>
-      </div>
-    </div>
+    <Cards
+      Card_Header={title}
+      Card_Figure={value}
+      Card_Subheader={subtitle}
+      icon={icon}
+      iconBg={iconBg}
+    />
   );
 }
 
@@ -130,13 +149,53 @@ function ChartPanel({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-white rounded-lg p-6 flex flex-col w-full">
-      <div className="mb-4">
-        <h1 className="text-2xl font-semibold text-black mb-1">{title}</h1>
-        <h2 className="text-base font-light text-gray-500">{subtitle}</h2>
-      </div>
-      <div className="flex-1 relative min-h-0" style={{ height: "260px" }}>
+    <div className="bg-white rounded-2xl p-12 flex flex-col w-full h-full">
+      <Header header={title} subheader={subtitle} />
+      <div className="flex-1 mt-4 relative min-h-0" style={{ height: "260px" }}>
         {children}
+      </div>
+    </div>
+  );
+}
+
+// ── skeleton placeholders ────────────────────────────────────────────────────
+function CardSkeleton() {
+  return (
+    <div className="card mt-2 p-1 bg-white w-full gap-y-4">
+      <div className="card-body flex-row items-start gap-4">
+        <Skeleton className="h-11 w-11 rounded-xl shrink-0" />
+        <div className="flex flex-col gap-y-2 w-full">
+          <Skeleton className="h-4 w-2/3" />
+          <Skeleton className="h-7 w-1/2" />
+          <Skeleton className="h-3 w-3/4" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ChartPanelSkeleton({ title, subtitle }: { title: string; subtitle: string }) {
+  return (
+    <div className="bg-white rounded-2xl p-12 flex flex-col w-full h-full">
+      <Header header={title} subheader={subtitle} />
+      <div className="flex-1 mt-4 relative min-h-0" style={{ height: "260px" }}>
+        <Skeleton className="w-full h-full" />
+      </div>
+    </div>
+  );
+}
+
+function TableSkeleton({ rows = 6 }: { rows?: number }) {
+  return (
+    <div className="bg-white rounded-2xl p-12 flex flex-col w-full gap-4">
+      <Header
+        header="Recent Registrations"
+        subheader="View a customer's full details..."
+      />
+      <div className="flex flex-col gap-3 mt-2">
+        {Array.from({ length: rows }).map((_, i) => (
+          <Skeleton key={i} className="h-10 w-full" />
+        ))}
       </div>
     </div>
   );
@@ -144,12 +203,26 @@ function ChartPanel({
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function Analytics_View(): React.ReactElement {
+  const navigate = useNavigate();
   // -- data fetches
-  const customerStats = useFetchData({ url: "customers/retrieve-stats/" });
-  const subBreakdown = useFetchData({ url: "customers/monthly-breakdown" });
-  const allCustomers = useFetchData({ url: "customers" });
-  const allSales = useFetchData({ url: "sales" });
-  const allAttendance = useFetchData({ url: "attendance" });
+  const { data: customerStats, loading: loadingCustomerStats } =
+    useFetchDataWithStatus({ url: "customers/retrieve-stats/" });
+  const { data: subBreakdown, loading: loadingSubBreakdown } =
+    useFetchDataWithStatus({ url: "customers/monthly-breakdown" });
+  const { data: allCustomers, loading: loadingCustomers } =
+    useFetchDataWithStatus({ url: "customers" });
+  const { data: allSales, loading: loadingSales } = useFetchDataWithStatus({
+    url: "sales",
+  });
+  const { data: attendanceBreakdown, loading: loadingAttendance } =
+    useFetchDataWithStatus({ url: "attendance/analytics/daily-breakdown" });
+
+  const isLoading =
+    loadingCustomerStats ||
+    loadingSubBreakdown ||
+    loadingCustomers ||
+    loadingSales ||
+    loadingAttendance;
 
   // -- derived
   const customers: any[] = Array.isArray(allCustomers)
@@ -164,11 +237,12 @@ export default function Analytics_View(): React.ReactElement {
     ? (allSales as any).data
     : [];
 
-  const attendance: any[] = Array.isArray(allAttendance)
-    ? allAttendance
-    : Array.isArray((allAttendance as any)?.data)
-    ? (allAttendance as any).data
+  const dailyAttendanceCounts: { date: string; count: number }[] = Array.isArray(
+    (attendanceBreakdown as any)?.dailyCounts
+  )
+    ? (attendanceBreakdown as any).dailyCounts
     : [];
+  const totalAttendanceCount: number = (attendanceBreakdown as any)?.total ?? 0;
 
   const subData: any[] = Array.isArray(subBreakdown) ? subBreakdown : [];
 
@@ -216,7 +290,8 @@ export default function Analytics_View(): React.ReactElement {
         label: "New Registrations",
         data: regLabels.map((l) => regCountByMonth[l]),
         borderColor: "#60a5fa",
-        backgroundColor: "#60a5fa",
+        backgroundColor: makeGradient("#60a5fa"),
+        fill: true,
         tension: 0.4,
         pointRadius: 3,
         pointHoverRadius: 6,
@@ -226,22 +301,17 @@ export default function Analytics_View(): React.ReactElement {
     ],
   };
 
-  // ── attendance chart (group by date)
-  const attendanceByDate: Record<string, number> = {};
-  attendance.forEach((a) => {
-    const date =
-      a.time_in?.slice(0, 10) ?? a.createdAt?.slice(0, 10) ?? "Unknown";
-    attendanceByDate[date] = (attendanceByDate[date] ?? 0) + 1;
-  });
-  const attLabels = Object.keys(attendanceByDate).sort().slice(-30); // last 30 dates
+  // ── attendance chart (already grouped by date server-side)
+  const attLabels = dailyAttendanceCounts.map((d) => d.date);
   const attLineData = {
     labels: attLabels,
     datasets: [
       {
         label: "Daily Attendance",
-        data: attLabels.map((l) => attendanceByDate[l]),
+        data: dailyAttendanceCounts.map((d) => d.count),
         borderColor: "#34d399",
-        backgroundColor: "#34d399",
+        backgroundColor: makeGradient("#34d399"),
+        fill: true,
         tension: 0.4,
         pointRadius: 3,
         pointHoverRadius: 6,
@@ -293,6 +363,52 @@ export default function Analytics_View(): React.ReactElement {
     },
   ];
 
+  // ── recent customer registrations table (most recent first)
+  const recentRegistrations = [...customers]
+    .filter((c) => c.createdAt)
+    .sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    )
+    .slice(0, 10);
+
+  const registrationColumns = [
+    {
+      header: "#",
+      cell: ({ row }: any) => row.index + 1,
+    },
+    {
+      header: "Full Name",
+      accessorFn: (row: any) => `${fmtStr(row.first_name)} ${fmtStr(row.last_name)}`,
+    },
+    {
+      header: "Subscription Type",
+      accessorKey: "subscription_type",
+      cell: ({ getValue }: any) => fmtStr(getValue()),
+    },
+    {
+      header: "Status",
+      accessorKey: "status",
+      cell: ({ getValue }: any) => <Pills status={getValue()} />,
+    },
+    {
+      header: "Date Registered",
+      accessorKey: "createdAt",
+      cell: ({ getValue }: any) => formatIsoDate(getValue()),
+    },
+    {
+      header: "",
+      id: "view_details",
+      cell: ({ row }: any) => (
+        <button
+          className="btn btn-sm btn-info text-white"
+          onClick={() => navigate(`/customers/${row.original._id}`)}
+        >
+          View Details
+        </button>
+      ),
+    },
+  ];
+
   return (
     <div className="flex h-screen p-6 md:p-0 lg:p-0 lg:flex-row md:flex-row flex-col overflow-hidden">
       {/* Sidebar */}
@@ -308,66 +424,116 @@ export default function Analytics_View(): React.ReactElement {
         />
 
         {/* KPI Cards */}
-        <StatRow cards={salesCards} />
+        {isLoading ? (
+          <div className="flex gap-4 flex-col lg:flex-row">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <CardSkeleton key={i} />
+            ))}
+          </div>
+        ) : (
+          <StatRow cards={salesCards} />
+        )}
 
         {/* Highlight row — Top paying customer + Top product */}
-        <div className="flex gap-4 flex-col lg:flex-row">
-          <HighlightCard
-            title="Top Paying Customer"
-            subtitle="Highest amount paid"
-            value={
-              topPayingCustomer
-                ? `${fmtStr(topPayingCustomer.first_name)} ${fmtStr(topPayingCustomer.last_name)}`
-                : "N/A"
-            }
-            icon={<Crown size={20} className="text-yellow-600" />}
-            iconBg="bg-yellow-100"
-          />
-          <HighlightCard
-            title="Top Selling Product"
-            subtitle="Most units sold"
-            value={topProductEntry ? fmtStr(topProductEntry[0]) : "N/A"}
-            icon={<Package2 size={20} className="text-indigo-600" />}
-            iconBg="bg-indigo-100"
-          />
-          <HighlightCard
-            title="Total Attendance Records"
-            subtitle="All check-ins logged"
-            value={fmt(attendance.length)}
-            icon={<CalendarCheck size={20} className="text-teal-600" />}
-            iconBg="bg-teal-100"
-          />
-        </div>
+        {isLoading ? (
+          <div className="flex gap-4 flex-col lg:flex-row">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <CardSkeleton key={i} />
+            ))}
+          </div>
+        ) : (
+          <div className="flex gap-4 flex-col lg:flex-row">
+            <HighlightCard
+              title="Top Paying Customer"
+              subtitle="Highest amount paid"
+              value={
+                topPayingCustomer
+                  ? `${fmtStr(topPayingCustomer.first_name)} ${fmtStr(topPayingCustomer.last_name)}`
+                  : "N/A"
+              }
+              icon={<Crown size={20} className="text-yellow-600" />}
+              iconBg="bg-yellow-100"
+            />
+            <HighlightCard
+              title="Top Selling Product"
+              subtitle="Most units sold"
+              value={topProductEntry ? fmtStr(topProductEntry[0]) : "N/A"}
+              icon={<Package2 size={20} className="text-indigo-600" />}
+              iconBg="bg-indigo-100"
+            />
+            <HighlightCard
+              title="Total Attendance Records"
+              subtitle="All check-ins logged"
+              value={fmt(totalAttendanceCount)}
+              icon={<CalendarCheck size={20} className="text-teal-600" />}
+              iconBg="bg-teal-100"
+            />
+          </div>
+        )}
 
         {/* Charts row 1 — Subscription trend */}
-        <div style={{ height: "350px" }}>
-          <ChartPanel
-            title="Monthly Subscription Trend"
-            subtitle="Subscriptions broken down by type over time..."
-          >
-            <Line data={subChartData} options={lineOptions} />
-          </ChartPanel>
+        <div style={{ height: "450px" }}>
+          {isLoading ? (
+            <ChartPanelSkeleton
+              title="Monthly Subscription Trend"
+              subtitle="Subscriptions broken down by type over time..."
+            />
+          ) : (
+            <ChartPanel
+              title="Monthly Subscription Trend"
+              subtitle="Subscriptions broken down by type over time..."
+            >
+              <Line data={subChartData} options={lineOptions} />
+            </ChartPanel>
+          )}
         </div>
 
         {/* Charts row 2 — Registration & Attendance side by side */}
-        <div className="flex flex-row items-stretch gap-4" style={{ height: "340px" }}>
+        <div className="flex flex-row items-stretch gap-4" style={{ height: "450px" }}>
           <div className="flex-1 min-w-0">
-            <ChartPanel
-              title="Customer Registrations"
-              subtitle="New registrations per month..."
-            >
-              <Line data={regLineData} options={lineOptions} />
-            </ChartPanel>
+            {isLoading ? (
+              <ChartPanelSkeleton
+                title="Customer Registrations"
+                subtitle="New registrations per month..."
+              />
+            ) : (
+              <ChartPanel
+                title="Customer Registrations"
+                subtitle="New registrations per month..."
+              >
+                <Line data={regLineData} options={lineOptions} />
+              </ChartPanel>
+            )}
           </div>
           <div className="flex-1 min-w-0">
-            <ChartPanel
-              title="Attendance Trend"
-              subtitle="Daily attendance for the last 30 recorded dates..."
-            >
-              <Line data={attLineData} options={lineOptions} />
-            </ChartPanel>
+            {isLoading ? (
+              <ChartPanelSkeleton
+                title="Attendance Trend"
+                subtitle="Daily attendance for the last 30 recorded dates..."
+              />
+            ) : (
+              <ChartPanel
+                title="Attendance Trend"
+                subtitle="Daily attendance for the last 30 recorded dates..."
+              >
+                <Line data={attLineData} options={lineOptions} />
+              </ChartPanel>
+            )}
           </div>
         </div>
+
+        {/* Logs row — Recent registrations */}
+        {isLoading ? (
+          <TableSkeleton />
+        ) : (
+          <TableTemplate
+            header="Recent Registrations"
+            subheader="View a customer's full details..."
+            Url="customers"
+            Columns={registrationColumns}
+            Data={recentRegistrations}
+          />
+        )}
       </div>
     </div>
   );

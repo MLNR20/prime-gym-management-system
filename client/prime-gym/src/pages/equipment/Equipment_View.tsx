@@ -1,5 +1,6 @@
 import React from "react";
 import Sidebar from "../../components/Sidebar";
+import Pills from "../../components/Pills";
 import CRUDTemplate from "../../templates/CRUDTemplate";
 import useFetchData from "../../data/fetchData";
 
@@ -18,20 +19,7 @@ export default function Equipment_View(): React.ReactElement {
     {
       header: "Status",
       accessorKey: "equipment_status",
-      cell: ({ row }: any) => {
-        const status = row.original.equipment_status;
-        const colorMap: Record<string, string> = {
-          Active: "badge-success text-white",
-          Inactive: "badge-neutral text-white",
-          "For Repair": "badge-warning text-white",
-          "Under Repair": "badge-error text-white",
-        };
-        return (
-          <span className={`badge ${colorMap[status] ?? "badge-ghost"}`}>
-            {status}
-          </span>
-        );
-      },
+      cell: ({ row }: any) => <Pills status={row.original.equipment_status} />,
     },
     {
       header: "Date Created",

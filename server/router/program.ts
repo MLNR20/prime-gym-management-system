@@ -4,6 +4,9 @@ import LogsRepository from "../repository/logsRepository";
 import { authMiddleware } from "../middleware/middleware";
 import { RequestWithUser } from "../middleware/types/express";
 import ProgramAndExercisesRepository from "../repository/programAndExercisesRepository";
+import ProgramAndCustomerRepository from "../repository/programAndCustomerRepository";
+import MailService from "../services/mailService";
+import CustomerRepository from "../repository/customerRepository";
 
 const programRouter = express.Router();
 
@@ -132,6 +135,31 @@ programRouter.delete("/:id", authMiddleware, async (request: RequestWithUser, re
   } catch (error) {
     console.error(error);
     response.status(500).json({ message: "Error deleting program" });
+  }
+});
+
+// DEACTIVATE PROGRAM (SOFT DELETE) AND REMOVE ASSOCIATED EXERCISES
+programRouter.patch("/:id", authMiddleware, async (request: RequestWithUser, response) => {
+  try {
+    const programId = request.params.id!;
+    const deactivatedProgram = await ProgramRepository.softDelete(programId, true);
+
+    if (!deactivatedProgram) {
+      return response.status(404).json({ message: "Program not found" });
+    }
+
+    await ProgramAndExercisesRepository.unassignAllForProgram(programId);
+
+    const admin = request.admin;
+    await LogsRepository.logAction(
+      admin!._id.toString(),
+      `${admin!.first_name} ${admin?.last_name} deactivated program ${programId} at ${new Date().toISOString()}`,
+    );
+
+    response.status(200).json({ message: "Program deactivated successfully" });
+  } catch (error) {
+    console.error(error);
+    response.status(500).json({ message: "Error deactivating program" });
   }
 });
 
@@ -267,6 +295,86 @@ programRouter.delete("/:id/exercises/:exerciseId", authMiddleware, async (reques
   } catch (error) {
     console.error(error);
     response.status(500).json({ message: "Error removing exercise" });
+  }
+});
+
+// GET ASSIGNED CUSTOMERS FOR A PROGRAM
+programRouter.get("/:id/customers", authMiddleware, async (request: RequestWithUser, response) => {
+  try {
+    const programId = request.params.id!;
+    const customers = await ProgramAndCustomerRepository.findByProgram(programId);
+
+    const admin = request.admin;
+    await LogsRepository.logAction(
+      admin!._id.toString(),
+      `${admin!.first_name} ${admin?.last_name} requested customers for program ${programId} at ${new Date().toISOString()}`,
+    );
+
+    response.status(200).json(customers);
+  } catch (error) {
+    console.error(error);
+    response.status(500).json({ message: "Error fetching assigned customers" });
+  }
+});
+
+// ASSIGN PROGRAM TO CUSTOMER (AND EMAIL NOTIFY)
+programRouter.post("/:id/customers", authMiddleware, async (request: RequestWithUser, response) => {
+  try {
+    const programId = request.params.id!;
+    const { customer_id } = request.body;
+
+    if (!customer_id) return response.status(400).json({ message: "customer_id required" });
+
+    const program = await ProgramRepository.findById(programId);
+    if (!program) return response.status(404).json({ message: "Program not found" });
+
+    const assigned = await ProgramAndCustomerRepository.assign(programId, customer_id);
+
+    const customer: any = await CustomerRepository.findById(customer_id);
+    if (customer?.email) {
+      try {
+        await MailService.sendProgramAssignmentEmail(
+          customer.email,
+          `${customer.first_name} ${customer.last_name}`,
+          program.program_name,
+          program.description,
+        );
+      } catch (mailError) {
+        console.error("Failed to send program assignment email:", mailError);
+      }
+    }
+
+    const admin = request.admin;
+    await LogsRepository.logAction(
+      admin!._id.toString(),
+      `${admin!.first_name} ${admin?.last_name} assigned program ${programId} to customer ${customer_id} at ${new Date().toISOString()}`,
+    );
+
+    response.status(201).json(assigned);
+  } catch (error) {
+    console.error(error);
+    response.status(500).json({ message: "Error assigning program to customer" });
+  }
+});
+
+// UNASSIGN PROGRAM FROM CUSTOMER
+programRouter.delete("/:id/customers/:customerId", authMiddleware, async (request: RequestWithUser, response) => {
+  try {
+    const programId = request.params.id!;
+    const customerId = request.params.customerId!;
+
+    const removed = await ProgramAndCustomerRepository.unassign(programId, customerId);
+
+    const admin = request.admin;
+    await LogsRepository.logAction(
+      admin!._id.toString(),
+      `${admin!.first_name} ${admin?.last_name} removed customer ${customerId} from program ${programId} at ${new Date().toISOString()}`,
+    );
+
+    response.status(200).json({ removed });
+  } catch (error) {
+    console.error(error);
+    response.status(500).json({ message: "Error removing customer from program" });
   }
 });
 

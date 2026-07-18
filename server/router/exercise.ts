@@ -1,7 +1,6 @@
 import express from "express";
 import ExerciseRepository from "../repository/exerciseRepository";
 import LogsRepository from "../repository/logsRepository";
-import { CustomerService } from "../repository/services/customerService";
 import { authMiddleware } from "../middleware/middleware";
 import { RequestWithUser } from "../middleware/types/express";
 
@@ -11,7 +10,7 @@ const exerciseRouter = express.Router();
 //const customerService = new CustomerService(CustomerRepository);
 
 // CREATE
-exerciseRouter.post("/", authMiddleware, async (request:RequestWithUser, response) => {
+exerciseRouter.post("/", authMiddleware, async (request: RequestWithUser, response) => {
   try {
     const newExercise = {
       exercise_name: request.body.exercise_name,
@@ -19,7 +18,7 @@ exerciseRouter.post("/", authMiddleware, async (request:RequestWithUser, respons
       reps: request.body.reps,
       sets: request.body.sets,
     };
-    const admin = request.admin; 
+    const admin = request.admin;
     await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created exercise called ${request.body.target_area}, called ${request.body.exercise_name} at ${new Date().toISOString()}`);
 
     const createNewExercise = await ExerciseRepository.create(newExercise);
@@ -30,10 +29,10 @@ exerciseRouter.post("/", authMiddleware, async (request:RequestWithUser, respons
 });
 
 // READ ALL
-exerciseRouter.get("/", authMiddleware, async (request:RequestWithUser, response) => {
+exerciseRouter.get("/", authMiddleware, async (request: RequestWithUser, response) => {
   try {
     const exercises = await ExerciseRepository.findAll();
-    const admin = request.admin; 
+    const admin = request.admin;
     await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} requested exercise list at ${new Date().toISOString()}`);
     response.status(200).json(exercises);
   } catch (error) {
@@ -71,29 +70,26 @@ exerciseRouter.get("/show/", authMiddleware, async (request: RequestWithUser, re
 
 
 //RETRIEVE EXERCISE FOR EDITING
-exerciseRouter.get("/:id", authMiddleware, async(request:RequestWithUser, response)=>{
-  try
-  {
-     const retrieveExercise = await ExerciseRepository.findById(request.params.id!)
+exerciseRouter.get("/:id", authMiddleware, async (request: RequestWithUser, response) => {
+  try {
+    const retrieveExercise = await ExerciseRepository.findById(request.params.id!)
 
-    if(!retrieveExercise)
-    {
-      return response.status(404).json({message:"Failed to retrieve exercise"})
+    if (!retrieveExercise) {
+      return response.status(404).json({ message: "Failed to retrieve exercise" })
     }
 
-    const admin = request.admin; 
+    const admin = request.admin;
     await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} retrieved exercise at ${new Date().toISOString()}`);
     response.status(200).json(retrieveExercise);
   }
-  catch(error)
-  {
-    response.status(500).json({message:"Error fetching exercise"})
+  catch (error) {
+    response.status(500).json({ message: "Error fetching exercise" })
   }
 })
 
 
 // UPDATE
-exerciseRouter.put("/:id", authMiddleware, async (request:RequestWithUser, response) => {
+exerciseRouter.put("/:id", authMiddleware, async (request: RequestWithUser, response) => {
   try {
     const updatedCustomer = await ExerciseRepository.update(
       request.params.id!,
@@ -104,7 +100,7 @@ exerciseRouter.put("/:id", authMiddleware, async (request:RequestWithUser, respo
       return response.status(404).json({ message: "Exercise not found" });
     }
 
-    const admin = request.admin; 
+    const admin = request.admin;
     await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} updated exercise and called ${request.body.exercise_name} changed it's details at ${new Date().toISOString()}`);
     response.status(200).json(updatedCustomer);
   } catch (error) {
@@ -115,14 +111,14 @@ exerciseRouter.put("/:id", authMiddleware, async (request:RequestWithUser, respo
 
 
 //DELETE
-exerciseRouter.delete("/:id", authMiddleware, async (request:RequestWithUser, response) => {
+exerciseRouter.delete("/:id", authMiddleware, async (request: RequestWithUser, response) => {
   try {
     const deletedCustomer = await ExerciseRepository.delete(request.params.id!);
     if (!deletedCustomer) {
       return response.status(404).json({ message: "Exercise not found" });
     }
 
-    const admin = request.admin; 
+    const admin = request.admin;
     await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} deleted exercise at ${new Date().toISOString()}`);
 
     response.status(204).json({ message: "Exercise deleted successfully" });
@@ -134,14 +130,14 @@ exerciseRouter.delete("/:id", authMiddleware, async (request:RequestWithUser, re
 
 
 // SOFT DELETE
-exerciseRouter.patch("/:id", authMiddleware, async (request:RequestWithUser, response) => {
+exerciseRouter.patch("/:id", authMiddleware, async (request: RequestWithUser, response) => {
   try {
     const deletedCustomer = await exerciseRepository.softDelete(request.params.id!, true);
     if (!deletedCustomer) {
       return response.status(404).json({ message: "Customer not found" });
     }
 
-    const admin = request.admin; 
+    const admin = request.admin;
     await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} deleted exercise at ${new Date().toISOString()}`);
 
     response.status(200).json({ message: "Exercise deleted successfully" });
@@ -152,13 +148,13 @@ exerciseRouter.patch("/:id", authMiddleware, async (request:RequestWithUser, res
 });
 
 
-exerciseRouter.post("/many/", authMiddleware, async (request:RequestWithUser, response) => {
+exerciseRouter.post("/many/", authMiddleware, async (request: RequestWithUser, response) => {
   try {
     const docs = await ExerciseRepository.createMany(request.body);
 
-    const admin = request.admin; 
+    const admin = request.admin;
     await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} inserted many exercises at ${new Date().toISOString()}`);
-     
+
     response.status(201).json(docs);
   } catch (err: any) {
     response.status(400).json({ error: err.message });

@@ -21,6 +21,24 @@ type FormData = {
   exercises: ExerciseEntry[];
 };
 
+const TARGET_AREAS = [
+  "Chest",
+  "Legs",
+  "Back",
+  "Shoulders",
+  "Arms",
+  "Abs",
+  "Biceps",
+  "Triceps",
+  "Forearms",
+  "Calves",
+  "Glutes",
+  "Obliques",
+  "Traps",
+  "Lats",
+  "FullBody",
+];
+
 export default function Add_Exercise(): React.ReactElement {
   const {
     register,
@@ -54,6 +72,12 @@ export default function Add_Exercise(): React.ReactElement {
   const isMultiple = watch("multiple");
   const navigate = useNavigate();
 
+  const labelClass = "text-sm mb-2 font-medium text-gray-700";
+  const inputClass = (hasError: boolean) =>
+    `input input-bordered h-12 border bg-white border-gray-400 text-gray-500 placeholder-gray-400 w-full ${hasError ? "input-error" : ""}`;
+  const selectClass = (hasError: boolean) =>
+    `select select-bordered h-12 border bg-white border-gray-400 text-gray-500 w-full ${hasError ? "select-error" : ""}`;
+
   const onSubmit = async (data: FormData) => {
     try {
       if (data.multiple) {
@@ -61,10 +85,7 @@ export default function Add_Exercise(): React.ReactElement {
           exercise.exercise_name.trim() || exercise.target_area.trim() || exercise.sets > 0 || exercise.reps > 0,
         );
 
-        console.log(payload)
-
         if (payload.length === 0) {
-          alert("Please fill in at least one exercise.");
           return;
         }
 
@@ -88,13 +109,12 @@ export default function Add_Exercise(): React.ReactElement {
         }
       }
     } catch (error) {
-      console.error(error);
-      alert("Failed to create exercise.");
+      console.log(error);
     }
   };
 
   return (
-    <div className="flex background-white h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden">
       <div className="w-64">
         <Sidebar />
       </div>
@@ -106,126 +126,110 @@ export default function Add_Exercise(): React.ReactElement {
             header="Add Exercise"
           />
 
-          <form onSubmit={handleSubmit(onSubmit)} className="w-full my-12">
+          <form onSubmit={handleSubmit(onSubmit)} className="w-full mt-10">
+
+            {/* ── MODE TOGGLE ── */}
+            <div className="flex items-center gap-4 mb-6">
+              <span className="text-xs font-semibold uppercase tracking-widest text-gray-400 whitespace-nowrap">
+                Exercise Details
+              </span>
+              <hr className="flex-1 border-gray-300" />
+            </div>
+
+            <label className="flex items-center gap-2 mb-8 cursor-pointer w-fit">
+              <input type="checkbox" className="checkbox checkbox-success" {...register("multiple")} />
+              <span className="text-sm font-medium text-gray-700">Add multiple exercises</span>
+            </label>
+
             {!isMultiple ? (
-              <>
-                <div className="grid grid-cols-3 gap-6">
-                  <div className="flex w-full my-6 flex-col gap-2">
-                    <label className="label">
-                      <span className="label-text text-black">Exercise Name</span>
-                    </label>
-                    <input
-                      type="text"
-                      className={`input input-bordered h-12 border bg-white border-gray-700 w-full ${errors.exercise_name ? "input-error" : ""}`}
-                      {...register("exercise_name", {
-                        required: "Exercise name is required",
-                        minLength: { value: 3, message: "Minimum 3 characters" },
-                      })}
-                    />
-                    {errors.exercise_name && (
-                      <span className="text-red-500 text-sm">
-                        {errors.exercise_name.message}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex w-full my-6 flex-col gap-2">
-                    <label className="label">
-                      <span className="label-text text-black">Target Area</span>
-                    </label>
-                    <select
-                      className={`select select-bordered h-12 border bg-white border-gray-700 w-full ${errors.target_area ? "select-error" : ""}`}
-                      defaultValue=""
-                      {...register("target_area", {
-                        required: "Target area is required",
-                      })}
-                    >
-                      <option value="" disabled>
-                        Pick a target area...
-                      </option>
-                      <option value="Chest">Chest</option>
-                      <option value="Legs">Legs</option>
-                      <option value="Back">Back</option>
-                      <option value="Shoulders">Shoulders</option>
-                      <option value="Arms">Arms</option>
-                      <option value="Abs">Abs</option>
-                      <option value="Biceps">Biceps</option>
-                      <option value="Triceps">Triceps</option>
-                      <option value="Forearms">Forearms</option>
-                      <option value="Calves">Calves</option>
-                      <option value="Glutes">Glutes</option>
-                      <option value="Obliques">Obliques</option>
-                      <option value="Traps">Traps</option>
-                      <option value="Lats">Lats</option>
-                      <option value="FullBody">FullBody</option>
-                    </select>
-                    {errors.target_area && (
-                      <span className="text-red-500 text-sm">
-                        {errors.target_area.message}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex w-full my-6 flex-col gap-2">
-                    <label className="label">
-                      <span className="label-text text-black">Sets</span>
-                    </label>
-                    <input
-                      type="number"
-                      className={`input input-bordered h-12 border bg-white border-gray-700 w-full ${errors.sets ? "input-error" : ""}`}
-                      {...register("sets", {
-                        required: "Sets are required",
-                        valueAsNumber: true,
-                        min: { value: 1, message: "Minimum 1 set" },
-                      })}
-                    />
-                    {errors.sets && (
-                      <span className="text-red-500 text-sm">
-                        {errors.sets.message}
-                      </span>
-                    )}
-                  </div>
+              <div className="grid grid-cols-2 gap-6 mb-8">
+                {/* Exercise Name */}
+                <div className="flex flex-col gap-1">
+                  <label className={labelClass}>Exercise Name</label>
+                  <input
+                    type="text"
+                    placeholder="Enter exercise name..."
+                    className={inputClass(!!errors.exercise_name)}
+                    {...register("exercise_name", {
+                      required: "Exercise name is required",
+                      minLength: { value: 3, message: "Minimum 3 characters" },
+                    })}
+                  />
+                  {errors.exercise_name && (
+                    <span className="text-red-500 text-sm">{errors.exercise_name.message}</span>
+                  )}
                 </div>
 
-                <div className="grid grid-cols-1 gap-6">
-                  <div className="flex w-full my-6 flex-col gap-2">
-                    <label className="label">
-                      <span className="label-text text-black">Reps</span>
-                    </label>
-                    <input
-                      type="number"
-                      className={`input input-bordered h-12 border bg-white border-gray-700 w-full ${errors.reps ? "input-error" : ""}`}
-                      {...register("reps", {
-                        required: "Reps are required",
-                        valueAsNumber: true,
-                        min: { value: 1, message: "Minimum 1 rep" },
-                      })}
-                    />
-                    {errors.reps && (
-                      <span className="text-red-500 text-sm">
-                        {errors.reps.message}
-                      </span>
-                    )}
-                  </div>
+                {/* Target Area */}
+                <div className="flex flex-col gap-1">
+                  <label className={labelClass}>Target Area</label>
+                  <select
+                    defaultValue=""
+                    className={selectClass(!!errors.target_area)}
+                    {...register("target_area", { required: "Target area is required" })}
+                  >
+                    <option value="" disabled>Pick a target area...</option>
+                    {TARGET_AREAS.map((area) => (
+                      <option key={area} value={area}>{area}</option>
+                    ))}
+                  </select>
+                  {errors.target_area && (
+                    <span className="text-red-500 text-sm">{errors.target_area.message}</span>
+                  )}
                 </div>
-              </>
+
+                {/* Sets */}
+                <div className="flex flex-col gap-1">
+                  <label className={labelClass}>Sets</label>
+                  <input
+                    type="number"
+                    placeholder="Enter number of sets..."
+                    className={inputClass(!!errors.sets)}
+                    {...register("sets", {
+                      required: "Sets are required",
+                      valueAsNumber: true,
+                      min: { value: 1, message: "Minimum 1 set" },
+                    })}
+                  />
+                  {errors.sets && (
+                    <span className="text-red-500 text-sm">{errors.sets.message}</span>
+                  )}
+                </div>
+
+                {/* Reps */}
+                <div className="flex flex-col gap-1">
+                  <label className={labelClass}>Reps</label>
+                  <input
+                    type="number"
+                    placeholder="Enter number of reps..."
+                    className={inputClass(!!errors.reps)}
+                    {...register("reps", {
+                      required: "Reps are required",
+                      valueAsNumber: true,
+                      min: { value: 1, message: "Minimum 1 rep" },
+                    })}
+                  />
+                  {errors.reps && (
+                    <span className="text-red-500 text-sm">{errors.reps.message}</span>
+                  )}
+                </div>
+              </div>
             ) : (
-              <>
+              <div className="mb-8">
                 <div className="space-y-4">
                   {fields.map((field, index) => {
                     const rowErrors = errors.exercises?.[index];
                     return (
                       <div
                         key={field.id}
-                        className="grid grid-cols-[2fr_1fr_1fr_auto] gap-4 items-end rounded-lg border border-slate-200 p-4"
+                        className="grid grid-cols-[2fr_1fr_1fr_auto] gap-4 items-end rounded-lg border border-gray-300 bg-white p-4"
                       >
-                        <div className="flex flex-col gap-2">
-                          <label className="label">
-                            <span className="label-text text-black">Exercise</span>
-                          </label>
+                        <div className="flex flex-col gap-1">
+                          <label className={labelClass}>Exercise</label>
                           <input
                             type="text"
-                            className={`input input-bordered h-12 border bg-white border-gray-700 w-full ${rowErrors?.exercise_name ? "input-error" : ""}`}
+                            placeholder="Enter exercise name..."
+                            className={inputClass(!!rowErrors?.exercise_name)}
                             {...register(`exercises.${index}.exercise_name` as const, {
                               required: "Exercise name is required",
                               minLength: { value: 3, message: "Minimum 3 characters" },
@@ -238,33 +242,19 @@ export default function Add_Exercise(): React.ReactElement {
                           )}
                         </div>
 
-                        <div className="flex flex-col gap-2">
-                          <label className="label">
-                            <span className="label-text text-black">Target Area</span>
-                          </label>
+                        <div className="flex flex-col gap-1">
+                          <label className={labelClass}>Target Area</label>
                           <select
-                            className={`select select-bordered h-12 border bg-white border-gray-700 w-full ${rowErrors?.target_area ? "select-error" : ""}`}
                             defaultValue=""
+                            className={selectClass(!!rowErrors?.target_area)}
                             {...register(`exercises.${index}.target_area` as const, {
                               required: "Target area is required",
                             })}
                           >
-                            <option value="" disabled>
-                              Pick an area...
-                            </option>
-                            <option value="Chest">Chest</option>
-                            <option value="Legs">Legs</option>
-                            <option value="Back">Back</option>
-                            <option value="Abs">Abs</option>
-                            <option value="Biceps">Biceps</option>
-                            <option value="Triceps">Triceps</option>
-                            <option value="Forearms">Forearms</option>
-                            <option value="Calves">Calves</option>
-                            <option value="Glutes">Glutes</option>
-                            <option value="Obliques">Obliques</option>
-                            <option value="Traps">Traps</option>
-                            <option value="Lats">Lats</option>
-                            <option value="FullBody">FullBody</option>
+                            <option value="" disabled>Pick an area...</option>
+                            {TARGET_AREAS.map((area) => (
+                              <option key={area} value={area}>{area}</option>
+                            ))}
                           </select>
                           {rowErrors?.target_area && (
                             <span className="text-red-500 text-sm">
@@ -273,13 +263,12 @@ export default function Add_Exercise(): React.ReactElement {
                           )}
                         </div>
 
-                        <div className="flex flex-col gap-2">
-                          <label className="label">
-                            <span className="label-text text-black">Sets</span>
-                          </label>
+                        <div className="flex flex-col gap-1">
+                          <label className={labelClass}>Sets</label>
                           <input
                             type="number"
-                            className={`input input-bordered h-12 border bg-white border-gray-700 w-full ${rowErrors?.sets ? "input-error" : ""}`}
+                            placeholder="Sets..."
+                            className={inputClass(!!rowErrors?.sets)}
                             {...register(`exercises.${index}.sets` as const, {
                               required: "Sets are required",
                               valueAsNumber: true,
@@ -307,24 +296,30 @@ export default function Add_Exercise(): React.ReactElement {
 
                 <button
                   type="button"
-                  className="btn bg-slate-200 text-slate-900 border-slate-300 mt-4"
+                  className="btn btn-neutral btn-outline mt-4"
                   onClick={() =>
                     append({ exercise_name: "", target_area: "", reps: 1, sets: 1 })
                   }
                 >
-                  Add exercise
+                  Add Exercise
                 </button>
-              </>
+              </div>
             )}
 
-            <label className="flex items-center gap-2 mt-8">
-              <input type="checkbox" className="checkbox checkbox-primary" {...register("multiple")} />
-              <span className="text-sm text-slate-700">Add multiple exercises</span>
-            </label>
+            <hr className="border-t border-gray-200 mt-6 mb-6" />
 
-            <button type="submit" className="btn btn-success mt-6 text-white">
-              Submit
-            </button>
+            <div className="flex gap-3">
+              <button type="submit" className="btn btn-success text-white">
+                Submit
+              </button>
+              <button
+                type="button"
+                className="btn btn-neutral btn-outline"
+                onClick={() => navigate("/exercises")}
+              >
+                Cancel
+              </button>
+            </div>
           </form>
         </div>
       </div>

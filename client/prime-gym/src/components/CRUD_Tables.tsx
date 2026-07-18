@@ -6,9 +6,10 @@ import {
 } from "@tanstack/react-table";
 import deleteData from "../data/deleteData";
 import { useNavigate } from "react-router-dom";
-import useFetchData from "../data/fetchData";
+import { useFetchDataWithStatus } from "../data/fetchData";
 import getWindowedPages from "../utils/getWindowedPages";
 import softDeleteData from "../data/softDeleteData";
+import { TableRowsSkeleton } from "./Skeleton";
 
 interface TableProps {
   data: any[];
@@ -32,7 +33,7 @@ export default function CRUDTables({
   //This line of code is responsible for search functionality...
   const [globalFilter, setGlobalFilter] = useState("");
 
-  const changeDataLimits = useFetchData({
+  const { data: changeDataLimits, loading } = useFetchDataWithStatus({
     url: `${url}/show`,
     page,
     limit,
@@ -136,7 +137,13 @@ export default function CRUDTables({
 
           {/* TBODY */}
           <tbody>
-            {table.getRowModel().rows.map((row) => (
+            {loading && tableData.length === 0 ? (
+              <TableRowsSkeleton
+                rows={limit > 10 ? 10 : limit}
+                columns={columns.length + 1}
+              />
+            ) : (
+              table.getRowModel().rows.map((row) => (
               <tr
                 key={row.id}
                 className="odd:bg-white even:bg-gray-100 border-2 text-[0.950rem] p-5 border-indigo-200 border-b-gray-300"
@@ -182,7 +189,8 @@ export default function CRUDTables({
                   </button>
                 </td>
               </tr>
-            ))}
+              ))
+            )}
           </tbody>
         </table>
         <div className="mt-6 flex flex-row gap-auto w-full">

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { handleAuthError } from "./authErrorHandler";
 
 interface RequestStructure<T = any> {
   url: string;
@@ -22,6 +23,7 @@ export default async function createData({url, data}: RequestStructure) {
     return response.data;
   } catch (error) {
     console.error(error);
+    handleAuthError(error);
     throw error;
   }
 }

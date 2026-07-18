@@ -131,12 +131,12 @@ export default function Dashboard(): React.ReactElement {
 
         <div className="flex flex-row items-stretch gap-4" style={{ height: "500px" }}>
           <div className="flex-[2] min-w-0">
-            <SubscriptionLineChart subMonthsData={fetchhistory || []}/>
+            <SubscriptionLineChart subMonthsData={fetchhistory || []} />
           </div>
           <div className="flex-1 min-w-0">
             <DoughnutChart
               activeUsers={data.activeUsers}
-              inactiveUsers={data.inactiveUsers}/>
+              inactiveUsers={data.inactiveUsers} />
           </div>
         </div>
         <div className="-mt-3">

@@ -5,13 +5,16 @@ import {
 } from "@tanstack/react-table";
 
 import { useEffect, useState } from "react";
-import useFetchData from "../data/fetchData";
+import { useNavigate } from "react-router-dom";
+import { useFetchDataWithStatus } from "../data/fetchData";
 import getWindowedPages from "../utils/getWindowedPages";
+import { TableRowsSkeleton } from "./Skeleton";
 interface TableProps {
   data: any[];
   columns: any[];
   url: string;
   additionalFunctionality?: (id: string) => void;
+  onRowClick?: (row: any) => void;
 }
 
 export default function Tables({
@@ -19,14 +22,16 @@ export default function Tables({
   columns,
   url,
   additionalFunctionality,
+  onRowClick,
 }: TableProps): React.ReactElement {
+  const navigate = useNavigate();
 
 
   const [globalFilter, setGlobalFilter] = useState("");
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
 
- const changeDataLimits = useFetchData({
+ const { data: changeDataLimits, loading } = useFetchDataWithStatus({
     url: `${url}/show`,
     page,
     limit,
@@ -118,26 +123,36 @@ export default function Tables({
 
         {/* TBODY */}
         <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr
-              key={row.id}
-              className="odd:bg-white even:bg-gray-100 border-2 border-indigo-200 border-b-gray-300"
-            >
-              {row.getVisibleCells().map((cell) => (
-                <td
-                  key={cell.id}
-                  className="border-b p-5 text-[0.950rem] border-gray-300"
-                >
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
-              {url === "admin" && (
-                <td className="border-b p-5 border-gray-300">
-                <button className="btn text-white btn-error" onClick={() => additionalFunctionality?.((row as any).original?._id)}>Delete</button>
-                </td>
-              )}
-            </tr>
-          ))}
+          {loading && tableData.length === 0 ? (
+            <TableRowsSkeleton
+              rows={limit > 10 ? 10 : limit}
+              columns={columns.length + (url === "admin" ? 1 : 0)}
+            />
+          ) : (
+            table.getRowModel().rows.map((row) => (
+              <tr
+                key={row.id}
+                onClick={() => onRowClick?.((row as any).original)}
+                className={`odd:bg-white even:bg-gray-100 border-2 border-indigo-200 border-b-gray-300 ${
+                  onRowClick ? "cursor-pointer hover:bg-gray-200" : ""
+                }`}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <td
+                    key={cell.id}
+                    className="border-b p-5 text-[0.950rem] border-gray-300"
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+                {url === "admin" && (
+                  <td className="border-b p-5 border-gray-300">
+                  <button className="btn text-white btn-error" onClick={() => additionalFunctionality?.((row as any).original?._id)}>Delete</button>
+                  </td>
+                )}
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
       <div className="mt-6 flex flex-row gap-auto w-full">

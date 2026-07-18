@@ -19,6 +19,7 @@ customerRouter.post("/", authMiddleware, async (request: RequestWithUser, respon
       amount_paid: request.body.amount_paid,
       status: request.body.status,
       contact_no: request.body.contact_no,
+      email: request.body.email,
       subscription_type: request.body.subscription_type,
       payment_option: request.body.payment_option,
     };

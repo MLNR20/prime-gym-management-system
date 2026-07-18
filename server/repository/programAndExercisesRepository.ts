@@ -25,6 +25,11 @@ const ProgramAndExercisesRepository = {
     const res = await ProgramAndExercises.deleteOne({ program_id: programId, exercise_id: exerciseId });
     return res.deletedCount && res.deletedCount > 0;
   },
+
+  async unassignAllForProgram(programId: string) {
+    const res = await ProgramAndExercises.deleteMany({ program_id: programId });
+    return res.deletedCount ?? 0;
+  },
 };
 
 export default ProgramAndExercisesRepository;

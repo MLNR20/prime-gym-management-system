@@ -6,7 +6,8 @@ export interface IProgram {
   date_assigned:Date | string;
   exercises?: any[];
   createdAt: Date;
-  updatedAt: Date
+  updatedAt: Date;
+  isDeleted: boolean;
 }
 
 
@@ -18,7 +19,8 @@ const programSchema = new Schema<IProgramDocument>(
     description: { type: String, required: true, trim: true },
     date_assigned: { type: Date },
     createdAt: { type: Date, default: Date.now },
-    updatedAt: {type:Date, default: Date.now}
+    updatedAt: {type:Date, default: Date.now},
+    isDeleted: { type: Boolean, default: false }
   },
   { collection: "Program" }
 );

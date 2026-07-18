@@ -6,6 +6,7 @@ import {
 } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 import HeaderMd from "../components/HeadersMd";
+import Header from "../components/Header";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -40,12 +41,13 @@ export default function DoughnutChart({
   };
 
   return (
-    <div className="bg-white rounded-2xl p-8 flex flex-col w-full h-full shadow-sm">
-      <HeaderMd
+    <div className="bg-white rounded-2xl p-12 flex flex-col w-full h-full">
+      <Header
         header="Subscriber Breakdown"
         subheader="Your subscriber's activity..."
+
       />
-      <div className="flex-1 relative min-h-0" style={{ minHeight: "300px" }}>
+      <div className="flex-1 mt-4 relative min-h-0" style={{ minHeight: "300px" }}>
         <Doughnut data={data} options={options} />
       </div>
     </div>

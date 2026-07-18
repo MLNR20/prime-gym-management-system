@@ -6,10 +6,12 @@ import {
   LineElement,
   Tooltip,
   Legend,
+  Filler,
 } from "chart.js";
 
 import { Line } from "react-chartjs-2";
 import HeaderMd from "../components/HeadersMd";
+import Header from "../components/Header";
 
 ChartJS.register(
   CategoryScale,
@@ -18,6 +20,7 @@ ChartJS.register(
   LineElement,
   Tooltip,
   Legend,
+  Filler,
 );
 
 type SubscriptionItem = {
@@ -60,27 +63,46 @@ export default function SubscriptionLineChart({ subMonthsData }: Props) {
   ];
 
   // Build datasets dynamically
-  const datasets = subscriptionTypes.map((type) => ({
-    label: type,
-    data: labels.map((label) => {
-      const found = safeData.find(
-        (item) =>
-          `${item._id.year}-${String(item._id.month).padStart(2, "0")}` ===
+  const datasets = subscriptionTypes.map((type) => {
+    const color = subscriptionColors[type] || "#999";
+
+    return {
+      label: type,
+      data: labels.map((label) => {
+        const found = safeData.find(
+          (item) =>
+            `${item._id.year}-${String(item._id.month).padStart(2, "0")}` ===
             label && item._id.subscriptionType === type,
-      );
+        );
 
-      return found ? found.total : 0;
-    }),
+        return found ? found.total : 0;
+      }),
 
-    borderColor: subscriptionColors[type] || "#999",
-    backgroundColor: subscriptionColors[type] || "#999",
-    tension: 0.5,
+      borderColor: color,
+      backgroundColor: (ctx: any) => {
+        const { chart } = ctx;
+        const { ctx: canvasCtx, chartArea } = chart;
+        if (!chartArea) return color;
 
-    pointRadius: 3,
-    pointHoverRadius: 6,
-    pointBackgroundColor: "#fff",
-    pointBorderWidth: 2,
-  }));
+        const gradient = canvasCtx.createLinearGradient(
+          0,
+          chartArea.top,
+          0,
+          chartArea.bottom,
+        );
+        gradient.addColorStop(0, `${color}66`);
+        gradient.addColorStop(1, `${color}00`);
+        return gradient;
+      },
+      fill: true,
+      tension: 0.5,
+
+      pointRadius: 3,
+      pointHoverRadius: 6,
+      pointBackgroundColor: "#fff",
+      pointBorderWidth: 2,
+    };
+  });
 
   const data = {
     labels,
@@ -113,13 +135,13 @@ export default function SubscriptionLineChart({ subMonthsData }: Props) {
   };
 
   return (
-    <div className="w-full h-full rounded-2xl bg-white p-8 flex flex-col shadow-sm">
-      <HeaderMd
+    <div className="w-full h-full rounded-2xl bg-white p-12 flex flex-col">
+      <Header
         header="Monthly Subscription Trend"
         subheader="Your recent subscription activity over time..."
       />
 
-      <div className="flex-1 relative min-h-0" style={{ height: "340px" }}>
+      <div className="flex-1 mt-4 relative min-h-0" style={{ height: "340px" }}>
         <Line data={data} options={options} />
       </div>
     </div>

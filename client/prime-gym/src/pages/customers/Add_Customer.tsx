@@ -10,6 +10,7 @@ type FormData = {
   last_name: string;
   amount_paid: string;
   contact_no: string;
+  email: string;
   subscription_type: string;
   payment_option: string;
 };
@@ -112,6 +113,23 @@ export default function Add_Customers(): React.ReactElement {
                 />
                 {errors.contact_no && (
                   <span className="text-red-500 text-sm">{errors.contact_no.message}</span>
+                )}
+              </div>
+
+              {/* Email */}
+              <div className="flex flex-col gap-1">
+                <label className={labelClass}>Email</label>
+                <input
+                  type="email"
+                  placeholder="Enter email address..."
+                  className={inputClass(!!errors.email)}
+                  {...register("email", {
+                    required: "Email is required to receive routine notifications",
+                    pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Enter a valid email address" },
+                  })}
+                />
+                {errors.email && (
+                  <span className="text-red-500 text-sm">{errors.email.message}</span>
                 )}
               </div>
             </div>

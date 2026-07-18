@@ -1,0 +1,67 @@
+import nodemailer, { Transporter } from "nodemailer";
+
+let transporterPromise: Promise<Transporter> | null = null;
+
+function buildTransporter(): Promise<Transporter> {
+  if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+    return Promise.resolve(
+      nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: Number(process.env.SMTP_PORT) || 587,
+        secure: process.env.SMTP_SECURE === "true",
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      }),
+    );
+  }
+
+  // No real SMTP creds configured: fall back to a disposable Ethereal test
+  // inbox so program-assignment emails can still be exercised end-to-end
+  // locally. Ethereal never delivers to real inboxes; view sends via the
+  // preview URL logged to the console.
+  return nodemailer.createTestAccount().then((testAccount) => {
+    console.warn(
+      `No SMTP_USER/SMTP_PASS set; using an auto-generated Ethereal test inbox (${testAccount.user}). ` +
+        `Emails will NOT reach real recipients — check the server console for a preview link after each send.`,
+    );
+    return nodemailer.createTransport({
+      host: testAccount.smtp.host,
+      port: testAccount.smtp.port,
+      secure: testAccount.smtp.secure,
+      auth: {
+        user: testAccount.user,
+        pass: testAccount.pass,
+      },
+    });
+  });
+}
+
+function getTransporter(): Promise<Transporter> {
+  if (!transporterPromise) {
+    transporterPromise = buildTransporter();
+  }
+  return transporterPromise;
+}
+
+const MailService = {
+  async sendProgramAssignmentEmail(to: string, customerName: string, programName: string, description?: string) {
+    const transporter = await getTransporter();
+
+    const info = await transporter.sendMail({
+      from: process.env.SMTP_FROM || process.env.SMTP_USER || "Prime Gym <no-reply@primegym.test>",
+      to,
+      subject: `New Routine Assigned: ${programName}`,
+      text: `Hi ${customerName},\n\nYou have been assigned a new workout routine: ${programName}.\n${description ? `\n${description}\n` : ""}\nSee you at the gym!`,
+      html: `<p>Hi ${customerName},</p><p>You have been assigned a new workout routine: <strong>${programName}</strong>.</p>${description ? `<p>${description}</p>` : ""}<p>See you at the gym!</p>`,
+    });
+
+    const previewUrl = nodemailer.getTestMessageUrl(info);
+    if (previewUrl) {
+      console.log(`Program assignment email preview (Ethereal): ${previewUrl}`);
+    }
+  },
+};
+
+export default MailService;

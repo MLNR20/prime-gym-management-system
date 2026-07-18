@@ -84,6 +84,11 @@ export default function Customer_View(): React.ReactElement {
       accessorFn: (row: any) => `${row.first_name} ${row.last_name}`,
     },
     {
+      header: "Email",
+      accessorKey: "email",
+      cell: ({ getValue }: any) => getValue() || "—",
+    },
+    {
       header: "Payment Option",
       accessorKey: "payment_option",
     },

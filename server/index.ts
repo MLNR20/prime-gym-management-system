@@ -1,4 +1,7 @@
 // src/index.ts
+import dotenv from "dotenv";
+dotenv.config();
+
 import express, { Request, Response, Application } from "express";
 import mongoose from "mongoose";
 import cors from "cors";
@@ -18,6 +21,7 @@ import adminRouter from "./router/admin";
 import attendanceRouter from "./router/attendance";
 import inventoryRouter from "./router/inventory";
 import salesRouter from "./router/sales";
+import expenseRouter from "./router/expense";
 
 const app: Application = express();
 const PORT = process.env.PORT ?? 3002;
@@ -38,6 +42,7 @@ app.use("/admin", adminRouter);
 app.use("/attendance", attendanceRouter);
 app.use("/inventory", inventoryRouter);
 app.use("/sales", salesRouter);
+app.use("/expenses", expenseRouter);
 
 
 mongoose.connect(databaseConnectionString).then(()=>{

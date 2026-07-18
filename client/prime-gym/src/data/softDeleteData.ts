@@ -1,4 +1,5 @@
 import axios from "axios";
+import { handleAuthError } from "./authErrorHandler";
 
 interface Token {
   url: string;
@@ -28,6 +29,7 @@ export default async function softDeleteData({
     return response.data;
   } catch (error) {
     console.log(error);
+    handleAuthError(error);
     throw error;
   }
 }

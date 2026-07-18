@@ -1,5 +1,6 @@
 import React from "react";
 import Sidebar from "../../components/Sidebar";
+import Pills from "../../components/Pills";
 import CRUDTemplate from "../../templates/CRUDTemplate";
 import useFetchData from "../../data/fetchData";
 
@@ -38,31 +39,12 @@ export default function Inventory_View(): React.ReactElement {
     {
       header: "Status",
       accessorKey: "status",
-      cell: ({ row }: any) => {
-        const status = row.original.status;
-        const colorMap: Record<string, string> = {
-          Available: "badge-success text-white",
-          "Low Stock": "badge-warning text-white",
-          "Out of Stock": "badge-error text-white",
-          Discontinued: "badge-neutral text-white",
-        };
-        return (
-          <span className={`badge ${colorMap[status] ?? "badge-ghost"}`}>
-            {status}
-          </span>
-        );
-      },
+      cell: ({ row }: any) => <Pills status={row.original.status} />,
     },
     {
       header: "For Sale",
       accessorKey: "is_for_sale",
-      cell: ({ row }: any) => (
-        <span
-          className={`badge ${row.original.is_for_sale ? "badge-info text-white" : "badge-ghost"}`}
-        >
-          {row.original.is_for_sale ? "Yes" : "No"}
-        </span>
-      ),
+      cell: ({ row }: any) => <Pills status={row.original.is_for_sale ? "Yes" : "No"} />,
     },
     {
       header: "Date Added",

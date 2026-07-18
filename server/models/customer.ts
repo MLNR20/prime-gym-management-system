@@ -5,6 +5,7 @@ export interface ICustomer {
   last_name: string;
   amount_paid: number;
   contact_no:string;
+  email?: string;
   status: string;
   payment_option: string;
   subscription_type: string;
@@ -42,6 +43,7 @@ const customerSchema = new Schema<ICustomerDocument>(
     last_name: { type: String, required: true, trim: true },
     amount_paid:{type:Number, required:true},
     contact_no:{type:String, required:true, trim:true, unique:true},
+    email:{type:String, trim:true, lowercase:true, match:[/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Invalid email address"]},
     status: {type:String, enum: Object.values(SubscriptionStatus),  default:SubscriptionStatus.Paid,required:true},
     payment_option:{type:String, enum:Object.values(paymentModel), trim:true },
     subscription_type: {type:String, enum:Object.values(SubscriptionType), default: SubscriptionType.regular, trim:true, required:true},

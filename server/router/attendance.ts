@@ -191,6 +191,26 @@ attendanceRouter.get(
   },
 );
 
+attendanceRouter.get(
+  "/analytics/daily-breakdown",
+  authMiddleware,
+  async (req: RequestWithUser, res: Response) => {
+    try {
+      const days = parseInt(req.query.days as string) || 30;
+      const [dailyCounts, total] = await Promise.all([
+        lockerAssignmentRepository.dailyAttendanceCounts(days),
+        lockerAssignmentRepository.totalAttendanceCount(),
+      ]);
+
+      res.status(200).json({ dailyCounts, total });
+    } catch (error) {
+      res.status(500).json({
+        message: "Cannot retrieve attendance breakdown",
+      });
+    }
+  },
+);
+
 attendanceRouter.delete(
   "/:id",
   authMiddleware,

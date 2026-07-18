@@ -31,6 +31,35 @@ export class LockerAssignmentRepository extends GenericRepository<ILockerAssignm
             status: { $ne: "Borrowed" }
         });
     }
+
+    async dailyAttendanceCounts(days: number = 30): Promise<{ date: string; count: number }[]> {
+        const results = await this.model.aggregate([
+            {
+                $addFields: {
+                    dateSource: { $ifNull: ["$time_in", "$createdAt"] },
+                },
+            },
+            {
+                $group: {
+                    _id: {
+                        $dateToString: { format: "%Y-%m-%d", date: "$dateSource" },
+                    },
+                    count: { $sum: 1 },
+                },
+            },
+            { $sort: { _id: -1 } },
+            { $limit: days },
+            { $sort: { _id: 1 } },
+            {
+                $project: { _id: 0, date: "$_id", count: 1 },
+            },
+        ]);
+        return results;
+    }
+
+    async totalAttendanceCount(): Promise<number> {
+        return this.model.countDocuments({});
+    }
 }
 
 

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { handleAuthError } from "./authErrorHandler";
 
 export default async function deleteData({ url, id,}: {url: string; id: string;}) 
 {
@@ -14,6 +15,7 @@ export default async function deleteData({ url, id,}: {url: string; id: string;}
     return response.data;
   } catch (error) {
     console.error(error);
+    handleAuthError(error);
     throw error;
   }
 }

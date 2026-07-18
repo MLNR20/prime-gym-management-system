@@ -44,7 +44,7 @@ export default function Admin_View(): React.ReactElement {
     {
       header: "Account Status",
       accessorKey: "isDeleted",
-      cell: ({ getValue }: any) => <Pills status={getValue().toString()} />,
+      cell: ({ row }: any) => <Pills status={row.original.isDeleted ? "Inactive" : "Active"} />,
     },
 
     {

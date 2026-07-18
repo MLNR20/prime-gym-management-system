@@ -4,6 +4,7 @@ import Header from "../../components/Header";
 import { useForm } from "react-hook-form";
 import createData from "../../data/createData";
 import { useNavigate } from "react-router-dom";
+
 type FormData = {
   lockerNumber: string;
 };
@@ -17,63 +18,76 @@ export default function Add_Locker(): React.ReactElement {
   const usenavigate = useNavigate();
 
   const onSubmit = async (data: FormData) => {
-    console.log("Form Data:", data);
-
     try {
-      alert("Submitted");
-      const createContact = await createData({url: "lockers", data: data})
-      
-      if(createContact)
-      {
-        usenavigate("/lockers")
+      const createLocker = await createData({ url: "lockers", data: data });
+      if (createLocker) {
+        usenavigate("/lockers");
       }
     } catch (error) {
       console.log(error);
     }
   };
+
+  const labelClass = "text-sm mb-2 font-medium text-gray-700";
+  const inputClass = (hasError: boolean) =>
+    `input input-bordered h-12 border bg-white border-gray-400 text-gray-500 placeholder-gray-400 w-full ${hasError ? "input-error" : ""}`;
+
   return (
-    <div className="flex background-white  h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden">
       <div className="w-64">
         <Sidebar />
       </div>
 
-      <div className="flex-1 p-24   overflow-auto">
+      <div className="flex-1 p-24 overflow-auto">
         <div className="bg-white p-16 rounded-lg">
           <Header
-            subheader="Hey, there! Let's create a locker!"
+            subheader="Hey, there! Let's create a new locker!"
             header="Add Locker"
           />
-          <form onSubmit={handleSubmit(onSubmit)} className="w-full my-12">
-            <div className="flex w-full my-6 flex-col gap-2">
-              <label className="label">
-                <span className="label-text text-black">Locker Number</span>
-              </label>
-              <input
-                type="number"
-                placeholder="Enter locker number..."
-                className={`input input-bordered h-12 border bg-white border-gray-700 w-full ${
-                  errors.lockerNumber ? "input-error" : ""
-                }`}
-                {...register("lockerNumber", {
-                  required: "Locker Number is required",
-                  minLength: {
-                    value: 1,
-                    message: "Locker number must not be 0",
-                  },
-                  pattern: {
-                    value: /^[0-9\s]+$/,
-                    message: "Only numbers are allowed",
-                  },
-                })}
-              />
-              {errors.lockerNumber && (
-                <span className="text-red-500 text-sm">
-                  {errors.lockerNumber.message}
-                </span>
-              )}
+          <form onSubmit={handleSubmit(onSubmit)} className="w-full mt-10">
+
+            {/* ── LOCKER INFO ── */}
+            <div className="flex items-center gap-4 mb-6">
+              <span className="text-xs font-semibold uppercase tracking-widest text-gray-400 whitespace-nowrap">
+                Locker Info
+              </span>
+              <hr className="flex-1 border-gray-300" />
             </div>
 
-            <button className="btn btn-success mt-4">Submit</button>
+            <div className="grid grid-cols-2 gap-6 mb-8">
+              {/* Locker Number */}
+              <div className="flex flex-col gap-1">
+                <label className={labelClass}>Locker Number</label>
+                <input
+                  type="number"
+                  placeholder="Enter locker number..."
+                  className={inputClass(!!errors.lockerNumber)}
+                  {...register("lockerNumber", {
+                    required: "Locker Number is required",
+                    minLength: { value: 1, message: "Locker number must not be 0" },
+                    pattern: { value: /^[0-9\s]+$/, message: "Only numbers are allowed" },
+                  })}
+                />
+                {errors.lockerNumber && (
+                  <span className="text-red-500 text-sm">{errors.lockerNumber.message}</span>
+                )}
+              </div>
+            </div>
+
+            <hr className="border-t border-gray-200 mt-6 mb-6" />
+
+            <div className="flex gap-3">
+              <button type="submit" className="btn btn-success text-white">
+                Add Locker
+              </button>
+              <button
+                type="button"
+                className="btn btn-neutral btn-outline"
+                onClick={() => usenavigate("/lockers")}
+              >
+                Cancel
+              </button>
+            </div>
           </form>
         </div>
       </div>

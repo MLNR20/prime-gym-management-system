@@ -31,10 +31,14 @@ import Program_Manage from '../pages/programs/Program_Manage'
 import Inventory_View from '../pages/inventory/Inventory_View'
 import Add_Inventory from '../pages/inventory/Add_Inventory'
 import Edit_Inventory from '../pages/inventory/Edit_Inventory'
+import Expense_View from '../pages/expenses/Expense_View'
+import Add_Expense from '../pages/expenses/Add_Expense'
+import Edit_Expense from '../pages/expenses/Edit_Expense'
 import Sales_View from '../pages/sales/Sales_View'
 import Add_Sales from '../pages/sales/Add_Sales'
 import Edit_Sales from '../pages/sales/Edit_Sales'
 import Analytics_View from '../pages/analytics/Analytics_View'
+import Profile from '../pages/Profile'
 // ...other imports
 
 export default function Router() {
@@ -73,9 +77,13 @@ export default function Router() {
         <Route path="/inventory" element={<Inventory_View/>}/>
         <Route path="/add_inventory" element={<Add_Inventory/>}/>
         <Route path="/inventory/:id" element={<Edit_Inventory/>}/>
+        <Route path="/expenses" element={<Expense_View/>}/>
+        <Route path="/add_expense" element={<Add_Expense/>}/>
+        <Route path="/expenses/:id" element={<Edit_Expense/>}/>
         <Route path="/sales" element={<Sales_View/>}/>
         <Route path="/add_sales" element={<Add_Sales/>}/>
         <Route path="/sales/:id" element={<Edit_Sales/>}/>
+        <Route path="/profile" element={<Profile/>}/>
       </Routes>
       </AuthProvider>
     </BrowserRouter>

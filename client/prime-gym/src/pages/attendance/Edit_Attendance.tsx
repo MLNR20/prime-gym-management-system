@@ -45,6 +45,12 @@ export default function Edit_Attendance(): React.ReactElement {
   const [currentCustomer, setCurrentCustomer] = useState<any | null>(null);
   const [currentLocker, setCurrentLocker] = useState<any | null>(null);
 
+  const labelClass = "text-sm mb-2 font-medium text-gray-700";
+  const inputClass = (hasError: boolean) =>
+    `input input-bordered h-12 border bg-white border-gray-400 text-gray-500 placeholder-gray-400 w-full ${hasError ? "input-error" : ""}`;
+  const selectClass = (hasError: boolean) =>
+    `select select-bordered h-12 border bg-white border-gray-400 text-gray-500 w-full ${hasError ? "select-error" : ""}`;
+
   useEffect(() => {
     if (!id) return;
     const load = async () => {
@@ -68,12 +74,11 @@ export default function Edit_Attendance(): React.ReactElement {
             setCurrentCustomer(customer);
             setCurrentLocker(locker);
           } catch (fetchCurrentError) {
-            console.warn("Could not fetch current customer/locker details", fetchCurrentError);
+            console.log(fetchCurrentError);
           }
         }
       } catch (error) {
-        console.error(error);
-        alert("Failed to load attendance record.");
+        console.log(error);
       } finally {
         setLoading(false);
       }
@@ -84,12 +89,10 @@ export default function Edit_Attendance(): React.ReactElement {
 
   const onSubmit = async (data: FormData) => {
     try {
-      alert("Submitted");
       await updateData({ url: "attendance", id: id!, updateData: data });
       navigate("/attendance");
     } catch (error) {
-      console.error(error);
-      alert("Failed to update attendance.");
+      console.log(error);
     }
   };
 
@@ -123,125 +126,131 @@ export default function Edit_Attendance(): React.ReactElement {
 
   if (loading) {
     return (
-      <div className="flex background-white h-screen overflow-hidden">
+      <div className="flex h-screen overflow-hidden">
         <div className="w-64">
           <Sidebar />
         </div>
         <div className="flex-1 p-24 overflow-auto flex items-center justify-center">
-          <div className="text-xl font-semibold">Loading attendance record...</div>
+          <div className="text-xl font-semibold text-gray-700">Loading attendance record...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex background-white h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden">
       <div className="w-64">
         <Sidebar />
       </div>
 
       <div className="flex-1 p-24 overflow-auto">
-        <div className="bg-white p-16 rounded-lg shadow-sm border border-gray-100">
+        <div className="bg-white p-16 rounded-lg">
           <Header
             subheader="Let's assign a locker key to a customer with an active subscription."
             header="Edit Attendance / Assign Key"
           />
 
-          <form onSubmit={handleSubmit(onSubmit)} className="w-full my-12">
+          <form onSubmit={handleSubmit(onSubmit)} className="w-full mt-10">
 
-            {/* Customer Dropdown */}
-            <div className="flex w-full my-6 flex-col gap-2">
-              <label className="label">
-                <span className="label-text text-black font-semibold">Select Customer</span>
-              </label>
-              <select
-                className={`select select-bordered h-12 border bg-white border-gray-700 w-full ${errors.customer_id ? "select-error" : ""}`}
-                defaultValue=""
-                {...register("customer_id", {
-                  required: "Selecting a customer is required",
-                })}
-              >
-                <option value="" disabled>
-                  Pick a customer...
-                </option>
-                {mergedCustomerList.map((customer: any) => (
-                  <option key={customer._id} value={customer._id}>
-                    {customer.first_name} {customer.last_name}
-                  </option>
-                ))}
-              </select>
-              {errors.customer_id && (
-                <span className="text-red-500 text-sm">
-                  {errors.customer_id.message}
-                </span>
-              )}
-              {customerList.length === 0 && (
-                <span className="text-gray-500 text-xs mt-1">
-                  No active customers without an assigned locker key were found.
-                </span>
-              )}
+            {/* ── ASSIGNMENT ── */}
+            <div className="flex items-center gap-4 mb-6">
+              <span className="text-xs font-semibold uppercase tracking-widest text-gray-400 whitespace-nowrap">
+                Assignment
+              </span>
+              <hr className="flex-1 border-gray-300" />
             </div>
 
-            {/* Locker Dropdown */}
-            <div className="flex w-full my-6 flex-col gap-2">
-              <label className="label">
-                <span className="label-text text-black font-semibold">Select Locker Key</span>
-              </label>
-              <select
-                className={`select select-bordered h-12 border bg-white border-gray-700 w-full ${errors.locker_id ? "select-error" : ""}`}
-                defaultValue=""
-                {...register("locker_id", {
-                  required: "Selecting a locker key is required",
-                })}
-              >
-                <option value="" disabled>
-                  Pick a locker...
-                </option>
-                {mergedLockerList.map((locker: any) => (
-                  <option key={locker._id} value={locker._id}>
-                    Locker #{locker.locker_number}
-                  </option>
-                ))}
-              </select>
-              {errors.locker_id && (
-                <span className="text-red-500 text-sm">
-                  {errors.locker_id.message}
-                </span>
-              )}
-              {lockerList.length === 0 && (
-                <span className="text-gray-500 text-xs mt-1">
-                  No active/available locker keys were found.
-                </span>
-              )}
+            <div className="grid grid-cols-2 gap-6 mb-8">
+              {/* Customer Dropdown */}
+              <div className="flex flex-col gap-1">
+                <label className={labelClass}>Select Customer</label>
+                <select
+                  defaultValue=""
+                  className={selectClass(!!errors.customer_id)}
+                  {...register("customer_id", {
+                    required: "Selecting a customer is required",
+                  })}
+                >
+                  <option value="" disabled>Pick a customer...</option>
+                  {mergedCustomerList.map((customer: any) => (
+                    <option key={customer._id} value={customer._id}>
+                      {customer.first_name} {customer.last_name}
+                    </option>
+                  ))}
+                </select>
+                {errors.customer_id && (
+                  <span className="text-red-500 text-sm">{errors.customer_id.message}</span>
+                )}
+                {customerList.length === 0 && (
+                  <span className="text-gray-500 text-xs mt-1">
+                    No active customers without an assigned locker key were found.
+                  </span>
+                )}
+              </div>
+
+              {/* Locker Dropdown */}
+              <div className="flex flex-col gap-1">
+                <label className={labelClass}>Select Locker Key</label>
+                <select
+                  defaultValue=""
+                  className={selectClass(!!errors.locker_id)}
+                  {...register("locker_id", {
+                    required: "Selecting a locker key is required",
+                  })}
+                >
+                  <option value="" disabled>Pick a locker...</option>
+                  {mergedLockerList.map((locker: any) => (
+                    <option key={locker._id} value={locker._id}>
+                      Locker #{locker.locker_number}
+                    </option>
+                  ))}
+                </select>
+                {errors.locker_id && (
+                  <span className="text-red-500 text-sm">{errors.locker_id.message}</span>
+                )}
+                {lockerList.length === 0 && (
+                  <span className="text-gray-500 text-xs mt-1">
+                    No active/available locker keys were found.
+                  </span>
+                )}
+              </div>
             </div>
 
-            {/* Check-in Date/Time */}
-            <div className="flex w-full my-6 flex-col gap-2">
-              <label className="label">
-                <span className="label-text text-black font-semibold">Check-in Date & Time</span>
-              </label>
-              <input
-                type="datetime-local"
-                className={`input input-bordered bg-white border-gray-700 h-12 w-full ${errors.time_in ? "input-error" : ""}`}
-                defaultValue={formatToDateTimeLocal(details?.time_in)}
-                {...register("time_in", {
-                  required: "Check-in date and time is required",
-                })}
-              />
-              {errors.time_in && (
-                <span className="text-red-500 text-sm">
-                  {errors.time_in.message}
-                </span>
-              )}
+            {/* ── CHECK-IN ── */}
+            <div className="flex items-center gap-4 mb-6">
+              <span className="text-xs font-semibold uppercase tracking-widest text-gray-400 whitespace-nowrap">
+                Check-in
+              </span>
+              <hr className="flex-1 border-gray-300" />
             </div>
 
-            <div className="flex gap-4 mt-8">
-              <button type="submit" className="btn btn-success text-white px-6">
+            <div className="grid grid-cols-2 gap-6 mb-8">
+              {/* Check-in Date/Time */}
+              <div className="flex flex-col gap-1">
+                <label className={labelClass}>Check-in Date & Time</label>
+                <input
+                  type="datetime-local"
+                  className={inputClass(!!errors.time_in)}
+                  defaultValue={formatToDateTimeLocal(details?.time_in)}
+                  {...register("time_in", {
+                    required: "Check-in date and time is required",
+                  })}
+                />
+                {errors.time_in && (
+                  <span className="text-red-500 text-sm">{errors.time_in.message}</span>
+                )}
+              </div>
+            </div>
+
+            <hr className="border-t border-gray-200 mt-6 mb-6" />
+
+            <div className="flex gap-3">
+              <button type="submit" className="btn btn-success text-white">
                 Assign Key
               </button>
               <button
                 type="button"
-                className="btn btn-outline px-6"
+                className="btn btn-neutral btn-outline"
                 onClick={() => navigate("/attendance")}
               >
                 Cancel

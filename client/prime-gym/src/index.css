@@ -1,6 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
-@plugin "daisyui";
+@plugin "daisyui" {
+  themes: light --default;
+}
+
+
+
 
 :root {
     font-family: 'Poppins', sans-serif;
@@ -19,4 +24,43 @@
 .background-white
 {
     background-color: #f1f3f5;
+}
+
+
+/* index.css */
+dialog.modal {
+  background-color: transparent;
+  color-scheme: light;
+}
+
+/* Dark overlay behind the modal */
+dialog.modal::backdrop {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  z-index: 40 !important;
+}
+
+/* Ensure modal content sits above the backdrop */
+.modal-box {
+  position: relative;
+  z-index: 50;
+}
+
+@keyframes skeleton-flicker {
+  0%,
+  100% {
+    background-color: #e5e7eb;
+  }
+  50% {
+    background-color: #f0f1f3;
+  }
+}
+
+.skeleton-flicker {
+  animation: skeleton-flicker 1.2s ease-in-out infinite;
 }

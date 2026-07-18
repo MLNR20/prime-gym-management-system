@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Header from "../../components/Header";
+import Spinner from "../../components/Spinner";
 import { useForm } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
@@ -23,9 +24,11 @@ export default function Login(): React.ReactElement {
 
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const onSubmit = async (data: FormData) => {
     setLoginError(null);
+    setIsLoggingIn(true);
     try {
       const loginRoute = await axios.post(
         "http://localhost:3002/auth/login",
@@ -36,6 +39,8 @@ export default function Login(): React.ReactElement {
       navigate("/");
     } catch (error) {
       setLoginError("Invalid username or password. Please try again.");
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
@@ -136,8 +141,19 @@ export default function Login(): React.ReactElement {
             </div>
 
             {/* Submit */}
-            <button type="submit" className="btn btn-primary w-full">
-              Login
+            <button
+              type="submit"
+              className="btn btn-primary w-full"
+              disabled={isLoggingIn}
+            >
+              {isLoggingIn ? (
+                <>
+                  <Spinner size={18} className="border-2 border-white/40 border-t-white" />
+                  Logging in...
+                </>
+              ) : (
+                "Login"
+              )}
             </button>
 
             {/* Sign up link */}

@@ -7,7 +7,7 @@ import Pills from "../../components/Pills";
 
 export default function Attendance_View(): React.ReactElement {
   // Use the paginated "show" endpoint to match how other views fetch lists
- const retrieveData = useFetchData({ url: "attendance" });
+ const retrieveData = useFetchData({ url: "attendance/show/" });
  
   const formatTimestamp = (timeStr: string) => {
     if (!timeStr || timeStr === "N/A" || timeStr === "") return "N/A";

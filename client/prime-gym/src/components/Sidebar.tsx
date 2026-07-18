@@ -219,11 +219,33 @@ export default function Sidebar(): React.ReactElement {
                         </div>
                       </Link>
                     </li>
+                  </div>
+                </div>
+              </div>
+            </div>
+             <div className="border-t border-gray-300 my-2 w-full"></div>
+            {/*SALES & FINANCES SECTION*/}
+            <div className="w-full">
+              <div className="collapse collapse-arrow ">
+                <input type="checkbox" defaultChecked />
+                <div className="collapse-title text-gray-500 p-0 min-h-0">
+                  SALES &amp; FINANCES
+                </div>
+                <div className="collapse-content  p-0 min-h-0 text-sm">
+                  <div className="grid grid-cols-1 mt-2 w-full gap-1.5">
                     <li className="mt-1">
                       <Link to="/sales">
                         <div className="flex flex-row gap-2 p-1 w-full items-start">
                           <ShoppingCart color="gray" />
                           Sales
+                        </div>
+                      </Link>
+                    </li>
+                    <li className="mt-1">
+                      <Link to="/expenses">
+                        <div className="flex flex-row gap-2 p-1 w-full items-start">
+                          <Wallet color="gray" />
+                          Expenses
                         </div>
                       </Link>
                     </li>
