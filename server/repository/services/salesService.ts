@@ -1,5 +1,6 @@
 import inventoryRepository from "../inventoryRepository";
 import salesRepository from "../salesRepository";
+import customerRepository from "../customerRepository";
 import { ISalesDocument } from "../../models/sales";
 import { IInventoryDocument } from "../../models/inventory";
 
@@ -18,7 +19,12 @@ export class SalesService {
     return inventory;
   }
 
-  async createSale(data: { inventory_id: string; quantity: number }): Promise<ISalesDocument> {
+  async createSale(data: { customer_id: string; inventory_id: string; quantity: number }): Promise<ISalesDocument> {
+    const customer = await customerRepository.findById(data.customer_id);
+    if (!customer) {
+      throw new Error("Customer not found");
+    }
+
     const inventory = await this.findInventoryOrThrow(data.inventory_id);
 
     if (!inventory.is_for_sale) {
@@ -40,6 +46,7 @@ export class SalesService {
     const total_price = data.quantity * inventory.unit_price;
 
     return salesRepository.create({
+      customer_id: data.customer_id,
       inventory_id: data.inventory_id,
       quantity: data.quantity,
       total_price,

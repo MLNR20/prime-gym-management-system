@@ -12,6 +12,10 @@ export default function Sales_View(): React.ReactElement {
       cell: ({ row }: any) => row.index + 1,
     },
     {
+      header: "Customer",
+      accessorFn: (row: any) => `${row.first_name ?? "N/A"} ${row.last_name ?? ""}`.trim(),
+    },
+    {
       header: "Item Code",
       accessorKey: "item_code",
     },

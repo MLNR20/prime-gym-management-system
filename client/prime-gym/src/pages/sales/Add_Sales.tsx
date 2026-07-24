@@ -7,6 +7,7 @@ import useFetchData from "../../data/fetchData";
 import { useNavigate } from "react-router-dom";
 
 type FormData = {
+  customer_id: string;
   inventory_id: string;
   quantity: number;
 };
@@ -22,6 +23,13 @@ export default function Add_Sales(): React.ReactElement {
 
   const forSaleItems = useFetchData({ url: "inventory/for-sale" });
   const itemList = Array.isArray(forSaleItems) ? forSaleItems : [];
+
+  const allCustomers = useFetchData({ url: "customers" });
+  const customerList = Array.isArray(allCustomers)
+    ? allCustomers
+    : Array.isArray((allCustomers as any)?.data)
+    ? (allCustomers as any).data
+    : [];
 
   const selectedInventoryId = useWatch({ control, name: "inventory_id" });
   const quantity = useWatch({ control, name: "quantity" });
@@ -77,6 +85,31 @@ export default function Add_Sales(): React.ReactElement {
             </div>
 
             <div className="grid grid-cols-2 gap-6 mb-2">
+              <div className="flex flex-col gap-1">
+                <label className={labelClass}>Customer</label>
+                <select
+                  defaultValue=""
+                  className={selectClass(!!errors.customer_id)}
+                  {...register("customer_id", {
+                    required: "Customer is required",
+                  })}
+                >
+                  <option value="" disabled>
+                    Select a customer...
+                  </option>
+                  {customerList.map((customer: any) => (
+                    <option key={customer._id} value={customer._id}>
+                      {customer.first_name} {customer.last_name}
+                    </option>
+                  ))}
+                </select>
+                {errors.customer_id && (
+                  <span className="text-red-500 text-sm">
+                    {errors.customer_id.message}
+                  </span>
+                )}
+              </div>
+
               <div className="flex flex-col gap-1">
                 <label className={labelClass}>Inventory Item</label>
                 <select

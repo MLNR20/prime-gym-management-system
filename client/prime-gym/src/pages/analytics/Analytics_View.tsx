@@ -401,7 +401,7 @@ export default function Analytics_View(): React.ReactElement {
       cell: ({ row }: any) => (
         <button
           className="btn btn-sm btn-info text-white"
-          onClick={() => navigate(`/customers/${row.original._id}`)}
+          onClick={() => navigate(`/customers/${row.original._id}/details`)}
         >
           View Details
         </button>

@@ -211,6 +211,27 @@ attendanceRouter.get(
   },
 );
 
+attendanceRouter.get(
+  "/customer/:id",
+  authMiddleware,
+  async (req: RequestWithUser, res: Response) => {
+    try {
+      const customerId = req.params.id;
+      if (!customerId) {
+        res.status(404).json({ message: "Customer Id is missing." });
+        return;
+      }
+      const limit = parseInt(req.query.limit as string) || 10;
+      const attendance = await lockerAssignmentRepository.findByCustomerId(customerId, limit);
+      res.status(200).json(attendance);
+    } catch (error) {
+      res.status(500).json({
+        message: "Cannot retrieve customer attendance",
+      });
+    }
+  },
+);
+
 attendanceRouter.delete(
   "/:id",
   authMiddleware,

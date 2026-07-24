@@ -36,7 +36,14 @@ export class LockerAssignmentRepository extends GenericRepository<ILockerAssignm
         const results = await this.model.aggregate([
             {
                 $addFields: {
-                    dateSource: { $ifNull: ["$time_in", "$createdAt"] },
+                    dateSource: {
+                        $convert: {
+                            input: "$time_in",
+                            to: "date",
+                            onError: "$createdAt",
+                            onNull: "$createdAt",
+                        },
+                    },
                 },
             },
             {
@@ -59,6 +66,44 @@ export class LockerAssignmentRepository extends GenericRepository<ILockerAssignm
 
     async totalAttendanceCount(): Promise<number> {
         return this.model.countDocuments({});
+    }
+
+    async findByCustomerId(customerId: string, limit: number = 10) {
+        return this.model.aggregate([
+            { $match: { customer_id: customerId } },
+            {
+                $addFields: {
+                    locker_id: { $toObjectId: "$locker_id" },
+                    dateSource: {
+                        $convert: {
+                            input: "$time_in",
+                            to: "date",
+                            onError: "$createdAt",
+                            onNull: "$createdAt",
+                        },
+                    },
+                },
+            },
+            {
+                $lookup: {
+                    from: "Locker",
+                    localField: "locker_id",
+                    foreignField: "_id",
+                    as: "locker",
+                },
+            },
+            { $sort: { dateSource: -1 } },
+            { $limit: limit },
+            {
+                $project: {
+                    _id: 1,
+                    status: 1,
+                    time_in: 1,
+                    time_out: 1,
+                    locker_number: { $first: "$locker.locker_number" },
+                },
+            },
+        ]);
     }
 }
 

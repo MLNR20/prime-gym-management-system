@@ -10,13 +10,14 @@ interface DataTables {
   Url: string;
   additionalFunctionality?: (row_id: string) => void;
   onRowClick?: (row: any) => void;
+  disableFetch?: boolean;
 }
 
-export default function TableTemplate({ header, subheader, Data, Url, Columns, additionalFunctionality, onRowClick }: DataTables): React.ReactElement {
+export default function TableTemplate({ header, subheader, Data, Url, Columns, additionalFunctionality, onRowClick, disableFetch }: DataTables): React.ReactElement {
   return (
     <div className="bg-white p-16 flex flex-col gap-3 rounded-lg">
       <Header subheader={subheader} header={header} />
-      <Tables data={Data} url={Url} columns={Columns} additionalFunctionality={additionalFunctionality} onRowClick={onRowClick} />
+      <Tables data={Data} url={Url} columns={Columns} additionalFunctionality={additionalFunctionality} onRowClick={onRowClick} disableFetch={disableFetch} />
     </div>
   );
 }

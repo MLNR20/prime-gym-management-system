@@ -1,6 +1,7 @@
 import express from "express";
 import salesRepository from "../repository/salesRepository";
 import inventoryRepository from "../repository/inventoryRepository";
+import customerRepository from "../repository/customerRepository";
 import salesService from "../repository/services/salesService";
 import LogsRepository from "../repository/logsRepository";
 import { RequestWithUser } from "../middleware/types/express";
@@ -12,10 +13,15 @@ async function enrichSalesWithInventory(sales: any[]) {
   return Promise.all(
     sales.map(async (sale) => {
       const item = await inventoryRepository.findById(sale.inventory_id);
+      const customer = sale.customer_id
+        ? await customerRepository.findById(sale.customer_id)
+        : null;
       return {
         ...sale,
         item_name: item?.item_name ?? "Unknown",
         item_code: item?.item_code ?? "",
+        first_name: customer?.first_name ?? "N/A",
+        last_name: customer?.last_name ?? "",
       };
     })
   );
@@ -70,6 +76,29 @@ salesRouter.get(
 );
 
 salesRouter.get(
+  "/customer/:id",
+  authMiddleware,
+  async (request: RequestWithUser, response) => {
+    try {
+      const customerId = request.params.id;
+      if (!customerId) {
+        return response.status(400).json({ message: "Customer id is required" });
+      }
+
+      const limit = parseInt(request.query.limit as string) || 10;
+      const sales = await salesRepository.findByCustomerId(customerId, limit);
+      const enriched = await enrichSalesWithInventory(
+        sales.map((s) => (s.toObject ? s.toObject() : s))
+      );
+
+      return response.status(200).json(enriched);
+    } catch (error) {
+      return response.status(500).json({ message: "Error fetching customer sales" });
+    }
+  }
+);
+
+salesRouter.get(
   "/:id",
   authMiddleware,
   async (request: RequestWithUser, response) => {
@@ -110,8 +139,11 @@ salesRouter.post(
   authMiddleware,
   async (request: RequestWithUser, response) => {
     try {
-      const { inventory_id, quantity } = request.body;
+      const { customer_id, inventory_id, quantity } = request.body;
 
+      if (!customer_id) {
+        return response.status(400).json({ message: "Customer is required" });
+      }
       if (!inventory_id) {
         return response.status(400).json({ message: "Inventory item is required" });
       }
@@ -119,7 +151,7 @@ salesRouter.post(
         return response.status(400).json({ message: "Valid quantity is required" });
       }
 
-      const newSale = await salesService.createSale({ inventory_id, quantity });
+      const newSale = await salesService.createSale({ customer_id, inventory_id, quantity });
 
       const admin = request.admin;
       await LogsRepository.logAction(

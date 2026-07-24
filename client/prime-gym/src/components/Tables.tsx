@@ -15,6 +15,7 @@ interface TableProps {
   url: string;
   additionalFunctionality?: (id: string) => void;
   onRowClick?: (row: any) => void;
+  disableFetch?: boolean;
 }
 
 export default function Tables({
@@ -23,6 +24,7 @@ export default function Tables({
   url,
   additionalFunctionality,
   onRowClick,
+  disableFetch = false,
 }: TableProps): React.ReactElement {
   const navigate = useNavigate();
 
@@ -36,11 +38,12 @@ export default function Tables({
     page,
     limit,
     search: globalFilter,
+    enabled: !disableFetch,
   });
 
 
-  const tableData = (changeDataLimits as any).data ?? data ?? [];
-  const totalPage = (changeDataLimits as any).meta?.totalPages;
+  const tableData = disableFetch ? data ?? [] : (changeDataLimits as any).data ?? data ?? [];
+  const totalPage = disableFetch ? undefined : (changeDataLimits as any).meta?.totalPages;
 
   useEffect(() => {
     if (typeof totalPage === "number" && totalPage > 0 && page > totalPage) {
@@ -64,35 +67,37 @@ export default function Tables({
 
   return (
     <div className="overflow-x-auto mt-2">
-      <div className="mb-4 flex flex-row gap-auto w-full">
-        {/*Search functionality whenever global filter is typed it changes the value and filters the value...*/}
-        <div className="flex flex-row gap-5  items-center w-1/2 ">
-          <h4>Search:</h4>
-          <input
-            type="text"
-            placeholder="Search details here..."
-            value={globalFilter}
-            onChange={(e) => {setGlobalFilter(e.target.value);setPage(1);}}
-            className="input input-bordered h-12 border bg-white border-gray-400 w-100"
-          ></input>
+      {!disableFetch && (
+        <div className="mb-4 flex flex-row gap-auto w-full">
+          {/*Search functionality whenever global filter is typed it changes the value and filters the value...*/}
+          <div className="flex flex-row gap-5  items-center w-1/2 ">
+            <h4>Search:</h4>
+            <input
+              type="text"
+              placeholder="Search details here..."
+              value={globalFilter}
+              onChange={(e) => {setGlobalFilter(e.target.value);setPage(1);}}
+              className="input input-bordered h-12 border bg-white border-gray-400 w-100"
+            ></input>
+          </div>
+          <div className="flex flex-row items-center justify-end  w-1/2 gap-2">
+            <h4>Showing</h4>
+            <select
+              onChange={(e) => {
+                setLimit(parseInt(e.target.value));
+                setPage(1);
+              }}
+              className="select w-fit h-12 border bg-white border-gray-400 "
+            >
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            <h4>entries</h4>
+          </div>
         </div>
-        <div className="flex flex-row items-center justify-end  w-1/2 gap-2">
-          <h4>Showing</h4>
-          <select
-            onChange={(e) => {
-              setLimit(parseInt(e.target.value));
-              setPage(1);
-            }}
-            className="select w-fit h-12 border bg-white border-gray-400 "
-          >
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-          </select>
-          <h4>entries</h4>
-        </div>
-      </div>
+      )}
       <table className="table table-zebra">
         {/* THEAD */}
         <thead className="bg-slate-300 text-md">
@@ -155,49 +160,51 @@ export default function Tables({
           )}
         </tbody>
       </table>
-      <div className="mt-6 flex flex-row gap-auto w-full">
-        <div className="flex gap-2 flex-row gap-auto w-full">
-          <div className="flex gap-2 justify-center items-center">
-            {/* Prev */}
-            <button
-              className={
-                page === 1
-                  ? "text-gray-400 font-normal btn bg-transparent border-none"
-                  : "hover:bg-black hover:text-white btn bg-transparent  border-none text-black"
-              }
-              disabled={page === 1}
-              onClick={() => setPage((p) => p - 1)}
-            >
-              Prev
-            </button>
-
-            {/* Page numbers */}
-            {pages.map((p) => (
+      {!disableFetch && (
+        <div className="mt-6 flex flex-row gap-auto w-full">
+          <div className="flex gap-2 flex-row gap-auto w-full">
+            <div className="flex gap-2 justify-center items-center">
+              {/* Prev */}
               <button
-                key={p}
-                onClick={() => setPage(p)}
-                className={`btn border-none ${page === p ? "btn-neutral" : "btn-outline"}`}
+                className={
+                  page === 1
+                    ? "text-gray-400 font-normal btn bg-transparent border-none"
+                    : "hover:bg-black hover:text-white btn bg-transparent  border-none text-black"
+                }
+                disabled={page === 1}
+                onClick={() => setPage((p) => p - 1)}
               >
-                {p}
+                Prev
               </button>
-            ))}
 
-            {/* Next */}
-            <button
-              className={
-                page === totalPage
-                  ? "text-gray-400 font-normal btn bg-transparent border-none"
-                  : "hover:bg-black hover:text-white  btn bg-transparent border-none text-black"
-              }
-              disabled={page === totalPage}
-              onClick={() => setPage((p) => p + 1)}
-            >
-              Next
-            </button>
+              {/* Page numbers */}
+              {pages.map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setPage(p)}
+                  className={`btn border-none ${page === p ? "btn-neutral" : "btn-outline"}`}
+                >
+                  {p}
+                </button>
+              ))}
+
+              {/* Next */}
+              <button
+                className={
+                  page === totalPage
+                    ? "text-gray-400 font-normal btn bg-transparent border-none"
+                    : "hover:bg-black hover:text-white  btn bg-transparent border-none text-black"
+                }
+                disabled={page === totalPage}
+                onClick={() => setPage((p) => p + 1)}
+              >
+                Next
+              </button>
+            </div>
           </div>
+          <h4 className="w-full text-end">Showing {rowCount} entries</h4>
         </div>
-        <h4 className="w-full text-end">Showing {rowCount} entries</h4>
-      </div>
+      )}
     </div>
   );
 }

@@ -7,6 +7,7 @@ interface FetchProps {
   page?: number;
   limit?: number;
   search?: string;
+  enabled?: boolean;
 }
 
 // Bounds for the adaptive re-sync delay: the next sync is scheduled at a
@@ -86,14 +87,20 @@ export function useFetchDataWithStatus({
   page,
   limit,
   search,
+  enabled = true,
 }: FetchProps) {
   const [data, setData] = useState<any>({ data: [], meta: {} });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);
   const isFirstFetch = useRef(true);
 
   const retrieveToken = localStorage.getItem("token");
 
   useEffect(() => {
+    if (!enabled) {
+      setLoading(false);
+      return;
+    }
+
     let cancelled = false;
     let timeoutId: ReturnType<typeof setTimeout>;
     const controller = new AbortController();
@@ -143,7 +150,7 @@ export function useFetchDataWithStatus({
       controller.abort();
       clearTimeout(timeoutId);
     };
-  }, [url, page, limit, search]);
+  }, [url, page, limit, search, enabled]);
 
   return { data, loading };
 }
