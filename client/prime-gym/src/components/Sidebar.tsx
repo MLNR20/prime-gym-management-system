@@ -1,5 +1,5 @@
 import React from "react";
-import { Outlet, Link, Navigate, useNavigate } from "react-router-dom";
+import { Outlet, Link, Navigate } from "react-router-dom";
 import {
   Gauge,
   Wallet,
@@ -20,10 +20,18 @@ import {
 } from "lucide-react";
 import fitwatch from "../assets/fitwatch.png";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import useFetchData from "../data/fetchData";
 
 export default function Sidebar(): React.ReactElement {
   const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+
+  const adminProfile = useFetchData({ url: "admin/me" });
+  const adminName = [adminProfile?.first_name, adminProfile?.last_name]
+    .filter(Boolean)
+    .join(" ");
+  const adminEmail = adminProfile?.email;
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -262,48 +270,43 @@ export default function Sidebar(): React.ReactElement {
               </div>
             </div>
              <div className="border-t border-gray-300 my-2 w-full"></div>
-            {/*PROFILE SECTION*/}
+            {/*ACCOUNT SECTION*/}
             <div className="w-full">
-              <div className="collapse collapse-arrow ">
-                <input type="checkbox" defaultChecked />
-                <div className="collapse-title text-gray-500 p-0 min-h-0">
-                  PROFILE
-                </div>
-                <div className="collapse-content  p-0 min-h-0 text-sm">
-                  <div className="grid grid-cols-1 mt-2 w-full gap-1.5">
-                    <li className="mt-1">
-                      <Link to="/profile">
-                        <div className="flex flex-row gap-2 p-1 w-full items-start">
-                          <CircleUser color="gray" />
-                          Profile
-                        </div>
-                      </Link>
-                    </li>
-                    <li className="mt-1">
-                      <button onClick={handleLogout} className="w-full">
-                        <div className="flex flex-row gap-2 p-1 w-full items-start">
-                          <LogOut color="gray" />
-                          Log Out
-                        </div>
-                      </button>
-                    </li>
-                  </div>
-                </div>
+              <div className="text-gray-500 p-0 min-h-0">PROFILE</div>
+              <div className="grid grid-cols-1 mt-2 w-full gap-1.5 text-sm">
+                <li className="mt-1">
+                  <Link to="/profile">
+                    <div className="flex flex-row gap-2 p-1 w-full items-start">
+                      <CircleUser color="gray" />
+                      Profile
+                    </div>
+                  </Link>
+                </li>
+                <li className="mt-1">
+                  <button onClick={handleLogout} className="w-full">
+                    <div className="flex flex-row gap-2 p-1 w-full items-start">
+                      <LogOut color="gray" />
+                      Log Out
+                    </div>
+                  </button>
+                </li>
               </div>
             </div>
-          </div>
-          <div className="mt-auto py-2">
-            <div className="flex flex-row items-center mt-4 gap-4">
-              <div>
-                <div className="avatar">
-                  <div className="w-10 rounded-full">
-                    <img src="https://img.daisyui.com/images/profile/demo/yellingcat@192.webp" />
-                  </div>
+            <div className="border-t border-gray-300 my-2 w-full"></div>
+            {/*PROFILE SECTION*/}
+            <div className="w-full">
+              <div className="flex flex-row items-center gap-3 p-1">
+                <div className="rounded-full bg-gray-100 p-2 shrink-0">
+                  <CircleUser color="gray" width="22" height="22" />
                 </div>
-              </div>
-              <div className="gap-1">
-                <h1 className="fw-bold">Coach Andy!</h1>
-                <h4 className="text-gray-500 mt-2">andy@gmail.com</h4>
+                <div className="flex flex-col min-w-0">
+                  <span className="font-bold text-black truncate">
+                    {adminName || "Admin"}
+                  </span>
+                  <span className="text-gray-500 text-xs truncate">
+                    {adminEmail ?? ""}
+                  </span>
+                </div>
               </div>
             </div>
           </div>

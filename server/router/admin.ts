@@ -27,6 +27,23 @@ adminRouter.get(
 );
 
 adminRouter.get(
+  "/me",
+  authMiddleware,
+  async (req: RequestWithUser, res: Response) => {
+    try {
+      const admin = await adminRepository.findById(req.admin!._id);
+      if (!admin) return res.status(404).json({ message: "Admin not found" });
+
+      const { password, username, ...safeAdmin } = admin.toObject();
+      return res.status(200).json(safeAdmin);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Error fetching admin profile" });
+    }
+  },
+);
+
+adminRouter.get(
   "/show/",
   authMiddleware,
   async (req: RequestWithUser, res: Response) => {

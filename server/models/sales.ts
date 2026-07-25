@@ -25,6 +25,8 @@ const salesSchema = new Schema<ISalesDocument>(
   { collection: "Sales" }
 );
 
+salesSchema.index({ customer_id: 1, createdAt: -1 });
+
 const Sales = model<ISalesDocument>("Sales", salesSchema);
 
 export default Sales;

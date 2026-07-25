@@ -25,6 +25,8 @@ const lockerAssignmentSchema = new Schema<ILockerAssignmentDocument>(
   { collection: "LockerAssignment" }
 );
 
+lockerAssignmentSchema.index({ customer_id: 1, createdAt: -1 });
+
 const Logs = model<ILockerAssignmentDocument>("lockerAssignment", lockerAssignmentSchema);
 
 export default Logs;
