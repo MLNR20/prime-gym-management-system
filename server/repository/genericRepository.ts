@@ -153,15 +153,17 @@ class GenericRepository<T> {
     limit = 10,
     search = "",
     fields = [],
+    filter = {},
   }: {
     page?: number;
     limit?: number;
     search?: string;
     fields?: string[];
+    filter?: Record<string, any>;
   }) {
     const skip = (page - 1) * limit;
 
-    let query: any = {};
+    let query: any = { ...filter };
 
     if (this.model.schema.paths.isDeleted) {
       query.isDeleted = { $ne: true };

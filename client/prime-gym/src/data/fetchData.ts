@@ -8,6 +8,7 @@ interface FetchProps {
   limit?: number;
   search?: string;
   enabled?: boolean;
+  customerId?: string;
 }
 
 // Bounds for the adaptive re-sync delay: the next sync is scheduled at a
@@ -29,6 +30,7 @@ export default function useFetchData({
   page,
   limit,
   search,
+  customerId,
 }: FetchProps) {
   const [data, setData] = useState<any>({ data: [], meta: {} });
 
@@ -49,6 +51,7 @@ export default function useFetchData({
               page,
               limit,
               search,
+              customerId,
             },
             headers: {
               Authorization: `Bearer ${retrieveToken}`,
@@ -78,7 +81,7 @@ export default function useFetchData({
       controller.abort();
       clearTimeout(timeoutId);
     };
-  }, [url, page, limit, search]);
+  }, [url, page, limit, search, customerId]);
   return data;
 }
 
@@ -88,6 +91,7 @@ export function useFetchDataWithStatus({
   limit,
   search,
   enabled = true,
+  customerId,
 }: FetchProps) {
   const [data, setData] = useState<any>({ data: [], meta: {} });
   const [loading, setLoading] = useState(enabled);
@@ -117,6 +121,7 @@ export function useFetchDataWithStatus({
               page,
               limit,
               search,
+              customerId,
             },
             headers: {
               Authorization: `Bearer ${retrieveToken}`,
@@ -150,7 +155,7 @@ export function useFetchDataWithStatus({
       controller.abort();
       clearTimeout(timeoutId);
     };
-  }, [url, page, limit, search, enabled]);
+  }, [url, page, limit, search, enabled, customerId]);
 
   return { data, loading };
 }

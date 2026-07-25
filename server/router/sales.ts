@@ -35,12 +35,14 @@ salesRouter.get(
       const limit = parseInt(request.query.limit as string) || 10;
       const page = parseInt(request.query.page as string) || 1;
       const search = (request.query.search as string) || "";
+      const customerId = (request.query.customerId as string) || "";
 
       const result = await salesRepository.search({
         page,
         limit,
         search,
         fields: ["inventory_id"],
+        filter: customerId ? { customer_id: customerId } : {},
       });
 
       const enrichedData = await enrichSalesWithInventory(result.data);

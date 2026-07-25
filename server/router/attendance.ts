@@ -127,11 +127,13 @@ attendanceRouter.get(
       const limit = parseInt(req.query.limit as string) || 10;
       const page = parseInt(req.query.page as string) || 1;
       const search = (req.query.search as string) || "";
+      const customerId = (req.query.customerId as string) || "";
       const pipeline = [
+              ...(customerId ? [{ $match: { customer_id: customerId } }] : []),
               {
                 $addFields: {
-                  customer_id: { $toObjectId: "$customer_id" }, 
-                  locker_id: { $toObjectId: "$locker_id" }, 
+                  customer_id: { $toObjectId: "$customer_id" },
+                  locker_id: { $toObjectId: "$locker_id" },
                 },
               },
               {

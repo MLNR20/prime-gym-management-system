@@ -2,6 +2,7 @@ import React from "react";
 import Sidebar from "../../components/Sidebar";
 import CRUDTemplate from "../../templates/CRUDTemplate";
 import useFetchData from "../../data/fetchData";
+import formatIsoDate from "../../utils/dateFormat";
 
 export default function Locker_View(): React.ReactElement {
   const retrieveData = useFetchData({ url: "lockers/show/" });
@@ -18,10 +19,12 @@ export default function Locker_View(): React.ReactElement {
     {
       header: "Date Created",
       accessorKey: "createdAt",
+      cell: ({ getValue }: any) => formatIsoDate(getValue()),
     },
     {
       header: "Date Updated",
       accessorKey: "updatedAt",
+      cell: ({ getValue }: any) => formatIsoDate(getValue()),
     },
   ];
   return (

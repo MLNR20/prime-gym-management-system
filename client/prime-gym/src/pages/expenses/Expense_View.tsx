@@ -2,6 +2,7 @@ import React from "react";
 import Sidebar from "../../components/Sidebar";
 import CRUDTemplate from "../../templates/CRUDTemplate";
 import useFetchData from "../../data/fetchData";
+import formatIsoDate from "../../utils/dateFormat";
 
 export default function Expense_View(): React.ReactElement {
   const retrieveData = useFetchData({ url: "expenses/show/" });
@@ -9,7 +10,11 @@ export default function Expense_View(): React.ReactElement {
   const columns = [
     {
       header: "#",
-      cell: ({ row }: any) => row.index + 1,
+      cell: ({ row, table }: any) => {
+        const page = table.options.meta?.page ?? 1;
+        const limit = table.options.meta?.limit ?? 10;
+        return (page - 1) * limit + row.index + 1;
+      },
     },
     {
       header: "Expense Title",
@@ -34,16 +39,12 @@ export default function Expense_View(): React.ReactElement {
     {
       header: "Due Date",
       accessorKey: "due_date",
-      cell: ({ row }: any) =>
-        row.original.due_date
-          ? new Date(row.original.due_date).toLocaleDateString()
-          : "—",
+      cell: ({ getValue }: any) => (getValue() ? formatIsoDate(getValue()) : "—"),
     },
     {
       header: "Date Added",
       accessorKey: "createdAt",
-      cell: ({ row }: any) =>
-        new Date(row.original.createdAt).toLocaleDateString(),
+      cell: ({ getValue }: any) => formatIsoDate(getValue()),
     },
   ];
 

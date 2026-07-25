@@ -16,6 +16,7 @@ interface TableProps {
   additionalFunctionality?: (id: string) => void;
   onRowClick?: (row: any) => void;
   disableFetch?: boolean;
+  customerId?: string;
 }
 
 export default function Tables({
@@ -25,6 +26,7 @@ export default function Tables({
   additionalFunctionality,
   onRowClick,
   disableFetch = false,
+  customerId,
 }: TableProps): React.ReactElement {
   const navigate = useNavigate();
 
@@ -39,6 +41,7 @@ export default function Tables({
     limit,
     search: globalFilter,
     enabled: !disableFetch,
+    customerId,
   });
 
 

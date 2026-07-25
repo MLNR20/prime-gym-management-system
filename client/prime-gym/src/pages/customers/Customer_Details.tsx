@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import Sidebar from "../../components/Sidebar";
 import Header from "../../components/Header";
 import Pills from "../../components/Pills";
-import Tables from "../../components/Tables";
+import TableTemplate from "../../templates/TableTemplate";
 import fetchRecord from "../../data/fetchRecord";
 import { useFetchDataWithStatus } from "../../data/fetchData";
 import formatIsoDate from "../../utils/dateFormat";
@@ -47,19 +47,14 @@ export default function Customer_Details(): React.ReactElement {
     load();
   }, [id]);
 
-  const { data: attendanceResponse, loading: loadingAttendance } =
-    useFetchDataWithStatus({ url: `attendance/customer/${id}`, enabled: !!id });
+  // Lightweight existence check — decides whether the Recent Purchases
+  // table renders at all, independent of the paginated table below it.
+  const { data: salesExistenceResponse, loading: loadingSalesExistence } =
+    useFetchDataWithStatus({ url: `sales/customer/${id}`, enabled: !!id });
 
-  const recentAttendance: any[] = Array.isArray(attendanceResponse)
-    ? attendanceResponse
-    : [];
-
-  const { data: salesResponse, loading: loadingSales } = useFetchDataWithStatus({
-    url: `sales/customer/${id}`,
-    enabled: !!id,
-  });
-
-  const recentSales: any[] = Array.isArray(salesResponse) ? salesResponse : [];
+  const hasPurchases: boolean = Array.isArray(salesExistenceResponse)
+    ? salesExistenceResponse.length > 0
+    : false;
 
   const attendanceColumns = [
     {
@@ -167,38 +162,28 @@ export default function Customer_Details(): React.ReactElement {
 
           <hr className="border-t border-gray-200" />
 
-          <Header
+          <TableTemplate
             header="Recent Attendance"
             subheader="This customer's most recent check-ins..."
+            Url="attendance"
+            Columns={attendanceColumns}
+            Data={[]}
+            customerId={id}
+            isUserDetailsView
           />
 
-          {loadingAttendance ? (
-            <div className="flex items-center justify-center py-10">
-              <span className="loading loading-spinner loading-md"></span>
-            </div>
-          ) : (
-            <Tables
-              url="attendance"
-              columns={attendanceColumns}
-              data={recentAttendance}
-              disableFetch
-            />
-          )}
-
-          {!loadingSales && recentSales.length > 0 && (
+          {!loadingSalesExistence && hasPurchases && (
             <>
               <hr className="border-t border-gray-200" />
 
-              <Header
+              <TableTemplate
                 header="Recent Purchases"
                 subheader="Items this customer has bought from the gym store..."
-              />
-
-              <Tables
-                url="sales"
-                columns={salesColumns}
-                data={recentSales}
-                disableFetch
+                Url="sales"
+                Columns={salesColumns}
+                Data={[]}
+                customerId={id}
+                isUserDetailsView
               />
             </>
           )}
