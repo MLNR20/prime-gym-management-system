@@ -1,6 +1,7 @@
 import express from "express";
 import CustomerRepository from "../repository/customerRepository";
 import SubscriptionHistoryRepository from "../repository/subscriptionhistoryRepository";
+import SessionRepository from "../repository/sessionRepository";
 import LogsRepository from "../repository/logsRepository";
 import { CustomerService } from "../repository/services/customerService";
 import { authMiddleware } from "../middleware/middleware";
@@ -8,7 +9,7 @@ import { RequestWithUser } from "../middleware/types/express";
 import customerRepository from "../repository/customerRepository";
 
 const customerRouter = express.Router();
-const customerService = new CustomerService(CustomerRepository, SubscriptionHistoryRepository);
+const customerService = new CustomerService(CustomerRepository, SubscriptionHistoryRepository, SessionRepository);
 
 // CREATE
 customerRouter.post("/", authMiddleware, async (request: RequestWithUser, response) => {
@@ -25,6 +26,8 @@ customerRouter.post("/", authMiddleware, async (request: RequestWithUser, respon
     };
 
     const createNewEmployee = await CustomerRepository.create(newCustomer);
+    await customerService.awardCoachingSession(String(createNewEmployee._id), createNewEmployee.subscription_type);
+
     const admin = request.admin;
     await LogsRepository.logAction(
       admin!._id.toString(),
@@ -246,10 +249,13 @@ customerRouter.put("/:id", authMiddleware, async (request: RequestWithUser, resp
     if(request.body.subscription_type === "Daily Exercise") request.body.expiration_Date = now;
     if(request.body.subscription_type==="Monthly Subscription" || request.body.subscription_type==="Monthly with Coaching") request.body.expiration_Date = thirtyDaysFromNow;
 
+    const existingCustomer = await CustomerRepository.findById(request.params.id!);
     const updatedCustomer = await CustomerRepository.update(request.params.id!, request.body);
     if (!updatedCustomer) return response.status(404).json({ message: "Customer not found" });
 
-
+    if (request.body.subscription_type && request.body.subscription_type !== existingCustomer?.subscription_type) {
+      await customerService.awardCoachingSession(String(updatedCustomer._id), request.body.subscription_type);
+    }
 
     const admin = request.admin;
     await LogsRepository.logAction(

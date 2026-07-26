@@ -5,8 +5,6 @@ import { authMiddleware } from "../middleware/middleware";
 import { RequestWithUser } from "../middleware/types/express";
 import ProgramAndExercisesRepository from "../repository/programAndExercisesRepository";
 import ProgramAndCustomerRepository from "../repository/programAndCustomerRepository";
-import MailService from "../services/mailService";
-import CustomerRepository from "../repository/customerRepository";
 
 const programRouter = express.Router();
 
@@ -317,7 +315,7 @@ programRouter.get("/:id/customers", authMiddleware, async (request: RequestWithU
   }
 });
 
-// ASSIGN PROGRAM TO CUSTOMER (AND EMAIL NOTIFY)
+// ASSIGN PROGRAM TO CUSTOMER
 programRouter.post("/:id/customers", authMiddleware, async (request: RequestWithUser, response) => {
   try {
     const programId = request.params.id!;
@@ -329,20 +327,6 @@ programRouter.post("/:id/customers", authMiddleware, async (request: RequestWith
     if (!program) return response.status(404).json({ message: "Program not found" });
 
     const assigned = await ProgramAndCustomerRepository.assign(programId, customer_id);
-
-    const customer: any = await CustomerRepository.findById(customer_id);
-    if (customer?.email) {
-      try {
-        await MailService.sendProgramAssignmentEmail(
-          customer.email,
-          `${customer.first_name} ${customer.last_name}`,
-          program.program_name,
-          program.description,
-        );
-      } catch (mailError) {
-        console.error("Failed to send program assignment email:", mailError);
-      }
-    }
 
     const admin = request.admin;
     await LogsRepository.logAction(

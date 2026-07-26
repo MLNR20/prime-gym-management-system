@@ -41,6 +41,9 @@ import Edit_Sales from '../pages/sales/Edit_Sales'
 import Analytics_View from '../pages/analytics/Analytics_View'
 import Profile from '../pages/Profile'
 import Finances_View from '../pages/finances/Finances_View'
+import Sessions_View from '../pages/sessions/Sessions_View'
+import Assign_Sessions from '../pages/sessions/Assign_Sessions'
+import Session_Assignment_History_View from '../pages/sessions/Session_Assignment_History_View'
 // ...other imports
 
 export default function Router() {
@@ -88,6 +91,9 @@ export default function Router() {
         <Route path="/sales/:id" element={<Edit_Sales/>}/>
         <Route path="/profile" element={<Profile/>}/>
         <Route path="/finances" element={<Finances_View/>}/>
+        <Route path="/sessions" element={<Sessions_View/>}/>
+        <Route path="/sessions/assign" element={<Assign_Sessions/>}/>
+        <Route path="/sessions/history" element={<Session_Assignment_History_View/>}/>
       </Routes>
       </AuthProvider>
     </BrowserRouter>

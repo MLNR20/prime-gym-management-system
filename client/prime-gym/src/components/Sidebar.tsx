@@ -18,6 +18,7 @@ import {
   SportShoe,
   Wrench,
   PiggyBank,
+  Timer,
 } from "lucide-react";
 import fitwatch from "../assets/fitwatch.png";
 import { useAuth } from "../context/AuthContext";
@@ -104,7 +105,7 @@ export default function Sidebar(): React.ReactElement {
                 </div>
               </div>
             </div>
-             <div className="border-t border-gray-300 my-2 w-full"></div>
+            <div className="border-t border-gray-300 my-2 w-full"></div>
             {/*MEMBER SECTION*/}
             <div className="w-full">
               <div className="collapse collapse-arrow ">
@@ -156,7 +157,7 @@ export default function Sidebar(): React.ReactElement {
               </div>
             </div>
             <div className="border-t border-gray-300 my-2 w-full"></div>
-            
+
             {/*EXERCISE SECTION*/}
             <div className="w-full">
               <div className="collapse collapse-arrow ">
@@ -179,6 +180,30 @@ export default function Sidebar(): React.ReactElement {
                         <div className="flex flex-row gap-2 p-1 w-full items-start">
                           <SportShoe color="gray" />
                           Programs
+                        </div>
+                      </Link>
+                    </li>
+                    <li className="mt-1">
+                      <Link to="/sessions">
+                        <div className="flex flex-row gap-2 p-1 w-full items-start">
+                          <Timer color="gray" />
+                          Sessions
+                        </div>
+                      </Link>
+                    </li>
+                    <li className="mt-1">
+                      <Link to="/sessions/assign">
+                        <div className="flex flex-row gap-2 p-1 w-full items-start">
+                          <Timer color="gray" />
+                          Assign Sessions
+                        </div>
+                      </Link>
+                    </li>
+                    <li className="mt-1">
+                      <Link to="/sessions/history">
+                        <div className="flex flex-row gap-2 p-1 w-full items-start">
+                          <ScrollText color="gray" />
+                          Assignment History
                         </div>
                       </Link>
                     </li>
@@ -232,7 +257,7 @@ export default function Sidebar(): React.ReactElement {
                 </div>
               </div>
             </div>
-             <div className="border-t border-gray-300 my-2 w-full"></div>
+            <div className="border-t border-gray-300 my-2 w-full"></div>
             {/*SALES & FINANCES SECTION*/}
             <div className="w-full">
               <div className="collapse collapse-arrow ">
@@ -270,7 +295,7 @@ export default function Sidebar(): React.ReactElement {
                 </div>
               </div>
             </div>
-             <div className="border-t border-gray-300 my-2 w-full"></div>
+            <div className="border-t border-gray-300 my-2 w-full"></div>
             {/*ACCOUNT SECTION*/}
             <div className="w-full">
               <div className="text-gray-500 p-0 min-h-0">PROFILE</div>

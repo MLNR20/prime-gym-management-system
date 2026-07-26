@@ -89,6 +89,13 @@ export class CustomerRepository extends GenericRepository<ICustomerDocument> imp
   async findByLastName(last_name: string): Promise<ICustomerDocument | null> {
     return this.model.findOne({ last_name });
   }
+
+  async findCoachingCustomers(): Promise<ICustomerDocument[]> {
+    return this.model.find({
+      isDeleted: false,
+      subscription_type: { $in: ["Coaching Subscription", "Monthly with Coaching"] },
+    });
+  }
 }
 
 export default new CustomerRepository(Customer);

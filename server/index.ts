@@ -22,6 +22,8 @@ import attendanceRouter from "./router/attendance";
 import inventoryRouter from "./router/inventory";
 import salesRouter from "./router/sales";
 import expenseRouter from "./router/expense";
+import sessionRouter from "./router/session";
+import sessionAssignmentRouter from "./router/sessionAssignment";
 
 const app: Application = express();
 const PORT = process.env.PORT ?? 3002;
@@ -43,6 +45,8 @@ app.use("/attendance", attendanceRouter);
 app.use("/inventory", inventoryRouter);
 app.use("/sales", salesRouter);
 app.use("/expenses", expenseRouter);
+app.use("/sessions", sessionRouter);
+app.use("/session-assignments", sessionAssignmentRouter);
 
 
 mongoose.connect(databaseConnectionString).then(()=>{
