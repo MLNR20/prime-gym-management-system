@@ -10,8 +10,8 @@ import {
 } from "chart.js";
 
 import { Line } from "react-chartjs-2";
-import HeaderMd from "../components/HeadersMd";
-import Header from "../components/Header";
+import HeaderMd from "../HeadersMd";
+import Header from "../Header";
 
 ChartJS.register(
   CategoryScale,
@@ -34,6 +34,7 @@ type SubscriptionItem = {
 
 type Props = {
   subMonthsData: SubscriptionItem[] | null | undefined;
+  loading?: boolean;
 };
 
 export const subscriptionColors: Record<string, string> = {
@@ -43,7 +44,7 @@ export const subscriptionColors: Record<string, string> = {
   "Monthly with Coaching": "#a78bfa",
 };
 
-export default function SubscriptionLineChart({ subMonthsData }: Props) {
+export default function SubscriptionLineChart({ subMonthsData, loading = false }: Props) {
   // 🔥 SAFE GUARD (prevents crashes)
   const safeData = Array.isArray(subMonthsData) ? subMonthsData : [];
 
@@ -142,7 +143,11 @@ export default function SubscriptionLineChart({ subMonthsData }: Props) {
       />
 
       <div className="flex-1 mt-4 relative min-h-0" style={{ height: "340px" }}>
-        <Line data={data} options={options} />
+        {loading ? (
+          <div className="w-full h-full rounded-xl bg-gray-200 animate-pulse" />
+        ) : (
+          <Line data={data} options={options} />
+        )}
       </div>
     </div>
   );

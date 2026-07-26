@@ -5,19 +5,21 @@ import {
   Legend
 } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
-import HeaderMd from "../components/HeadersMd";
-import Header from "../components/Header";
+import HeaderMd from "../HeadersMd";
+import Header from "../Header";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 type Props = {
   activeUsers: number;
   inactiveUsers: number;
+  loading?: boolean;
 };
 
 export default function DoughnutChart({
   activeUsers,
-  inactiveUsers
+  inactiveUsers,
+  loading = false,
 }: Props) {
   const data = {
     labels: ["Active Users", "Inactive Users"],
@@ -48,7 +50,13 @@ export default function DoughnutChart({
 
       />
       <div className="flex-1 mt-4 relative min-h-0" style={{ minHeight: "300px" }}>
-        <Doughnut data={data} options={options} />
+        {loading ? (
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="w-48 h-48 rounded-full bg-gray-200 animate-pulse" />
+          </div>
+        ) : (
+          <Doughnut data={data} options={options} />
+        )}
       </div>
     </div>
   );

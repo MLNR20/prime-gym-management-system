@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import Cards from "../components/Cards";
-import useFetchData from "../data/fetchData";
+import useFetchData, { useFetchDataWithStatus } from "../data/fetchData";
 import TableTemplate from "../templates/TableTemplate";
-import DoughnutChart from "../charts/Doughtnut";
-import SubscriptionLineChart from "../charts/Line";
+import DoughnutChart from "../components/charts/Doughtnut";
+import SubscriptionLineChart from "../components/charts/Line";
 import { Users, UserX, TrendingUp, Wallet } from "lucide-react";
 import {
   Chart as ChartJS,
@@ -19,8 +19,6 @@ import {
 } from "chart.js";
 
 export default function Dashboard(): React.ReactElement {
-  const [data, setData] = useState<any>(null);
-
   ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -31,23 +29,19 @@ export default function Dashboard(): React.ReactElement {
     Legend,
   );
 
-  const fetchDashboardData = useFetchData({
+  const { data: fetchDashboardData, loading: statsLoading } = useFetchDataWithStatus({
     url: "customers/retrieve-stats/",
-  }) || [];
+  });
 
-  const fetchhistory = useFetchData({
+  const { data: fetchhistory, loading: historyLoading } = useFetchDataWithStatus({
     url: "customers/monthly-breakdown",
-  }) || [];
+  });
 
   const fetchLogRecords = useFetchData({
     url: "logs",
   });
 
-  useEffect(() => {
-    if (fetchDashboardData) {
-      setData(fetchDashboardData);
-    }
-  }, [fetchDashboardData]);
+  const data = fetchDashboardData;
 
   const columns = [
     {
@@ -63,10 +57,6 @@ export default function Dashboard(): React.ReactElement {
       accessorKey: "createdAt",
     },
   ];
-
-  if (!data || !fetchhistory) {
-    return <div>Loading...</div>;
-  }
 
   const statCards = [
     {
@@ -125,18 +115,20 @@ export default function Dashboard(): React.ReactElement {
               Card_Subheader={card.subheader}
               icon={card.icon}
               iconBg={card.iconBg}
+              loading={statsLoading}
             />
           ))}
         </div>
 
         <div className="flex flex-row items-stretch gap-4" style={{ height: "500px" }}>
           <div className="flex-[2] min-w-0">
-            <SubscriptionLineChart subMonthsData={fetchhistory || []} />
+            <SubscriptionLineChart subMonthsData={fetchhistory || []} loading={historyLoading} />
           </div>
           <div className="flex-1 min-w-0">
             <DoughnutChart
-              activeUsers={data.activeUsers}
-              inactiveUsers={data.inactiveUsers} />
+              activeUsers={data?.activeUsers}
+              inactiveUsers={data?.inactiveUsers}
+              loading={statsLoading} />
           </div>
         </div>
         <div className="-mt-3">

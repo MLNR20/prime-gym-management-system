@@ -17,6 +17,7 @@ import {
   ShoppingCart,
   SportShoe,
   Wrench,
+  PiggyBank,
 } from "lucide-react";
 import fitwatch from "../assets/fitwatch.png";
 import { useAuth } from "../context/AuthContext";
@@ -258,9 +259,9 @@ export default function Sidebar(): React.ReactElement {
                       </Link>
                     </li>
                     <li>
-                      <Link to="/profile">
+                      <Link to="/finances">
                         <div className="flex flex-row gap-2 p-1 w-full items-start">
-                          <Wallet color="gray" />
+                          <PiggyBank color="gray" />
                           Finances
                         </div>
                       </Link>
@@ -295,15 +296,12 @@ export default function Sidebar(): React.ReactElement {
             <div className="border-t border-gray-300 my-2 w-full"></div>
             {/*PROFILE SECTION*/}
             <div className="w-full">
-              <div className="flex flex-row items-center gap-3 p-1">
-                <div className="rounded-full bg-gray-100 p-2 shrink-0">
-                  <CircleUser color="gray" width="22" height="22" />
-                </div>
-                <div className="flex flex-col min-w-0">
-                  <span className="font-bold text-black truncate">
+              <div className="flex flex-row items-center gap-4 p-2">
+                <div className="flex flex-col min-w-0 gap-0.5">
+                  <span className="font-bold text-black text-base truncate">
                     {adminName || "Admin"}
                   </span>
-                  <span className="text-gray-500 text-xs truncate">
+                  <span className="text-gray-500 text-sm truncate">
                     {adminEmail ?? ""}
                   </span>
                 </div>

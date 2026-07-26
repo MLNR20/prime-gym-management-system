@@ -40,6 +40,7 @@ import Add_Sales from '../pages/sales/Add_Sales'
 import Edit_Sales from '../pages/sales/Edit_Sales'
 import Analytics_View from '../pages/analytics/Analytics_View'
 import Profile from '../pages/Profile'
+import Finances_View from '../pages/finances/Finances_View'
 // ...other imports
 
 export default function Router() {
@@ -86,6 +87,7 @@ export default function Router() {
         <Route path="/add_sales" element={<Add_Sales/>}/>
         <Route path="/sales/:id" element={<Edit_Sales/>}/>
         <Route path="/profile" element={<Profile/>}/>
+        <Route path="/finances" element={<Finances_View/>}/>
       </Routes>
       </AuthProvider>
     </BrowserRouter>

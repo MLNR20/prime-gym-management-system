@@ -10,7 +10,10 @@ export default function Inventory_View(): React.ReactElement {
   const columns = [
     {
       header: "#",
-      cell: ({ row }: any) => row.index + 1,
+      cell: ({ row, table }: any) => {
+        const { page = 1, limit = 10 } = table.options.meta ?? {};
+        return (page - 1) * limit + row.index + 1;
+      },
     },
     {
       header: "Item Code",

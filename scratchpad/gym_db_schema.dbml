@@ -1,0 +1,162 @@
+// Prime Gym - MongoDB schema (Mongoose models) as DBML
+// Paste this into https://dbdiagram.io
+// Note: relationships are logical (string _id references), not enforced FKs, since this is MongoDB.
+
+Table Admin {
+  _id ObjectId [pk]
+  first_name String
+  last_name String
+  username String [unique]
+  password String
+  email String
+  createdAt Date
+  isDeleted Boolean
+}
+
+Table Logs {
+  _id ObjectId [pk]
+  admin_id String [ref: > Admin._id]
+  logs String
+  createdAt Date
+}
+
+Table Customer {
+  _id ObjectId [pk]
+  first_name String
+  last_name String
+  amount_paid Number
+  contact_no String [unique]
+  email String
+  status String [note: 'enum: Paid, Expired']
+  payment_option String [note: 'enum: GCash, Cash']
+  subscription_type String [note: 'enum: Daily Exercise, Monthly Subscription, Coaching Subscription, Monthly with Coaching']
+  payment_Date Date
+  expiration_Date Date
+  createdAt Date
+  updatedAt Date
+  isDeleted Boolean
+}
+
+Table SubscriptionHistory {
+  _id ObjectId [pk]
+  customer_id String [ref: > Customer._id]
+  amount Number
+  subscription_type String
+  dateRenewed Date
+  createdAt Date
+  updatedAt Date
+}
+
+Table Contact {
+  _id ObjectId [pk]
+  first_name String
+  last_name String
+  contact_number String [unique]
+  role String
+  createdAt Date
+  updatedAt Date
+  isDeleted Boolean
+}
+
+Table Equipment {
+  _id ObjectId [pk]
+  equipment_name String
+  equipment_status String [note: 'enum: Active, Inactive, For Repair, Under Repair']
+  createdAt Date
+  updatedAt Date
+}
+
+Table Exercise {
+  _id ObjectId [pk]
+  exercise_name String
+  target_area String [note: 'enum: Chest, Legs, Biceps, Triceps, Shoulders, Abs, Back, Forearms, Calves, Glutes, Obliques, Traps, Lats, FullBody']
+  reps Number
+  sets Number
+  createdAt Date
+  updatedAt Date
+  isDeleted Boolean
+}
+
+Table Program {
+  _id ObjectId [pk]
+  program_name String
+  description String
+  date_assigned Date
+  createdAt Date
+  updatedAt Date
+  isDeleted Boolean
+}
+
+Table ProgramAndCustomers {
+  _id ObjectId [pk]
+  program_id String [ref: > Program._id]
+  customer_id String [ref: > Customer._id]
+  createdAt Date
+  updatedAt Date
+}
+
+Table ProgramAndExercises {
+  _id ObjectId [pk]
+  program_id String [ref: > Program._id]
+  exercise_id String [ref: > Exercise._id]
+  createdAt Date
+  updatedAt Date
+}
+
+Table Locker {
+  _id ObjectId [pk]
+  locker_number Number
+  is_active Boolean
+  createdAt Date
+  updatedAt Date
+
+  Indexes {
+    (locker_number, is_active) [unique, note: 'partial: is_active = true']
+  }
+}
+
+Table LockerAssignment {
+  _id ObjectId [pk]
+  locker_id String [ref: > Locker._id]
+  customer_id String [ref: > Customer._id]
+  time_in String
+  time_out String
+  status String
+  createdAt Date
+  updatedAt Date
+}
+
+Table Inventory {
+  _id ObjectId [pk]
+  item_name String
+  item_code String [unique]
+  category String [note: 'enum: Equipment, Supplements, Apparel, Accessories, Cleaning Supplies, Miscellaneous']
+  quantity Number
+  unit_price Number
+  status String [note: 'enum: Available, Low Stock, Out of Stock, Discontinued']
+  is_for_sale Boolean
+  createdAt Date
+  updatedAt Date
+}
+
+Table Sales {
+  _id ObjectId [pk]
+  customer_id String [ref: > Customer._id]
+  inventory_id String [ref: > Inventory._id]
+  quantity Number
+  total_price Number
+  is_active Boolean
+  createdAt Date
+  updatedAt Date
+}
+
+Table Expenses {
+  _id ObjectId [pk]
+  expense_title String
+  unit_price Number
+  quantity Number
+  categories String [note: 'enum: Rent, Utilities, Wages, Equipment, Maintenance, Supplies, Miscellaneous']
+  due_date Date
+  createdAt Date
+  updatedAt Date
+}

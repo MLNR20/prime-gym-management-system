@@ -8,7 +8,7 @@ import TableTemplate from "../../templates/TableTemplate";
 import { useFetchDataWithStatus } from "../../data/fetchData";
 import Skeleton from "../../components/Skeleton";
 import formatIsoDate from "../../utils/dateFormat";
-import { subscriptionColors } from "../../charts/Line";
+import { subscriptionColors } from "../../components/charts/Line";
 import {
   ShoppingCart,
   TrendingUp,
