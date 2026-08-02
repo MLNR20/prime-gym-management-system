@@ -126,11 +126,11 @@ export default function Edit_Attendance(): React.ReactElement {
 
   if (loading) {
     return (
-      <div className="flex h-screen overflow-hidden">
-        <div className="w-64">
+      <div className="flex h-screen p-6 md:p-0 lg:p-0 lg:flex-row md:flex-row flex-col overflow-hidden">
+        <div className="w-full md:w-48 lg:w-64">
           <Sidebar />
         </div>
-        <div className="flex-1 p-24 overflow-auto flex items-center justify-center">
+        <div className="flex-1 p-6 md:p-24 lg:p-24 overflow-auto flex items-center justify-center">
           <div className="text-xl font-semibold text-gray-700">Loading attendance record...</div>
         </div>
       </div>
@@ -138,12 +138,12 @@ export default function Edit_Attendance(): React.ReactElement {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <div className="w-64">
+    <div className="flex h-screen p-6 md:p-0 lg:p-0 lg:flex-row md:flex-row flex-col overflow-hidden">
+      <div className="w-full md:w-48 lg:w-64">
         <Sidebar />
       </div>
 
-      <div className="flex-1 p-24 overflow-auto">
+      <div className="flex-1 p-6 md:p-24 lg:p-24 overflow-auto">
         <div className="bg-white p-16 rounded-lg">
           <Header
             subheader="Let's assign a locker key to a customer with an active subscription."

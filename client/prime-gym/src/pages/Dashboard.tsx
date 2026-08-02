@@ -120,11 +120,11 @@ export default function Dashboard(): React.ReactElement {
           ))}
         </div>
 
-        <div className="flex flex-row items-stretch gap-4" style={{ height: "500px" }}>
-          <div className="flex-[2] min-w-0">
+        <div className="flex flex-col lg:flex-row items-stretch gap-4">
+          <div className="flex-[2] min-w-0 overflow-x-auto" style={{ height: "600px" }}>
             <SubscriptionLineChart subMonthsData={fetchhistory || []} loading={historyLoading} />
           </div>
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 overflow-x-auto" style={{ height: "600px" }}>
             <DoughnutChart
               activeUsers={data?.activeUsers}
               inactiveUsers={data?.inactiveUsers}

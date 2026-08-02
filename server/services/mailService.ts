@@ -62,6 +62,23 @@ const MailService = {
       console.log(`Program assignment email preview (Ethereal): ${previewUrl}`);
     }
   },
+
+  async sendPasswordResetEmail(to: string, resetUrl: string) {
+    const transporter = await getTransporter();
+
+    const info = await transporter.sendMail({
+      from: process.env.SMTP_FROM || process.env.SMTP_USER || "Prime Gym <no-reply@primegym.test>",
+      to,
+      subject: "Reset your Prime Gym password",
+      text: `We received a request to reset your password.\n\nReset it here: ${resetUrl}\n\nThis link expires in 1 hour. If you didn't request this, you can ignore this email.`,
+      html: `<p>We received a request to reset your password.</p><p><a href="${resetUrl}">Click here to reset your password</a></p><p>This link expires in 1 hour. If you didn't request this, you can ignore this email.</p>`,
+    });
+
+    const previewUrl = nodemailer.getTestMessageUrl(info);
+    if (previewUrl) {
+      console.log(`Password reset email preview (Ethereal): ${previewUrl}`);
+    }
+  },
 };
 
 export default MailService;

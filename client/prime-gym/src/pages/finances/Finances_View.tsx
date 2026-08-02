@@ -4,6 +4,7 @@ import Header from "../../components/Header";
 import Cards from "../../components/Cards";
 import useFetchData from "../../data/fetchData";
 import MonthlyProfitBarChart from "../../components/charts/Bar";
+import QuarterlySalesExpensesBarChart from "../../components/charts/QuarterlyBar";
 import { TrendingUp, TrendingDown, DollarSign, Activity } from "lucide-react";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
@@ -88,6 +89,59 @@ export default function Finances_View(): React.ReactElement {
       }));
   }, [salesArr, subscriptionsArr, expensesArr]);
 
+  // ── quarterly aggregation for the past-decade bar chart ────────────────────
+  const quarterlyData = useMemo(() => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentQuarter = Math.floor(now.getMonth() / 3) + 1; // 1-4
+    const startYear = currentYear - 9; // last 10 years, inclusive
+
+    const quarterKey = (year: number, quarter: number) => `${year}-Q${quarter}`;
+
+    const map: Record<string, { revenue: number; expenses: number }> = {};
+    const order: string[] = [];
+
+    for (let y = startYear; y <= currentYear; y++) {
+      const lastQ = y === currentYear ? currentQuarter : 4;
+      for (let q = 1; q <= lastQ; q++) {
+        const key = quarterKey(y, q);
+        map[key] = { revenue: 0, expenses: 0 };
+        order.push(key);
+      }
+    }
+
+    const addToQuarter = (isoDate: string, field: "revenue" | "expenses", amount: number) => {
+      const d = new Date(isoDate);
+      const key = quarterKey(d.getFullYear(), Math.floor(d.getMonth() / 3) + 1);
+      if (map[key]) map[key][field] += amount;
+    };
+
+    salesArr.forEach((s: any) => {
+      addToQuarter(s.createdAt ?? now.toISOString(), "revenue", Number(s.total_price ?? 0));
+    });
+
+    subscriptionsArr.forEach((s: any) => {
+      addToQuarter(s.createdAt ?? now.toISOString(), "revenue", Number(s.amount ?? 0));
+    });
+
+    expensesArr.forEach((e: any) => {
+      addToQuarter(
+        e.createdAt ?? now.toISOString(),
+        "expenses",
+        Number(e.unit_price ?? 0) * Number(e.quantity ?? 1)
+      );
+    });
+
+    return order.map((key) => {
+      const [year, q] = key.split("-Q");
+      return {
+        label: `Q${q} ${year}`,
+        revenue: map[key].revenue,
+        expenses: map[key].expenses,
+      };
+    });
+  }, [salesArr, subscriptionsArr, expensesArr]);
+
   // ── slider: blended "net snapshot" ────────────────────────────────────────
   // 0   = show expenses only (negative view)
   // 50  = balanced (actual net)
@@ -150,7 +204,7 @@ export default function Finances_View(): React.ReactElement {
       </div>
 
       {/* Main content */}
-      <div className="flex-1 space-y-6 p-6 md:p-24 lg:p-24 overflow-auto">
+      <div className="flex-1 min-w-0 space-y-6 p-6 md:p-24 lg:p-24 overflow-auto">
         <Header
           header="Finances"
           subheader="An overview of your gym's financial health — revenue, expenses, and net profit."
@@ -245,8 +299,13 @@ export default function Finances_View(): React.ReactElement {
         </div>
 
         {/* ── Bar Chart ── */}
-        <div style={{ height: "450px" }}>
+        <div className="w-full min-w-0" style={{ height: "600px" }}>
           <MonthlyProfitBarChart data={monthlyData} />
+        </div>
+
+        {/* ── Quarterly Sales vs Expenses Bar Chart ── */}
+        <div className="w-full min-w-0" style={{ height: "600px" }}>
+          <QuarterlySalesExpensesBarChart data={quarterlyData} />
         </div>
       </div>
     </div>

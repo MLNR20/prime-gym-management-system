@@ -12,34 +12,27 @@ import Header from "../Header";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend, Title);
 
-type MonthlyProfitItem = {
-  month: string;   // e.g. "2025-01"
+type QuarterlyItem = {
+  label: string; // e.g. "Q1 2017"
   revenue: number;
   expenses: number;
-  profit: number;
 };
 
 type Props = {
-  data: MonthlyProfitItem[];
+  data: QuarterlyItem[];
   loading?: boolean;
 };
 
-export default function MonthlyProfitBarChart({ data, loading = false }: Props) {
+export default function QuarterlySalesExpensesBarChart({ data, loading = false }: Props) {
   const safeData = Array.isArray(data) ? data : [];
 
-  const labels = safeData.map((d) => {
-    const [year, month] = d.month.split("-");
-    return new Date(Number(year), Number(month) - 1).toLocaleString("default", {
-      month: "short",
-      year: "2-digit",
-    });
-  });
+  const labels = safeData.map((d) => d.label);
 
   const chartData = {
     labels,
     datasets: [
       {
-        label: "Revenue",
+        label: "Sales",
         data: safeData.map((d) => d.revenue),
         backgroundColor: "rgba(96, 165, 250, 0.85)",
         borderRadius: 8,
@@ -49,13 +42,6 @@ export default function MonthlyProfitBarChart({ data, loading = false }: Props) 
         label: "Expenses",
         data: safeData.map((d) => d.expenses),
         backgroundColor: "rgba(251, 113, 133, 0.85)",
-        borderRadius: 8,
-        borderSkipped: false,
-      },
-      {
-        label: "Net Profit",
-        data: safeData.map((d) => d.profit),
-        backgroundColor: "rgba(52, 211, 153, 0.9)",
         borderRadius: 8,
         borderSkipped: false,
       },
@@ -107,8 +93,8 @@ export default function MonthlyProfitBarChart({ data, loading = false }: Props) 
   return (
     <div className="w-full h-full min-w-0 rounded-2xl bg-white p-12 flex flex-col overflow-hidden">
       <Header
-        header="Monthly Profit Overview"
-        subheader="Revenue vs. Expenses vs. Net Profit per month"
+        header="Sales vs. Expenses — Past Decade"
+        subheader="Quarterly totals of sales and expenses over the last 10 years"
       />
       <div className="flex-1 min-w-0 mt-6 relative" style={{ minHeight: "320px" }}>
         {loading ? (

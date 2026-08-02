@@ -86,12 +86,12 @@ export default function Edit_Customer(): React.ReactElement {
   const selectClass = "select select-bordered h-12 border bg-white border-gray-400 text-gray-500 w-full";
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <div className="w-64">
+    <div className="flex h-screen p-6 md:p-0 lg:p-0 lg:flex-row md:flex-row flex-col overflow-hidden">
+      <div className="w-full md:w-48 lg:w-64">
         <Sidebar />
       </div>
 
-      <div className="flex-1 p-24 overflow-auto">
+      <div className="flex-1 p-6 md:p-24 lg:p-24 overflow-auto">
         <div className="bg-white p-16 rounded-lg">
           <Header
             subheader="Update the details of this customer."

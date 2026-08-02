@@ -31,12 +31,12 @@ export default function Add_Equipment(): React.ReactElement {
   };
 
   return (
-    <div className="flex background-white h-screen overflow-hidden">
-      <div className="w-64">
+    <div className="flex background-white h-screen p-6 md:p-0 lg:p-0 lg:flex-row md:flex-row flex-col overflow-hidden">
+      <div className="w-full md:w-48 lg:w-64">
         <Sidebar />
       </div>
 
-      <div className="flex-1 p-24 overflow-auto">
+      <div className="flex-1 p-6 md:p-24 lg:p-24 overflow-auto">
         <div className="bg-white p-16 rounded-lg">
           <Header
             subheader="Fill in the details below to register new gym equipment."

@@ -8,6 +8,8 @@ export interface IAdmin extends Document {
   email: string;
   createdAt: Date;
   isDeleted: Boolean;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
 }
 
 const adminSchema = new Schema<IAdmin>(
@@ -18,7 +20,9 @@ const adminSchema = new Schema<IAdmin>(
     password: { type: String, required: true },
     email:{ type:String, required:true},
     createdAt: { type: Date, default: Date.now },
-    isDeleted: {type:Boolean, default: false}
+    isDeleted: {type:Boolean, default: false},
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date }
   },
   { collection: "Admin" }
 );

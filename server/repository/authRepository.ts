@@ -27,4 +27,31 @@ export class AuthRepository implements IAuthRepository {
     const isMatch = await bcrypt.compare(password, admin.password);
     return isMatch ? admin : null;
   }
+
+  async findByEmail(email: string): Promise<IAdmin | null> {
+    return Admin.findOne({ email }).exec();
+  }
+
+  async setResetToken(admin_id: string, tokenHash: string, expires: Date): Promise<void> {
+    await Admin.findByIdAndUpdate(admin_id, {
+      resetPasswordToken: tokenHash,
+      resetPasswordExpires: expires,
+    }).exec();
+  }
+
+  async findByResetTokenHash(tokenHash: string): Promise<IAdmin | null> {
+    return Admin.findOne({
+      resetPasswordToken: tokenHash,
+      resetPasswordExpires: { $gt: new Date() },
+    }).exec();
+  }
+
+  async resetPassword(admin_id: string, newPassword: string): Promise<void> {
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(newPassword, saltRounds);
+    await Admin.findByIdAndUpdate(admin_id, {
+      password: passwordHash,
+      $unset: { resetPasswordToken: "", resetPasswordExpires: "" },
+    }).exec();
+  }
 }

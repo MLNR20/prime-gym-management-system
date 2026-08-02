@@ -4,6 +4,8 @@ import { AuthProvider } from '../context/AuthContext'
 import Dashboard from '../pages/Dashboard'
 import Login from '../pages/login/Login'
 import Register from '../pages/login/Register'
+import ForgotPassword from '../pages/login/ForgotPassword'
+import ResetPassword from '../pages/login/ResetPassword'
 import Contact_View from '../pages/contacts/Contact_View'
 import Add_Contacts from '../pages/contacts/Add_Contacts'
 import Edit_Contacts from '../pages/contacts/Edit_Contacts'
@@ -43,7 +45,6 @@ import Profile from '../pages/Profile'
 import Finances_View from '../pages/finances/Finances_View'
 import Sessions_View from '../pages/sessions/Sessions_View'
 import Assign_Sessions from '../pages/sessions/Assign_Sessions'
-import Session_Assignment_History_View from '../pages/sessions/Session_Assignment_History_View'
 // ...other imports
 
 export default function Router() {
@@ -54,6 +55,8 @@ export default function Router() {
         <Route path="/" element={<Dashboard />} />
         <Route path="/login" element={<Login/>} />
         <Route path="/register" element={<Register/>} />
+        <Route path="/forgot-password" element={<ForgotPassword/>} />
+        <Route path="/reset-password/:token" element={<ResetPassword/>} />
         <Route path="/analytics" element={<Analytics_View/>} />
         <Route path="/contacts" element={<Contact_View/>}/>
         <Route path="/add_contacts" element={<Add_Contacts/>}/>
@@ -93,7 +96,6 @@ export default function Router() {
         <Route path="/finances" element={<Finances_View/>}/>
         <Route path="/sessions" element={<Sessions_View/>}/>
         <Route path="/sessions/assign" element={<Assign_Sessions/>}/>
-        <Route path="/sessions/history" element={<Session_Assignment_History_View/>}/>
       </Routes>
       </AuthProvider>
     </BrowserRouter>

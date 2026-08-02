@@ -138,6 +138,11 @@ export default function Login(): React.ReactElement {
                   {errors.password.message}
                 </span>
               )}
+              <div className="text-right">
+                <Link to="/forgot-password" className="text-sm text-primary hover:underline">
+                  Forgot password?
+                </Link>
+              </div>
             </div>
 
             {/* Submit */}

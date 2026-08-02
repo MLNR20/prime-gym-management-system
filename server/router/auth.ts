@@ -33,5 +33,36 @@ authRouter.post("/login", async (req: Request, res: Response) => {
   }
 });
 
+// Forgot password
+authRouter.post("/forgot-password", async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+    await authService.forgotPassword(email);
+    res.status(200).json({ message: "If that email is registered, a reset link has been sent." });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to process request" });
+  }
+});
+
+// Reset password
+authRouter.post("/reset-password/:token", async (req: Request, res: Response) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+    if (!token || !password) {
+      return res.status(400).json({ error: "Token and password are required" });
+    }
+    const success = await authService.resetPassword(token, password);
+    if (!success) {
+      return res.status(400).json({ error: "Invalid or expired reset link" });
+    }
+    res.status(200).json({ message: "Password reset successfully" });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to reset password" });
+  }
+});
 
 export default authRouter;

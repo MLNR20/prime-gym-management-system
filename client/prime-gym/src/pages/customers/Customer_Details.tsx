@@ -56,6 +56,33 @@ export default function Customer_Details(): React.ReactElement {
     ? salesExistenceResponse.length > 0
     : false;
 
+  const { data: sessionsResponse } = useFetchDataWithStatus({
+    url: `sessions/customer/${id}`,
+    enabled: !!id,
+  });
+
+  const hasSessions: boolean = Array.isArray(sessionsResponse) && sessionsResponse.length > 0;
+
+  const sessionBalance: number = hasSessions
+    ? sessionsResponse.reduce(
+        (total: number, session: any) => total + (session?.session_balance ?? 0),
+        0
+      )
+    : 0;
+
+  const isInSession: boolean = sessionBalance > 0;
+
+  const { data: lastAttendanceResponse } = useFetchDataWithStatus({
+    url: `attendance/customer/${id}`,
+    limit: 1,
+    enabled: !!id,
+  });
+
+  const lastAttendance =
+    Array.isArray(lastAttendanceResponse) && lastAttendanceResponse.length > 0
+      ? lastAttendanceResponse[0]
+      : null;
+
   const attendanceColumns = [
     {
       header: "#",
@@ -109,6 +136,22 @@ export default function Customer_Details(): React.ReactElement {
     },
   ];
 
+  const sessionColumns = [
+    {
+      header: "#",
+      cell: ({ row }: any) => row.index + 1,
+    },
+    {
+      header: "Session Balance",
+      accessorKey: "session_balance",
+    },
+    {
+      header: "Date Created",
+      accessorKey: "created_at",
+      cell: ({ getValue }: any) => formatIsoDate(getValue()),
+    },
+  ];
+
   if (loadingCustomer) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -118,12 +161,12 @@ export default function Customer_Details(): React.ReactElement {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <div className="w-64">
+    <div className="flex h-screen p-6 md:p-0 lg:p-0 lg:flex-row md:flex-row flex-col overflow-hidden">
+      <div className="w-full md:w-48 lg:w-64">
         <Sidebar />
       </div>
 
-      <div className="flex-1 p-24 overflow-auto">
+      <div className="flex-1 p-6 md:p-24 lg:p-24 overflow-auto">
         <div className="bg-white p-16 rounded-lg flex flex-col gap-8">
           <Header
             header="Customer Details"
@@ -134,29 +177,50 @@ export default function Customer_Details(): React.ReactElement {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="flex flex-col gap-1">
-              <span className="text-sm font-medium text-gray-500">First Name</span>
+              <span className="text-sm font-semibold text-gray-500">Name</span>
               <span className="text-lg font-semibold text-black">
-                {customer?.first_name ?? "N/A"}
+                {customer?.first_name || customer?.last_name
+                  ? `${customer?.first_name ?? ""} ${customer?.last_name ?? ""}`.trim()
+                  : "N/A"}
               </span>
             </div>
 
             <div className="flex flex-col gap-1">
-              <span className="text-sm font-medium text-gray-500">Last Name</span>
-              <span className="text-lg font-semibold text-black">
-                {customer?.last_name ?? "N/A"}
-              </span>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <span className="text-sm font-medium text-gray-500">Latest Payment Date</span>
+              <span className="text-sm font-semibold text-gray-500">Latest Payment Date</span>
               <span className="text-lg font-semibold text-black">
                 {customer?.payment_Date ? formatIsoDate(customer.payment_Date) : "N/A"}
               </span>
             </div>
 
             <div className="flex flex-col gap-1">
-              <span className="text-sm font-medium text-gray-500">Status</span>
+              <span className="text-sm font-semibold text-gray-500">Status</span>
               <Pills status={customer?.status ?? "N/A"} />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-semibold text-gray-500">Current Subscription</span>
+              <span className="text-lg font-semibold text-black">
+                {customer?.subscription_type ?? "N/A"}
+              </span>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-semibold text-gray-500">In Session</span>
+              <Pills status={isInSession ? "Yes" : "No"} />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-semibold text-gray-500">Last Attendance</span>
+              <span className="text-lg font-semibold text-black">
+                {lastAttendance?.time_in ? formatTimestamp(lastAttendance.time_in) : "N/A"}
+              </span>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-semibold text-gray-500">Sessions Left</span>
+              <span className="text-lg font-semibold text-black">
+                {hasSessions ? sessionBalance : "N/A"}
+              </span>
             </div>
           </div>
 
@@ -181,6 +245,22 @@ export default function Customer_Details(): React.ReactElement {
                 subheader="Items this customer has bought from the gym store..."
                 Url="sales"
                 Columns={salesColumns}
+                Data={[]}
+                customerId={id}
+                isUserDetailsView
+              />
+            </>
+          )}
+
+          {hasSessions && (
+            <>
+              <hr className="border-t border-gray-200" />
+
+              <TableTemplate
+                header="Recent Sessions"
+                subheader="This customer's coaching session history..."
+                Url="sessions"
+                Columns={sessionColumns}
                 Data={[]}
                 customerId={id}
                 isUserDetailsView

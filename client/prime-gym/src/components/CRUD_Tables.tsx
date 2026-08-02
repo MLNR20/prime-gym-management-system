@@ -80,19 +80,19 @@ export default function CRUDTables({
 
   return (
     <div>
-      <div className="mb-4 flex flex-row gap-auto w-full">
+      <div className="mb-4 flex flex-col sm:flex-row gap-3 sm:gap-auto w-full">
         {/*Search functionality whenever global filter is typed it changes the value and filters the value...*/}
-        <div className="flex flex-row gap-5  items-center w-1/2 ">
+        <div className="flex flex-row gap-3 sm:gap-5 items-center w-full sm:w-1/2">
           <h4>Search:</h4>
           <input
             type="text"
             placeholder="Search details here..."
             value={globalFilter}
             onChange={(e) => { setGlobalFilter(e.target.value); setPage(1); }}
-            className="input input-bordered h-12 border bg-white border-gray-400 w-100"
+            className="input input-bordered h-12 border bg-white border-gray-400 w-full sm:w-100"
           ></input>
         </div>
-        <div className="flex flex-row items-center justify-end  w-1/2 gap-2">
+        <div className="flex flex-row items-center justify-between sm:justify-end w-full sm:w-1/2 gap-2">
           <h4>Showing</h4>
           <select
             onChange={(e) => {
@@ -165,37 +165,41 @@ export default function CRUDTables({
                       {buttonString ?? (url === "programs" ? "Assign Exercises" : "Action")}
                     </button>
                   )}
-                  <button
-                    className="btn btn-info text-white bg-blue-500"
-                    onClick={() => {
-                      const id = (row.original as any)._id;
-                      setSelectedRow(id);
-                      redirectURL(`${id}`);
-                    }}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="btn btn-error text-white"
-                    onClick={() => {
-                      const id = (row.original as any)._id;
-                      console.log(id);
-                      setSelectedRow(id);
-                      const modal = document.getElementById("my_modal_5");
-                      if (modal instanceof HTMLDialogElement) modal.showModal();
-                    }}
-                  >
-                    Delete
-                  </button>
+                  {url !== "sessions" && (
+                    <>
+                      <button
+                        className="btn btn-info text-white bg-blue-500"
+                        onClick={() => {
+                          const id = (row.original as any)._id;
+                          setSelectedRow(id);
+                          redirectURL(`${id}`);
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="btn btn-error text-white"
+                        onClick={() => {
+                          const id = (row.original as any)._id;
+                          console.log(id);
+                          setSelectedRow(id);
+                          const modal = document.getElementById("my_modal_5");
+                          if (modal instanceof HTMLDialogElement) modal.showModal();
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </>
+                  )}
                 </td>
               </tr>
               ))
             )}
           </tbody>
         </table>
-        <div className="mt-6 flex flex-row gap-auto w-full">
-          <div className="flex gap-2 flex-row gap-auto w-full">
-            <div className="flex gap-2 justify-center items-center">
+        <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:gap-auto w-full items-center">
+          <div className="flex gap-2 flex-row w-full overflow-x-auto">
+            <div className="flex gap-2 justify-center items-center mx-auto sm:mx-0">
               {/* Prev */}
               <button
                 className={
@@ -234,7 +238,7 @@ export default function CRUDTables({
               </button>
             </div>
           </div>
-          <h4 className="w-full text-end">Showing {rowCount} entries</h4>
+          <h4 className="w-full text-center sm:text-end">Showing {rowCount} entries</h4>
         </div>
       </div>
 

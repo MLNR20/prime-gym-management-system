@@ -37,12 +37,12 @@ export default function Add_Program(): React.ReactElement {
     `textarea textarea-bordered h-32 border bg-white border-gray-400 text-gray-500 placeholder-gray-400 w-full ${hasError ? "textarea-error" : ""}`;
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <div className="w-64">
+    <div className="flex h-screen p-6 md:p-0 lg:p-0 lg:flex-row md:flex-row flex-col overflow-hidden">
+      <div className="w-full md:w-48 lg:w-64">
         <Sidebar />
       </div>
 
-      <div className="flex-1 p-24 overflow-auto">
+      <div className="flex-1 p-6 md:p-24 lg:p-24 overflow-auto">
         <div className="bg-white p-16 rounded-lg">
           <Header
             subheader="Create a new training program for your gym members."
