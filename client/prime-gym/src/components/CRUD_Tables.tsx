@@ -64,6 +64,12 @@ export default function CRUDTables({
   const redirectURL = useNavigate();
   const rowCount = table.getRowModel().rows.length;
 
+  //Sessions and session history are read-only views, so they get no Actions column at all...
+  const showActionButton =
+    url === "customers" || url === "attendance" || url === "programs";
+  const showEditDelete = url !== "sessions" && url !== "session-assignments";
+  const hasActions = showActionButton || showEditDelete;
+
   async function deleteEntry() {
     try {
       if (deleteType === "Hard Delete")
@@ -128,9 +134,11 @@ export default function CRUDTables({
                       )}
                   </th>
                 ))}
-                <th className="text-black text-[0.950rem] p-5 bg-gray-100">
-                  Actions
-                </th>
+                {hasActions && (
+                  <th className="text-black text-[0.950rem] p-5 bg-gray-100">
+                    Actions
+                  </th>
+                )}
               </tr>
             ))}
           </thead>
@@ -140,7 +148,7 @@ export default function CRUDTables({
             {loading && tableData.length === 0 ? (
               <TableRowsSkeleton
                 rows={limit > 10 ? 10 : limit}
-                columns={columns.length + 1}
+                columns={columns.length + (hasActions ? 1 : 0)}
               />
             ) : (
               table.getRowModel().rows.map((row) => (
@@ -156,42 +164,45 @@ export default function CRUDTables({
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}
-                <td className="border-b  flex gap-2 border-gray-300">
-                  {(url === "customers" || url === "attendance" || url === "programs") && (
-                    <button
-                      className="btn btn-primary"
-                      onClick={() => additionalFunctionality?.(row.original)}
-                    >
-                      {buttonString ?? (url === "programs" ? "Assign Exercises" : "Action")}
-                    </button>
-                  )}
-                  {url !== "sessions" && (
-                    <>
-                      <button
-                        className="btn btn-info text-white bg-blue-500"
-                        onClick={() => {
-                          const id = (row.original as any)._id;
-                          setSelectedRow(id);
-                          redirectURL(`${id}`);
-                        }}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className="btn btn-error text-white"
-                        onClick={() => {
-                          const id = (row.original as any)._id;
-                          console.log(id);
-                          setSelectedRow(id);
-                          const modal = document.getElementById("my_modal_5");
-                          if (modal instanceof HTMLDialogElement) modal.showModal();
-                        }}
-                      >
-                        Delete
-                      </button>
-                    </>
-                  )}
-                </td>
+                {hasActions && (
+                  <td className="border-b border-gray-300">
+                    <div className="flex gap-2 items-center">
+                      {showActionButton && (
+                        <button
+                          className="btn btn-primary"
+                          onClick={() => additionalFunctionality?.(row.original)}
+                        >
+                          {buttonString ?? (url === "programs" ? "Assign Exercises" : "Action")}
+                        </button>
+                      )}
+                      {showEditDelete && (
+                        <>
+                          <button
+                            className="btn btn-info text-white bg-blue-500"
+                            onClick={() => {
+                              const id = (row.original as any)._id;
+                              setSelectedRow(id);
+                              redirectURL(`${id}`);
+                            }}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="btn btn-error text-white"
+                            onClick={() => {
+                              const id = (row.original as any)._id;
+                              setSelectedRow(id);
+                              const modal = document.getElementById("my_modal_5");
+                              if (modal instanceof HTMLDialogElement) modal.showModal();
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                )}
               </tr>
               ))
             )}

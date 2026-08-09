@@ -16,16 +16,20 @@ programRouter.post("/", authMiddleware, async (request: RequestWithUser, respons
       description: request.body.description,
       date_assigned: request.body.date_assigned,
     };
+    const createNewProgram = await ProgramRepository.create(newProgram);
+
     const admin = request.admin;
     await LogsRepository.logAction(
       admin!._id.toString(),
       `${admin!.first_name} ${admin?.last_name} created program called ${request.body.program_name} at ${new Date().toISOString()}`,
     );
 
-    const createNewProgram = await ProgramRepository.create(newProgram);
     return response.status(201).send(createNewProgram);
-  } catch (error) {
+  } catch (error: any) {
     console.log(error);
+    if (error?.name === "ValidationError") {
+      return response.status(400).json({ message: error.message });
+    }
     response.status(500).json({ message: "Error creating program" });
   }
 });

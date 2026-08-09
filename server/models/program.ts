@@ -16,7 +16,7 @@ export interface IProgramDocument extends IProgram, Document {}
 const programSchema = new Schema<IProgramDocument>(
   {
     program_name: { type: String, required: true, trim: true },
-    description: { type: String, required: true, trim: true },
+    description: { type: String, default: "", trim: true },
     date_assigned: { type: Date },
     createdAt: { type: Date, default: Date.now },
     updatedAt: {type:Date, default: Date.now},

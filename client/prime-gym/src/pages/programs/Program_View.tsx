@@ -126,9 +126,9 @@ export default function Program_View(): React.ReactElement {
         setGeneratedTitle("");
         window.location.reload();
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("Failed to create program");
+      alert(err?.response?.data?.message ?? "Failed to create program");
     }
   }
 
@@ -141,7 +141,7 @@ export default function Program_View(): React.ReactElement {
       <div className="flex-1 p-6 md:p-24 lg:p-24 overflow-auto">
         <div className="bg-white p-16 rounded-lg min-h-full flex flex-col">
           <Header subheader="Let's manage your training programs..." header="Program Management" />
-          <div className="flex items-center justify-between my-6">
+          <div className="flex items-center justify-between mt-6 mb-0">
             <div className="flex items-center gap-4">
               <label className="label">
                 <span className="label-text text-black">Program Title</span>
@@ -160,21 +160,21 @@ export default function Program_View(): React.ReactElement {
               </button>
             </div>
           </div>
-          <div className="mt-2 flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col mt-2">
             {Array.isArray(programsList) && programsList.length > 0 ? (
-              <div className="mt-2 flex-1 flex flex-col">
+              <div className="flex-1 flex flex-col">
                 {programsList.map((p: any) => {
                   const exercises = assignedMap[p._id] || [];
                   return (
                     <div key={p._id} className="mt-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-semibold">{p.program_name}</p>
-                          <div className="text-xs text-gray-500">{exercises.length} assigned exercise{exercises.length !== 1 ? "s" : ""}</div>
+                          <p className="text-lg font-semibold">{p.program_name}</p>
+                          <div className="text-sm text-gray-500">{exercises.length} assigned exercise{exercises.length !== 1 ? "s" : ""}</div>
                         </div>
 
                         <div className="dropdown dropdown-end">
-                          <button tabIndex={0} className="btn btn-sm btn-outline">
+                          <button tabIndex={0} className="btn btn-sm btn-outline text-xs px-2">
                             Actions ▾
                           </button>
                           <ul
@@ -201,13 +201,13 @@ export default function Program_View(): React.ReactElement {
 
                       <div className="mt-1 flex flex-wrap gap-2">
                         {exercises.length === 0 ? (
-                          <div className="text-sm text-gray-500">No exercises assigned.</div>
+                          <div className="text-base text-gray-500">No exercises assigned.</div>
                         ) : (
                           exercises.map((ex: any) => (
-                            <div key={ex._id} className="px-3 py-2 bg-gray-50 border rounded text-sm flex items-start justify-between gap-2 w-64">
+                            <div key={ex._id} className="px-3 py-2 bg-gray-50 border rounded text-base flex items-start justify-between gap-2 w-64">
                               <div>
                                 <div className="font-medium">{ex.exercise_name}</div>
-                                <div className="text-xs text-gray-500">{ex.target_area} • {ex.reps}x{ex.sets}</div>
+                                <div className="text-sm text-gray-500">{ex.target_area} • {ex.reps}x{ex.sets}</div>
                               </div>
                               <button
                                 className="btn btn-xs btn-ghost text-error group"
@@ -227,7 +227,8 @@ export default function Program_View(): React.ReactElement {
                 })}
 
                 {/* Pagination Controls */}
-                <div className="flex gap-3 justify-start items-center mt-auto pt-8">
+                <div className="flex gap-3 justify-between items-center mt-auto pt-8">
+                  <div className="flex gap-3 items-center">
                   <button
                     className={
                       page === 1
@@ -261,8 +262,9 @@ export default function Program_View(): React.ReactElement {
                   >
                     Next
                   </button>
+                  </div>
 
-                  <span className="text-sm text-gray-500">
+                  <span className="text-base text-gray-500">
                     Showing {programsList.length} of {totalItems}
                   </span>
                 </div>

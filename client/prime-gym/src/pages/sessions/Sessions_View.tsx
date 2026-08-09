@@ -41,9 +41,14 @@ export default function Sessions_View(): React.ReactElement {
             header="Coaching Sessions"
             subheader="Read-only record of coaching sessions granted to customers."
           />
-          <Link className="btn btn-primary text-white mb-4 mt-4 w-fit" to="/sessions/assign">
-            Assign Sessions
-          </Link>
+          <div className="flex gap-2 mb-4 mt-4">
+            <Link className="btn btn-primary text-white w-fit" to="/sessions/assign">
+              Assign Sessions
+            </Link>
+            <Link className="btn btn-ghost w-fit" to="/sessions/history">
+              Session History
+            </Link>
+          </div>
           <CRUDTables
             data={retrieveData}
             url="sessions"

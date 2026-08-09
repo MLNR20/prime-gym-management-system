@@ -203,7 +203,7 @@ export default function Sidebar(): React.ReactElement {
                       <Link to="/sessions/history">
                         <div className="flex flex-row gap-2 p-1 w-full items-start">
                           <ScrollText color="gray" />
-                          Assignment History
+                          Session History
                         </div>
                       </Link>
                     </li>

@@ -45,6 +45,7 @@ import Profile from '../pages/Profile'
 import Finances_View from '../pages/finances/Finances_View'
 import Sessions_View from '../pages/sessions/Sessions_View'
 import Assign_Sessions from '../pages/sessions/Assign_Sessions'
+import Session_History from '../pages/sessions/Session_History'
 // ...other imports
 
 export default function Router() {
@@ -96,6 +97,7 @@ export default function Router() {
         <Route path="/finances" element={<Finances_View/>}/>
         <Route path="/sessions" element={<Sessions_View/>}/>
         <Route path="/sessions/assign" element={<Assign_Sessions/>}/>
+        <Route path="/sessions/history" element={<Session_History/>}/>
       </Routes>
       </AuthProvider>
     </BrowserRouter>

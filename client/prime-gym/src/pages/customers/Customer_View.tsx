@@ -145,11 +145,8 @@ export default function Customer_View(): React.ReactElement {
         <Sidebar />
       </div>
 
-      <dialog
-        id="modal_approve"
-        className="modal  modal-bottom sm:modal-middle"
-      >
-        <div className="modal-box bg-white">
+      <dialog id="modal_approve" className="modal modal-bottom sm:modal-middle">
+        <div className="modal-box bg-white text-black shadow-xl border border-gray-200">
           <h3 className="font-bold text-lg">Edit Details</h3>
           <p className="py-4">Edit transaction details here...</p>
           <div className="modal-action flex-col">
@@ -253,7 +250,7 @@ export default function Customer_View(): React.ReactElement {
                     const modal = document.getElementById("modal_approve");
                     if (modal instanceof HTMLDialogElement) modal.close();
                   }}
-                  className="btn btn-outline"
+                  className="btn btn-neutral btn-outline"
                 >
                   Close
                 </button>
@@ -261,6 +258,11 @@ export default function Customer_View(): React.ReactElement {
             </form>
           </div>
         </div>
+
+        {/* backdrop */}
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
+        </form>
       </dialog>
 
       <div className="flex-1 p-6 md:p-24 lg:p-24 overflow-auto">
