@@ -2,12 +2,20 @@ import React, { useState, useMemo } from "react";
 import Sidebar from "../../components/Sidebar";
 import Header from "../../components/Header";
 import Cards from "../../components/Cards";
-import useFetchData from "../../data/fetchData";
-import MonthlyProfitBarChart from "../../components/charts/Bar";
-import QuarterlySalesExpensesBarChart from "../../components/charts/QuarterlyBar";
-import { TrendingUp, TrendingDown, DollarSign, Activity } from "lucide-react";
+import { useFetchDataWithStatus } from "../../data/fetchData";
+import FinanceColumnChart from "../../components/charts/Bar";
+import type { FinanceChartItem, FinanceRangeFilter } from "../../components/charts/Bar";
+import MonthlyTrendLineChart from "../../components/charts/FinanceTrendLine";
+import type { MonthlyTrendItem } from "../../components/charts/FinanceTrendLine";
+import { TableRowsSkeleton } from "../../components/Skeleton";
+import EmptyState from "../../components/EmptyState";
+import { TrendingUp, TrendingDown, DollarSign, Activity, Trophy, Users } from "lucide-react";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
+
+// Large enough to pull the full dataset instead of the server's default
+// page size of 10 — every total on this page depends on seeing every record.
+const FULL_DATASET_LIMIT = 10000;
 
 function toMonthKey(iso: string) {
   const d = new Date(iso);
@@ -21,12 +29,13 @@ function formatPeso(n: number) {
 // ─── component ───────────────────────────────────────────────────────────────
 
 export default function Finances_View(): React.ReactElement {
-  const rawSales = useFetchData({ url: "sales/show/" });
-  const rawExpenses = useFetchData({ url: "expenses/show/" });
-  const rawSubscriptions = useFetchData({ url: "subscription" });
+  const { data: rawSales, loading: salesLoading } = useFetchDataWithStatus({ url: "sales/show/", limit: FULL_DATASET_LIMIT });
+  const { data: rawExpenses, loading: expensesLoading } = useFetchDataWithStatus({ url: "expenses/show/", limit: FULL_DATASET_LIMIT });
+  const { data: rawSubscriptions, loading: subscriptionsLoading } = useFetchDataWithStatus({ url: "subscription/show/", limit: FULL_DATASET_LIMIT });
+  const isLoading = salesLoading || expensesLoading || subscriptionsLoading;
 
-  // slider: 0–100 maps from "all expenses" ➜ "all revenue"
-  const [sliderValue, setSliderValue] = useState(50);
+  // chart date-range filter — defaults to "this month"
+  const [rangeFilter, setRangeFilter] = useState<FinanceRangeFilter>("month");
 
   // ── derive totals ──────────────────────────────────────────────────────────
   const salesArr: any[] = Array.isArray(rawSales?.data)
@@ -56,8 +65,101 @@ export default function Finances_View(): React.ReactElement {
   );
   const netProfit = totalRevenue - totalExpenses;
 
-  // ── monthly aggregation for bar chart ─────────────────────────────────────
-  const monthlyData = useMemo(() => {
+  // ── date-filtered aggregation for the column chart ─────────────────────────
+  // Buckets every sale, subscription payment, and expense by its createdAt
+  // date into the range selected by the user (week / month / year).
+  const chartData: FinanceChartItem[] = useMemo(() => {
+    const now = new Date();
+
+    const addAmount = (
+      map: Map<string, { revenue: number; expenses: number }>,
+      bucketKey: string | null,
+      field: "revenue" | "expenses",
+      amount: number
+    ) => {
+      if (bucketKey === null) return;
+      const bucket = map.get(bucketKey);
+      if (bucket) bucket[field] += amount;
+    };
+
+    if (rangeFilter === "week") {
+      // start of the current week (Sunday) through Saturday
+      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      start.setDate(start.getDate() - start.getDay());
+      const end = new Date(start);
+      end.setDate(start.getDate() + 7);
+
+      const days = Array.from({ length: 7 }, (_, i) => {
+        const d = new Date(start);
+        d.setDate(start.getDate() + i);
+        return d;
+      });
+
+      const map = new Map(days.map((d) => [d.toDateString(), { revenue: 0, expenses: 0 }]));
+
+      const bucketFor = (iso: string) => {
+        const d = new Date(iso);
+        return d >= start && d < end ? d.toDateString() : null;
+      };
+
+      salesArr.forEach((s: any) => addAmount(map, bucketFor(s.createdAt), "revenue", Number(s.total_price ?? 0)));
+      subscriptionsArr.forEach((s: any) => addAmount(map, bucketFor(s.createdAt), "revenue", Number(s.amount ?? 0)));
+      expensesArr.forEach((e: any) =>
+        addAmount(map, bucketFor(e.createdAt), "expenses", Number(e.unit_price ?? 0) * Number(e.quantity ?? 1))
+      );
+
+      return days.map((d) => {
+        const v = map.get(d.toDateString())!;
+        return { label: d.toLocaleDateString("default", { weekday: "short" }), revenue: v.revenue, expenses: v.expenses };
+      });
+    }
+
+    if (rangeFilter === "year") {
+      const year = now.getFullYear();
+      const months = Array.from({ length: 12 }, (_, i) => i);
+      const map = new Map(months.map((m) => [m, { revenue: 0, expenses: 0 }]));
+
+      const bucketFor = (iso: string) => {
+        const d = new Date(iso);
+        return d.getFullYear() === year ? d.getMonth() : null;
+      };
+
+      salesArr.forEach((s: any) => addAmount(map as any, bucketFor(s.createdAt), "revenue", Number(s.total_price ?? 0)));
+      subscriptionsArr.forEach((s: any) => addAmount(map as any, bucketFor(s.createdAt), "revenue", Number(s.amount ?? 0)));
+      expensesArr.forEach((e: any) =>
+        addAmount(map as any, bucketFor(e.createdAt), "expenses", Number(e.unit_price ?? 0) * Number(e.quantity ?? 1))
+      );
+
+      return months.map((m) => {
+        const v = map.get(m)!;
+        const label = new Date(year, m).toLocaleDateString("default", { month: "short" });
+        return { label, revenue: v.revenue, expenses: v.expenses };
+      });
+    }
+
+    // "month" — default: every day of the current calendar month
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+    const map = new Map(days.map((d) => [d, { revenue: 0, expenses: 0 }]));
+
+    const bucketFor = (iso: string) => {
+      const d = new Date(iso);
+      return d.getFullYear() === year && d.getMonth() === month ? d.getDate() : null;
+    };
+
+    salesArr.forEach((s: any) => addAmount(map as any, bucketFor(s.createdAt), "revenue", Number(s.total_price ?? 0)));
+    subscriptionsArr.forEach((s: any) => addAmount(map as any, bucketFor(s.createdAt), "revenue", Number(s.amount ?? 0)));
+    expensesArr.forEach((e: any) =>
+      addAmount(map as any, bucketFor(e.createdAt), "expenses", Number(e.unit_price ?? 0) * Number(e.quantity ?? 1))
+    );
+
+    return days.map((d) => ({ label: `${d}`, revenue: map.get(d)!.revenue, expenses: map.get(d)!.expenses }));
+  }, [rangeFilter, salesArr, subscriptionsArr, expensesArr]);
+
+  // ── full-history monthly trend for the line chart ───────────────────────────
+  const monthlyTrendData: MonthlyTrendItem[] = useMemo(() => {
     const map: Record<string, { revenue: number; expenses: number }> = {};
 
     salesArr.forEach((s: any) => {
@@ -75,8 +177,7 @@ export default function Finances_View(): React.ReactElement {
     expensesArr.forEach((e: any) => {
       const key = toMonthKey(e.createdAt ?? new Date().toISOString());
       if (!map[key]) map[key] = { revenue: 0, expenses: 0 };
-      map[key].expenses +=
-        Number(e.unit_price ?? 0) * Number(e.quantity ?? 1);
+      map[key].expenses += Number(e.unit_price ?? 0) * Number(e.quantity ?? 1);
     });
 
     return Object.entries(map)
@@ -89,76 +190,40 @@ export default function Finances_View(): React.ReactElement {
       }));
   }, [salesArr, subscriptionsArr, expensesArr]);
 
-  // ── quarterly aggregation for the past-decade bar chart ────────────────────
-  const quarterlyData = useMemo(() => {
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentQuarter = Math.floor(now.getMonth() / 3) + 1; // 1-4
-    const startYear = currentYear - 9; // last 10 years, inclusive
+  // ── highest paying customers ────────────────────────────────────────────────
+  // Aggregates every sale and subscription payment by customer_id.
+  const topCustomers = useMemo(() => {
+    const map = new Map<
+      string,
+      { name: string; totalSpent: number; orders: number }
+    >();
 
-    const quarterKey = (year: number, quarter: number) => `${year}-Q${quarter}`;
-
-    const map: Record<string, { revenue: number; expenses: number }> = {};
-    const order: string[] = [];
-
-    for (let y = startYear; y <= currentYear; y++) {
-      const lastQ = y === currentYear ? currentQuarter : 4;
-      for (let q = 1; q <= lastQ; q++) {
-        const key = quarterKey(y, q);
-        map[key] = { revenue: 0, expenses: 0 };
-        order.push(key);
+    const addSpend = (customerId: string | undefined, name: string, amount: number) => {
+      if (!customerId) return;
+      const existing = map.get(customerId);
+      if (existing) {
+        existing.totalSpent += amount;
+        existing.orders += 1;
+        if (existing.name === "N/A" && name !== "N/A") existing.name = name;
+      } else {
+        map.set(customerId, { name, totalSpent: amount, orders: 1 });
       }
-    }
-
-    const addToQuarter = (isoDate: string, field: "revenue" | "expenses", amount: number) => {
-      const d = new Date(isoDate);
-      const key = quarterKey(d.getFullYear(), Math.floor(d.getMonth() / 3) + 1);
-      if (map[key]) map[key][field] += amount;
     };
 
     salesArr.forEach((s: any) => {
-      addToQuarter(s.createdAt ?? now.toISOString(), "revenue", Number(s.total_price ?? 0));
+      const name = `${s.first_name ?? "N/A"} ${s.last_name ?? ""}`.trim();
+      addSpend(s.customer_id, name || "N/A", Number(s.total_price ?? 0));
     });
 
     subscriptionsArr.forEach((s: any) => {
-      addToQuarter(s.createdAt ?? now.toISOString(), "revenue", Number(s.amount ?? 0));
+      const name = `${s.first_name ?? "N/A"} ${s.last_name ?? ""}`.trim();
+      addSpend(s.customer_id, name || "N/A", Number(s.amount ?? 0));
     });
 
-    expensesArr.forEach((e: any) => {
-      addToQuarter(
-        e.createdAt ?? now.toISOString(),
-        "expenses",
-        Number(e.unit_price ?? 0) * Number(e.quantity ?? 1)
-      );
-    });
-
-    return order.map((key) => {
-      const [year, q] = key.split("-Q");
-      return {
-        label: `Q${q} ${year}`,
-        revenue: map[key].revenue,
-        expenses: map[key].expenses,
-      };
-    });
-  }, [salesArr, subscriptionsArr, expensesArr]);
-
-  // ── slider: blended "net snapshot" ────────────────────────────────────────
-  // 0   = show expenses only (negative view)
-  // 50  = balanced (actual net)
-  // 100 = show revenue only (positive view)
-  const sliderNet = useMemo(() => {
-    const t = sliderValue / 100; // 0 → 1
-    const revenueShare = totalRevenue * t;
-    const expenseShare = totalExpenses * (1 - t);
-    return revenueShare - expenseShare;
-  }, [sliderValue, totalRevenue, totalExpenses]);
-
-  const sliderLabel =
-    sliderValue < 33
-      ? "Expense-Heavy View"
-      : sliderValue > 66
-      ? "Revenue-Heavy View"
-      : "Balanced View";
+    return Array.from(map.values())
+      .sort((a, b) => b.totalSpent - a.totalSpent)
+      .slice(0, 10);
+  }, [salesArr, subscriptionsArr]);
 
   // ── stat cards ─────────────────────────────────────────────────────────────
   const statCards = [
@@ -211,7 +276,7 @@ export default function Finances_View(): React.ReactElement {
         />
 
         {/* ── Stat Cards ── */}
-        <div className="flex gap-4 flex-col lg:flex-row">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
           {statCards.map((c) => (
             <Cards
               key={c.key}
@@ -220,92 +285,74 @@ export default function Finances_View(): React.ReactElement {
               Card_Figure={c.Card_Figure}
               icon={c.icon}
               iconBg={c.iconBg}
+              loading={isLoading}
             />
           ))}
         </div>
 
-        {/* ── Slider Section ── */}
-        <div className="bg-white rounded-2xl p-12 flex flex-col w-full">
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <Header
-              header="Revenue vs. Expenses Slider"
-              subheader="Drag to adjust the balance between revenue and expense weighting."
-            />
-            <span className="text-sm font-semibold px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 shrink-0">
-              {sliderLabel}
-            </span>
-          </div>
+        {/* ── Monthly Trend Line Chart ── */}
+        <div className="w-full min-w-0 h-[440px] sm:h-[540px] lg:h-[640px]">
+          <MonthlyTrendLineChart data={monthlyTrendData} loading={isLoading} />
+        </div>
 
-          {/* Slider */}
-          <input
-            id="finance-slider"
-            type="range"
-            min={0}
-            max={100}
-            value={sliderValue}
-            onChange={(e) => setSliderValue(Number(e.target.value))}
-            className="range range-primary w-full mt-6"
+        {/* ── Revenue vs. Expenses Chart ── */}
+        <div className="w-full min-w-0 h-[540px] sm:h-[620px] lg:h-[720px]">
+          <FinanceColumnChart data={chartData} filter={rangeFilter} onFilterChange={setRangeFilter} loading={isLoading} />
+        </div>
+
+        {/* ── Highest Paying Customers ── */}
+        <div className="bg-white rounded-2xl p-12 sm:p-16 lg:p-16 flex flex-col w-full overflow-hidden">
+          <Header
+            header="Highest Paying Customers"
+            subheader="Top 10 customers ranked by combined sales and subscription spend."
           />
 
-          <div className="flex justify-between text-xs text-gray-400 font-medium">
-            <span>⬅ Expenses</span>
-            <span>Revenue ➡</span>
+          <div className="mt-6 overflow-x-auto">
+            <table className="table table-zebra">
+              <thead className="bg-slate-300 text-md">
+                <tr className="bg-slate-300">
+                  <th className="text-black font-bold text-[0.950rem] p-5 bg-gray-100">#</th>
+                  <th className="text-black font-bold text-[0.950rem] p-5 bg-gray-100">Customer</th>
+                  <th className="text-black font-bold text-[0.950rem] p-5 bg-gray-100">Orders</th>
+                  <th className="text-black font-bold text-[0.950rem] p-5 bg-gray-100">Total Spent</th>
+                </tr>
+              </thead>
+              <tbody>
+                {isLoading ? (
+                  <TableRowsSkeleton rows={5} columns={4} />
+                ) : topCustomers.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="border-b border-gray-300">
+                      <EmptyState
+                        icon={Users}
+                        title="Nothing to see here"
+                        subtitle="No customer purchases recorded yet."
+                      />
+                    </td>
+                  </tr>
+                ) : (
+                  topCustomers.map((c, i) => (
+                    <tr key={`${c.name}-${i}`} className="odd:bg-white even:bg-gray-100 border-2 border-indigo-200 border-b-gray-300">
+                      <td className="border-b p-5 text-[0.950rem] border-gray-300">
+                        {i < 3 ? (
+                          <span className="inline-flex items-center gap-1.5 font-semibold text-amber-600">
+                            <Trophy size={16} />#{i + 1}
+                          </span>
+                        ) : (
+                          `#${i + 1}`
+                        )}
+                      </td>
+                      <td className="border-b p-5 text-[0.950rem] border-gray-300">{c.name}</td>
+                      <td className="border-b p-5 text-[0.950rem] border-gray-300">{c.orders}</td>
+                      <td className="border-b p-5 text-[0.950rem] border-gray-300 font-semibold text-emerald-600">
+                        {formatPeso(c.totalSpent)}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
-
-          {/* Derived metric */}
-          <div className="flex items-center gap-4 mt-2">
-            <div className="flex-1 bg-gray-50 border border-gray-200 rounded-xl p-5 text-center">
-              <p className="text-sm text-gray-500 mb-1">Weighted Balance</p>
-              <p
-                className={`text-3xl font-extrabold ${
-                  sliderNet >= 0 ? "text-emerald-600" : "text-rose-500"
-                }`}
-              >
-                {formatPeso(sliderNet)}
-              </p>
-              <p className="text-xs text-gray-400 mt-1">
-                Based on {sliderValue}% revenue / {100 - sliderValue}% expense weighting
-              </p>
-            </div>
-
-            {/* Mini breakdown bars */}
-            <div className="flex-1 space-y-3">
-              <div>
-                <div className="flex justify-between text-xs font-medium text-gray-600 mb-1">
-                  <span>Revenue share</span>
-                  <span>{formatPeso(totalRevenue * (sliderValue / 100))}</span>
-                </div>
-                <div className="w-full bg-gray-100 rounded-full h-3">
-                  <div
-                    className="bg-blue-400 h-3 rounded-full transition-all duration-200"
-                    style={{ width: `${sliderValue}%` }}
-                  />
-                </div>
-              </div>
-              <div>
-                <div className="flex justify-between text-xs font-medium text-gray-600 mb-1">
-                  <span>Expense share</span>
-                  <span>{formatPeso(totalExpenses * ((100 - sliderValue) / 100))}</span>
-                </div>
-                <div className="w-full bg-gray-100 rounded-full h-3">
-                  <div
-                    className="bg-rose-400 h-3 rounded-full transition-all duration-200"
-                    style={{ width: `${100 - sliderValue}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ── Bar Chart ── */}
-        <div className="w-full min-w-0" style={{ height: "600px" }}>
-          <MonthlyProfitBarChart data={monthlyData} />
-        </div>
-
-        {/* ── Quarterly Sales vs Expenses Bar Chart ── */}
-        <div className="w-full min-w-0" style={{ height: "600px" }}>
-          <QuarterlySalesExpensesBarChart data={quarterlyData} />
         </div>
       </div>
     </div>

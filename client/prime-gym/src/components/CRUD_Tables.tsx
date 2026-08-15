@@ -105,7 +105,7 @@ export default function CRUDTables({
               setLimit(parseInt(e.target.value));
               setPage(1);
             }}
-            className="select w-fit h-12 border bg-white border-gray-400 "
+            className="select w-24 h-12 pr-9 border bg-white border-gray-400"
           >
             <option value="10">10</option>
             <option value="20">20</option>

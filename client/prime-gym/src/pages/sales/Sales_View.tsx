@@ -1,5 +1,6 @@
 import React from "react";
 import Sidebar from "../../components/Sidebar";
+import Pills from "../../components/Pills";
 import CRUDTemplate from "../../templates/CRUDTemplate";
 import useFetchData from "../../data/fetchData";
 import formatIsoDate from "../../utils/dateFormat";
@@ -44,11 +45,7 @@ export default function Sales_View(): React.ReactElement {
       header: "Status",
       accessorKey: "is_active",
       cell: ({ row }: any) => (
-        <span
-          className={`badge ${row.original.is_active ? "badge-success text-white" : "badge-neutral text-white"}`}
-        >
-          {row.original.is_active ? "Active" : "Inactive"}
-        </span>
+        <Pills status={row.original.is_active ? "Active" : "Inactive"} />
       ),
     },
     {

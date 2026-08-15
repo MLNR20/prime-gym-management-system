@@ -7,6 +7,9 @@ import TableTemplate from "../../templates/TableTemplate";
 import fetchRecord from "../../data/fetchRecord";
 import { useFetchDataWithStatus } from "../../data/fetchData";
 import formatIsoDate from "../../utils/dateFormat";
+import EmptyState from "../../components/EmptyState";
+import HeaderMd from "../../components/HeadersMd";
+import { CalendarX2 } from "lucide-react";
 
 type Params = {
   id: string;
@@ -72,7 +75,7 @@ export default function Customer_Details(): React.ReactElement {
 
   const isInSession: boolean = sessionBalance > 0;
 
-  const { data: lastAttendanceResponse } = useFetchDataWithStatus({
+  const { data: lastAttendanceResponse, loading: loadingLastAttendance } = useFetchDataWithStatus({
     url: `attendance/customer/${id}`,
     limit: 1,
     enabled: !!id,
@@ -82,6 +85,8 @@ export default function Customer_Details(): React.ReactElement {
     Array.isArray(lastAttendanceResponse) && lastAttendanceResponse.length > 0
       ? lastAttendanceResponse[0]
       : null;
+
+  const hasAttendance: boolean = !!lastAttendance;
 
   const attendanceColumns = [
     {
@@ -226,15 +231,28 @@ export default function Customer_Details(): React.ReactElement {
 
           <hr className="border-t border-gray-200" />
 
-          <TableTemplate
-            header="Recent Attendance"
-            subheader="This customer's most recent check-ins..."
-            Url="attendance"
-            Columns={attendanceColumns}
-            Data={[]}
-            customerId={id}
-            isUserDetailsView
-          />
+          {loadingLastAttendance || hasAttendance ? (
+            <TableTemplate
+              header="Recent Attendance"
+              subheader="This customer's most recent check-ins..."
+              Url="attendance"
+              Columns={attendanceColumns}
+              Data={[]}
+              customerId={id}
+              isUserDetailsView
+            />
+          ) : (
+            <div className="flex flex-col gap-3">
+              <HeaderMd header="Recent Attendance" subheader="This customer's most recent check-ins..." />
+              <EmptyState
+                icon={CalendarX2}
+                className="bg-gray-50 border border-gray-200 rounded-lg"
+                iconClassName="bg-white text-gray-400 border border-gray-200 rounded-full"
+                title="No attendance recorded"
+                subtitle="This customer hasn't checked in yet."
+              />
+            </div>
+          )}
 
           {!loadingSalesExistence && hasPurchases && (
             <>

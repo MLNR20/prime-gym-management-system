@@ -21,6 +21,17 @@
     -moz-osx-font-smoothing: grayscale;
 }
 
+/*
+ * Reserves space for the vertical scrollbar on every scroll container.
+ * Without this, paginating a table toggles content height above/below the
+ * viewport threshold, which toggles the scrollbar on/off and visibly
+ * shifts the whole layout on every page click.
+ */
+.overflow-auto,
+.overflow-y-auto {
+  scrollbar-gutter: stable;
+}
+
 .background-white
 {
     background-color: #f1f3f5;
