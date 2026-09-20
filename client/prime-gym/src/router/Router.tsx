@@ -14,6 +14,7 @@ import Customer_View from '../pages/customers/Customer_View'
 import Add_Customers from '../pages/customers/Add_Customer'
 import Edit_Customer from '../pages/customers/Edit_Customer'
 import Customer_Details from '../pages/customers/Customer_Details'
+import Approve_Subscription from '../pages/customers/Approve_Subscription'
 import Locker_View from '../pages/lockers/Locker_View'
 import Add_Locker from '../pages/lockers/Add_Locker'
 import Edit_Lockers from '../pages/lockers/Edit_Locker'
@@ -66,6 +67,7 @@ export default function Router() {
         <Route path="/contacts/:id" element={<Edit_Contacts/>}/>
         <Route path="/customers/:id" element={<Edit_Customer/>}/>
         <Route path="/customers/:id/details" element={<Customer_Details/>}/>
+        <Route path="/customers/:id/subscription" element={<Approve_Subscription/>}/>
         <Route path="/lockers/:id" element={<Edit_Lockers/>}/>
         <Route path="/equipment/" element={<Equipment_View/>}/>
         <Route path="/add_equipment/" element={<Add_Equipment/>}/>

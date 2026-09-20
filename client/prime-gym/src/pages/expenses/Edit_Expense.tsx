@@ -89,7 +89,7 @@ export default function Edit_Expense(): React.ReactElement {
     `select select-bordered h-12 border bg-white border-gray-400 text-gray-500 w-full ${hasError ? "select-error" : ""}`;
 
   return (
-    <div className="flex h-screen p-6 min-[1025px]:p-0 landscape:min-[1024px]:p-0 min-[1025px]:flex-row landscape:min-[1024px]:flex-row flex-col overflow-hidden">
+    <div className="background-white flex h-screen p-6 min-[1025px]:p-0 landscape:min-[1024px]:p-0 min-[1025px]:flex-row landscape:min-[1024px]:flex-row flex-col overflow-hidden">
       <div className="w-full min-[1025px]:w-64 landscape:min-[1024px]:w-64">
         <Sidebar />
       </div>
@@ -122,10 +122,11 @@ export default function Edit_Expense(): React.ReactElement {
               <div className="flex flex-col gap-1">
                 <label className={labelClass}>Category</label>
                 <select
+                  defaultValue=""
                   className={selectClass(!!errors.categories)}
                   {...register("categories", { required: "Category is required" })}
                 >
-                  <option value="">Select a category...</option>
+                  <option value="" disabled>Select a category...</option>
                   <option value="Rent">Rent</option>
                   <option value="Utilities">Utilities</option>
                   <option value="Wages">Wages</option>
