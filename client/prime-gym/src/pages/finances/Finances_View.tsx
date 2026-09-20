@@ -72,8 +72,8 @@ export default function Finances_View(): React.ReactElement {
     const now = new Date();
 
     const addAmount = (
-      map: Map<string, { revenue: number; expenses: number }>,
-      bucketKey: string | null,
+      map: Map<string | number, { revenue: number; expenses: number }>,
+      bucketKey: string | number | null,
       field: "revenue" | "expenses",
       amount: number
     ) => {
@@ -124,10 +124,10 @@ export default function Finances_View(): React.ReactElement {
         return d.getFullYear() === year ? d.getMonth() : null;
       };
 
-      salesArr.forEach((s: any) => addAmount(map as any, bucketFor(s.createdAt), "revenue", Number(s.total_price ?? 0)));
-      subscriptionsArr.forEach((s: any) => addAmount(map as any, bucketFor(s.createdAt), "revenue", Number(s.amount ?? 0)));
+      salesArr.forEach((s: any) => addAmount(map, bucketFor(s.createdAt), "revenue", Number(s.total_price ?? 0)));
+      subscriptionsArr.forEach((s: any) => addAmount(map, bucketFor(s.createdAt), "revenue", Number(s.amount ?? 0)));
       expensesArr.forEach((e: any) =>
-        addAmount(map as any, bucketFor(e.createdAt), "expenses", Number(e.unit_price ?? 0) * Number(e.quantity ?? 1))
+        addAmount(map, bucketFor(e.createdAt), "expenses", Number(e.unit_price ?? 0) * Number(e.quantity ?? 1))
       );
 
       return months.map((m) => {
@@ -149,10 +149,10 @@ export default function Finances_View(): React.ReactElement {
       return d.getFullYear() === year && d.getMonth() === month ? d.getDate() : null;
     };
 
-    salesArr.forEach((s: any) => addAmount(map as any, bucketFor(s.createdAt), "revenue", Number(s.total_price ?? 0)));
-    subscriptionsArr.forEach((s: any) => addAmount(map as any, bucketFor(s.createdAt), "revenue", Number(s.amount ?? 0)));
+    salesArr.forEach((s: any) => addAmount(map, bucketFor(s.createdAt), "revenue", Number(s.total_price ?? 0)));
+    subscriptionsArr.forEach((s: any) => addAmount(map, bucketFor(s.createdAt), "revenue", Number(s.amount ?? 0)));
     expensesArr.forEach((e: any) =>
-      addAmount(map as any, bucketFor(e.createdAt), "expenses", Number(e.unit_price ?? 0) * Number(e.quantity ?? 1))
+      addAmount(map, bucketFor(e.createdAt), "expenses", Number(e.unit_price ?? 0) * Number(e.quantity ?? 1))
     );
 
     return days.map((d) => ({ label: `${d}`, revenue: map.get(d)!.revenue, expenses: map.get(d)!.expenses }));
