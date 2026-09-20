@@ -7,7 +7,9 @@ RUN npm ci
 
 COPY . .
 
+RUN npm run build
+
 ENV PORT=3002
 EXPOSE 3002
 
-CMD ["npx", "ts-node", "index.ts"]
+CMD ["node", "dist/index.js"]
