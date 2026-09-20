@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Sidebar from "../../components/Sidebar";
 import Header from "../../components/Header";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import createData from "../../data/createData";
 import useFetchData from "../../data/fetchData";
 import softDeleteData from "../../data/softDeleteData";
@@ -13,7 +13,6 @@ import Alert from "../../components/Alert";
 import useCrudAlert from "../../utils/useCrudAlert";
 
 export default function Program_View(): React.ReactElement {
-  const navigate = useNavigate();
   const { alertInfo, setAlertInfo } = useCrudAlert();
 
   const [page, setPage] = useState(1);

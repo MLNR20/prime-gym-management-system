@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/Sidebar";
 import Header from "../../components/Header";
@@ -63,14 +63,12 @@ function buildLineData(
   labelKey: (item: any) => string,
   seriesKey: (item: any) => string,
   valueKey: (item: any) => number,
-  colorMap?: Record<string, string>,
-  defaultColor = "#60a5fa"
+  colorMap?: Record<string, string>
 ) {
   const labels = [...new Set(rawData.map(labelKey))].sort();
   const seriesNames = [...new Set(rawData.map(seriesKey))];
 
   const datasets = seriesNames.map((name, i) => {
-    const color = colorMap?.[name] ?? defaultColor;
     const palette = ["#34d399", "#60a5fa", "#f97316", "#a78bfa", "#fb7185"];
     const c = colorMap?.[name] ?? palette[i % palette.length];
     return {
@@ -216,7 +214,7 @@ function TableSkeleton({ rows = 6 }: { rows?: number }) {
 export default function Analytics_View(): React.ReactElement {
   const navigate = useNavigate();
   // -- data fetches
-  const { data: customerStats, loading: loadingCustomerStats } =
+  const { loading: loadingCustomerStats } =
     useFetchDataWithStatus({ url: "customers/retrieve-stats/" });
   const { data: subBreakdown, loading: loadingSubBreakdown } =
     useFetchDataWithStatus({ url: "customers/monthly-breakdown" });

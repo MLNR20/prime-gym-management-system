@@ -5,7 +5,6 @@ import {
   Legend
 } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
-import HeaderMd from "../HeadersMd";
 import Header from "../Header";
 
 ChartJS.register(ArcElement, Tooltip, Legend);

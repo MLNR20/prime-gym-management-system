@@ -5,7 +5,6 @@ import {
 } from "@tanstack/react-table";
 
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useFetchDataWithStatus } from "../data/fetchData";
 import getWindowedPages from "../utils/getWindowedPages";
 import { TableRowsSkeleton } from "./Skeleton";
@@ -35,9 +34,6 @@ export default function Tables({
   disableFetch = false,
   customerId,
 }: TableProps): React.ReactElement {
-  const navigate = useNavigate();
-
-
   const [globalFilter, setGlobalFilter] = useState("");
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
