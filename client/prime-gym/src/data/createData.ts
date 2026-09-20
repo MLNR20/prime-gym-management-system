@@ -1,5 +1,6 @@
 import axios from "axios";
 import { handleAuthError } from "./authErrorHandler";
+import { API_URL } from "../config/api";
 
 interface RequestStructure<T = any> {
   url: string;
@@ -11,7 +12,7 @@ export default async function createData({url, data}: RequestStructure) {
 
   try {
     const response = await axios.post(
-      `http://localhost:3002/${url}`,
+      `${API_URL}/${url}`,
       data,
       {
         headers: {

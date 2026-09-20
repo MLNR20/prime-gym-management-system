@@ -64,14 +64,14 @@ export default function Assign_Sessions(): React.ReactElement {
   }
 
   return (
-    <div className="flex background-white h-screen p-6 md:p-0 lg:p-0 lg:flex-row md:flex-row flex-col overflow-hidden">
-      <div className="w-full md:w-48 lg:w-64">
+    <div className="flex background-white h-screen p-6 min-[1025px]:p-0 landscape:min-[1024px]:p-0 min-[1025px]:flex-row landscape:min-[1024px]:flex-row flex-col overflow-hidden">
+      <div className="w-full min-[1025px]:w-64 landscape:min-[1024px]:w-64">
         <Sidebar />
       </div>
 
-      <div className="flex-1 p-6 md:p-24 lg:p-24 overflow-auto">
-        <div className="bg-white p-16 rounded-lg">
-          <div className="flex items-start justify-between">
+      <div className="flex-1 p-6 min-[1025px]:p-24 landscape:min-[1024px]:p-24 overflow-auto">
+        <div className="bg-white p-6 sm:p-16 rounded-lg">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
             <Header
               subheader="Assign a coaching session to customers with a coaching subscription."
               header="Assign Sessions"
@@ -85,13 +85,13 @@ export default function Assign_Sessions(): React.ReactElement {
 
           <hr className="border-t border-gray-200 mt-6" />
 
-          <div className="flex flex-wrap items-center justify-between gap-3 mt-6 mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-6 mb-4">
             <input
               type="text"
               placeholder="Search customers..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="input input-bordered h-10 border bg-white border-gray-400 w-64 text-sm"
+              className="input input-bordered h-10 border bg-white border-gray-400 w-full sm:w-64 text-sm"
             />
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-600">Showing</span>
@@ -118,7 +118,7 @@ export default function Assign_Sessions(): React.ReactElement {
               return (
                 <div
                   key={c._id}
-                  className="flex items-center justify-between p-3 border rounded bg-gray-50"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 border rounded bg-gray-50"
                 >
                   <div>
                     <div className="font-medium">
@@ -128,14 +128,14 @@ export default function Assign_Sessions(): React.ReactElement {
                       {c.subscription_type} • {balance} session{balance !== 1 ? "s" : ""} remaining
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                     <select
                       value={selectedProgram[c._id] || ""}
                       onChange={(e) =>
                         setSelectedProgram((prev) => ({ ...prev, [c._id]: e.target.value }))
                       }
                       disabled={balance <= 0}
-                      className="select select-bordered h-10 min-h-10 border bg-white border-gray-400 text-sm w-56"
+                      className="select select-bordered h-10 min-h-10 border bg-white border-gray-400 text-sm w-full sm:w-56"
                     >
                       <option value="">Select a program...</option>
                       {programs.map((p: any) => (
@@ -145,7 +145,7 @@ export default function Assign_Sessions(): React.ReactElement {
                       ))}
                     </select>
                     <button
-                      className="btn btn-sm btn-primary text-white"
+                      className="btn btn-sm btn-primary text-white w-full sm:w-auto order-last"
                       disabled={assigningId === c._id || balance <= 0 || !selectedProgram[c._id]}
                       onClick={() => assignSession(c._id)}
                     >

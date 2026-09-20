@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Sidebar from "../../components/Sidebar";
 import Header from "../../components/Header";
 import { Link, useNavigate } from "react-router-dom";
@@ -7,9 +7,14 @@ import useFetchData from "../../data/fetchData";
 import softDeleteData from "../../data/softDeleteData";
 import getWindowedPages from "../../utils/getWindowedPages";
 import { Trash2 } from "lucide-react";
+import { API_URL } from "../../config/api";
+import ConfirmModal from "../../components/ConfirmModal";
+import Alert from "../../components/Alert";
+import useCrudAlert from "../../utils/useCrudAlert";
 
 export default function Program_View(): React.ReactElement {
   const navigate = useNavigate();
+  const { alertInfo, setAlertInfo } = useCrudAlert();
 
   const [page, setPage] = useState(1);
   const programsData = useFetchData({ url: "programs/show", page, limit: 10 }) as any;
@@ -21,6 +26,12 @@ export default function Program_View(): React.ReactElement {
   const [isGenerating, setIsGenerating] = useState(false);
   const [assignedMap, setAssignedMap] = useState<Record<string, any[]>>({});
 
+  const [pendingDeactivate, setPendingDeactivate] = useState<any | null>(null);
+  const deactivateModalRef = useRef<HTMLDialogElement>(null);
+
+  const [pendingExerciseDelete, setPendingExerciseDelete] = useState<{ programId: string; exercise: any } | null>(null);
+  const exerciseDeleteModalRef = useRef<HTMLDialogElement>(null);
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!Array.isArray(programsList)) return;
@@ -29,7 +40,7 @@ export default function Program_View(): React.ReactElement {
     if (missing.length === 0) return;
 
     missing.forEach((p: any) => {
-      fetch(`http://localhost:3002/programs/${p._id}/exercises`, {
+      fetch(`${API_URL}/programs/${p._id}/exercises`, {
         headers: { Authorization: token ? `Bearer ${token}` : "" },
       })
         .then((res) => (res.ok ? res.json() : []))
@@ -68,14 +79,18 @@ export default function Program_View(): React.ReactElement {
     }, 250);
   }
 
-  async function deleteExercise(programId: string, exerciseId: string) {
-    if (!window.confirm("Remove this exercise from the program?")) {
-      return;
-    }
+  function requestDeleteExercise(programId: string, exercise: any) {
+    setPendingExerciseDelete({ programId, exercise });
+    exerciseDeleteModalRef.current?.showModal();
+  }
+
+  async function confirmDeleteExercise() {
+    if (!pendingExerciseDelete) return;
+    const { programId, exercise } = pendingExerciseDelete;
 
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`http://localhost:3002/programs/${programId}/exercises/${exerciseId}`, {
+      const res = await fetch(`${API_URL}/programs/${programId}/exercises/${exercise._id}`, {
         method: "DELETE",
         headers: { Authorization: token ? `Bearer ${token}` : "" },
       });
@@ -83,25 +98,36 @@ export default function Program_View(): React.ReactElement {
 
       setAssignedMap((prev) => ({
         ...prev,
-        [programId]: (prev[programId] || []).filter((ex: any) => ex._id !== exerciseId),
+        [programId]: (prev[programId] || []).filter((ex: any) => ex._id !== exercise._id),
       }));
     } catch (err) {
       console.error(err);
       alert("Failed to remove exercise");
+    } finally {
+      exerciseDeleteModalRef.current?.close();
+      setPendingExerciseDelete(null);
     }
   }
 
-  async function deactivateProgram(programId: string) {
-    if (!window.confirm("Deactivate this program? Its assigned exercises will also be removed.")) {
-      return;
-    }
+  function requestDeactivateProgram(program: any) {
+    setPendingDeactivate(program);
+    deactivateModalRef.current?.showModal();
+  }
+
+  async function confirmDeactivateProgram() {
+    if (!pendingDeactivate) return;
 
     try {
-      await softDeleteData({ url: "programs", id: programId });
-      alert("Program deactivated");
+      await softDeleteData({ url: "programs", id: pendingDeactivate._id });
+      deactivateModalRef.current?.close();
+      sessionStorage.setItem(
+        "crudAlert",
+        JSON.stringify({ message: "Program deactivated", variant: "success" })
+      );
       window.location.reload();
     } catch (err) {
       console.error(err);
+      deactivateModalRef.current?.close();
       alert("Failed to deactivate program");
     }
   }
@@ -133,15 +159,23 @@ export default function Program_View(): React.ReactElement {
   }
 
   return (
-    <div className="flex background-white h-screen p-6 md:p-0 lg:p-0 lg:flex-row md:flex-row flex-col overflow-hidden">
-      <div className="w-full md:w-48 lg:w-64">
+    <div className="flex background-white h-screen p-6 min-[1025px]:p-0 landscape:min-[1024px]:p-0 min-[1025px]:flex-row landscape:min-[1024px]:flex-row flex-col overflow-hidden">
+      {alertInfo && (
+        <Alert
+          message={alertInfo.message}
+          variant={alertInfo.variant}
+          onClose={() => setAlertInfo(null)}
+        />
+      )}
+
+      <div className="w-full min-[1025px]:w-64 landscape:min-[1024px]:w-64">
         <Sidebar />
       </div>
 
-      <div className="flex-1 p-6 md:p-24 lg:p-24 overflow-auto">
-        <div className="bg-white p-16 rounded-lg min-h-full flex flex-col">
+      <div className="flex-1 p-6 min-[1025px]:p-24 landscape:min-[1024px]:p-24 overflow-auto">
+        <div className="bg-white p-6 sm:p-16 rounded-lg min-h-full flex flex-col">
           <Header subheader="Let's manage your training programs..." header="Program Management" />
-          <div className="flex items-center justify-between mt-6 mb-0">
+          <div className="flex flex-col lg:flex-row lg:items-center gap-4 mt-6 mb-0">
             <div className="flex items-center gap-4">
               <label className="label">
                 <span className="label-text text-black">Program Title</span>
@@ -152,6 +186,8 @@ export default function Program_View(): React.ReactElement {
                 placeholder="Generate or enter a program title"
                 className="input input-bordered h-12 border bg-white border-gray-700 w-96"
               />
+            </div>
+            <div className="flex max-sm:flex-col-reverse items-center gap-4">
               <button className="btn btn-neutral" onClick={generateTitle} disabled={isGenerating}>
                 {isGenerating ? "Generating..." : "Generate"}
               </button>
@@ -167,7 +203,7 @@ export default function Program_View(): React.ReactElement {
                   const exercises = assignedMap[p._id] || [];
                   return (
                     <div key={p._id} className="mt-4">
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-end justify-between">
                         <div>
                           <p className="text-lg font-semibold">{p.program_name}</p>
                           <div className="text-sm text-gray-500">{exercises.length} assigned exercise{exercises.length !== 1 ? "s" : ""}</div>
@@ -190,7 +226,7 @@ export default function Program_View(): React.ReactElement {
                             <li>
                               <button
                                 className="text-error"
-                                onClick={() => deactivateProgram(p._id)}
+                                onClick={() => requestDeactivateProgram(p)}
                               >
                                 Delete
                               </button>
@@ -212,7 +248,7 @@ export default function Program_View(): React.ReactElement {
                               <button
                                 className="btn btn-xs btn-ghost text-error group"
                                 title="Delete exercise"
-                                onClick={() => deleteExercise(p._id, ex._id)}
+                                onClick={() => requestDeleteExercise(p._id, ex)}
                               >
                                 <Trash2 size={14} className="fill-transparent group-hover:fill-current" />
                               </button>
@@ -275,6 +311,38 @@ export default function Program_View(): React.ReactElement {
           </div>
         </div>
       </div>
+
+      <ConfirmModal
+        ref={deactivateModalRef}
+        title="Deactivate Program"
+        message={
+          <>
+            Deactivate{" "}
+            <span className="font-semibold">{pendingDeactivate?.program_name}</span>? Its
+            assigned exercises will also be removed.
+          </>
+        }
+        confirmLabel="Deactivate"
+        confirmClassName="btn btn-error text-white"
+        onConfirm={confirmDeactivateProgram}
+      />
+
+      <ConfirmModal
+        ref={exerciseDeleteModalRef}
+        title="Remove Exercise"
+        message={
+          <>
+            Remove{" "}
+            <span className="font-semibold">
+              {pendingExerciseDelete?.exercise?.exercise_name}
+            </span>{" "}
+            from this program?
+          </>
+        }
+        confirmLabel="Remove"
+        confirmClassName="btn btn-error text-white"
+        onConfirm={confirmDeleteExercise}
+      />
     </div>
   );
 }

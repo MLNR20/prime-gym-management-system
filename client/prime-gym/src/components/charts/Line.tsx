@@ -142,7 +142,7 @@ export default function SubscriptionLineChart({ subMonthsData, loading = false }
         subheader="Your recent subscription activity over time..."
       />
 
-      <div className="flex-1 mt-4 relative min-h-0" style={{ height: "340px" }}>
+      <div className="flex-1 mt-4 relative min-h-0">
         {loading ? (
           <div className="w-full h-full rounded-xl bg-gray-200 animate-pulse" />
         ) : (

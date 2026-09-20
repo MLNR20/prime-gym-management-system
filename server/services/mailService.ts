@@ -79,6 +79,23 @@ const MailService = {
       console.log(`Password reset email preview (Ethereal): ${previewUrl}`);
     }
   },
+
+  async sendOtpEmail(to: string, otp: string) {
+    const transporter = await getTransporter();
+
+    const info = await transporter.sendMail({
+      from: process.env.SMTP_FROM || process.env.SMTP_USER || "Prime Gym <no-reply@primegym.test>",
+      to,
+      subject: "Verify your Prime Gym account",
+      text: `Welcome to Prime Gym!\n\nYour verification code is: ${otp}\n\nThis code expires in 10 minutes. If you didn't request this, you can ignore this email.`,
+      html: `<p>Welcome to Prime Gym!</p><p>Your verification code is:</p><p style="font-size:24px;font-weight:bold;letter-spacing:4px;">${otp}</p><p>This code expires in 10 minutes. If you didn't request this, you can ignore this email.</p>`,
+    });
+
+    const previewUrl = nodemailer.getTestMessageUrl(info);
+    if (previewUrl) {
+      console.log(`OTP email preview (Ethereal): ${previewUrl}`);
+    }
+  },
 };
 
 export default MailService;

@@ -45,11 +45,14 @@ export default function Sidebar(): React.ReactElement {
   };
 
   return (
-    <div className="drawer md:drawer-open lg:drawer-open w-full">
+    <div className="drawer min-[1025px]:drawer-open landscape:min-[1024px]:drawer-open w-full">
       <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content flex flex-col">
-        {/* Navbar / toggle button for mobile */}
-        <label htmlFor="my-drawer-3" className="btn drawer-button md:hidden lg:hidden">
+        {/* Navbar / toggle button for mobile and iPad Mini (768px-1024px) */}
+        <label
+          htmlFor="my-drawer-3"
+          className="btn drawer-button min-[1025px]:hidden landscape:min-[1024px]:hidden"
+        >
           Open drawer
         </label>
 
@@ -59,13 +62,13 @@ export default function Sidebar(): React.ReactElement {
         </div>
       </div>
 
-      <div className="drawer-side bg-white">
+      <div className="drawer-side">
         <label
           htmlFor="my-drawer-3"
           aria-label="close sidebar"
           className="drawer-overlay"
         ></label>
-        <ul className="menu bg-white min-h-full w-72 items-start py-16 px-8">
+        <ul className="menu bg-white min-h-full w-72 items-start py-16 px-8 shadow-xl">
           <div className="w-full items-center">
             <img src={fitwatch} className="w-24 mx-auto" />
           </div>

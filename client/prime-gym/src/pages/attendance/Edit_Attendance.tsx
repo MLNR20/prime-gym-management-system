@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Sidebar from "../../components/Sidebar";
 import Header from "../../components/Header";
+import ConfirmModal from "../../components/ConfirmModal";
+import EditLoadingScreen from "../../components/EditLoadingScreen";
 import { useForm } from "react-hook-form";
 import updateData from "../../data/updateData";
 import useFetchData from "../../data/fetchData";
@@ -44,6 +46,8 @@ export default function Edit_Attendance(): React.ReactElement {
   const [details, setDetails] = useState<any | null>(null);
   const [currentCustomer, setCurrentCustomer] = useState<any | null>(null);
   const [currentLocker, setCurrentLocker] = useState<any | null>(null);
+  const [pendingData, setPendingData] = useState<FormData | null>(null);
+  const modalRef = useRef<HTMLDialogElement>(null);
 
   const labelClass = "text-sm mb-2 font-medium text-gray-700";
   const inputClass = (hasError: boolean) =>
@@ -87,10 +91,19 @@ export default function Edit_Attendance(): React.ReactElement {
     load();
   }, [id, reset]);
 
-  const onSubmit = async (data: FormData) => {
+  const onValidSubmit = (data: FormData) => {
+    setPendingData(data);
+    modalRef.current?.showModal();
+  };
+
+  const confirmSubmit = async () => {
+    if (!pendingData) return;
     try {
-      await updateData({ url: "attendance", id: id!, updateData: data });
-      navigate("/attendance");
+      await updateData({ url: "attendance", id: id!, updateData: pendingData });
+      modalRef.current?.close();
+      navigate("/attendance", {
+        state: { alertMessage: "Attendance updated successfully!", alertVariant: "success" },
+      });
     } catch (error) {
       console.log(error);
     }
@@ -124,33 +137,28 @@ export default function Edit_Attendance(): React.ReactElement {
     mergedLockerList.unshift(currentLocker);
   }
 
+  const pendingCustomer = mergedCustomerList.find(
+    (customer: any) => String(customer._id) === String(pendingData?.customer_id)
+  );
+
   if (loading) {
-    return (
-      <div className="flex h-screen p-6 md:p-0 lg:p-0 lg:flex-row md:flex-row flex-col overflow-hidden">
-        <div className="w-full md:w-48 lg:w-64">
-          <Sidebar />
-        </div>
-        <div className="flex-1 p-6 md:p-24 lg:p-24 overflow-auto flex items-center justify-center">
-          <div className="text-xl font-semibold text-gray-700">Loading attendance record...</div>
-        </div>
-      </div>
-    );
+    return <EditLoadingScreen message="Loading attendance record..." />;
   }
 
   return (
-    <div className="flex h-screen p-6 md:p-0 lg:p-0 lg:flex-row md:flex-row flex-col overflow-hidden">
-      <div className="w-full md:w-48 lg:w-64">
+    <div className="flex background-white h-screen p-6 min-[1025px]:p-0 landscape:min-[1024px]:p-0 min-[1025px]:flex-row landscape:min-[1024px]:flex-row flex-col overflow-hidden">
+      <div className="w-full min-[1025px]:w-64 landscape:min-[1024px]:w-64">
         <Sidebar />
       </div>
 
-      <div className="flex-1 p-6 md:p-24 lg:p-24 overflow-auto">
-        <div className="bg-white p-16 rounded-lg">
+      <div className="flex-1 p-6 min-[1025px]:p-24 landscape:min-[1024px]:p-24 overflow-auto">
+        <div className="bg-white p-6 sm:p-16 rounded-lg">
           <Header
-            subheader="Let's assign a locker key to a customer with an active subscription."
-            header="Edit Attendance / Assign Key"
+            subheader="Update the locker key assignment and check-in details for this attendance record."
+            header="Edit Attendance"
           />
 
-          <form onSubmit={handleSubmit(onSubmit)} className="w-full mt-10">
+          <form onSubmit={handleSubmit(onValidSubmit)} className="w-full mt-10">
 
             {/* ── ASSIGNMENT ── */}
             <div className="flex items-center gap-4 mb-6">
@@ -160,7 +168,7 @@ export default function Edit_Attendance(): React.ReactElement {
               <hr className="flex-1 border-gray-300" />
             </div>
 
-            <div className="grid grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
               {/* Customer Dropdown */}
               <div className="flex flex-col gap-1">
                 <label className={labelClass}>Select Customer</label>
@@ -224,7 +232,7 @@ export default function Edit_Attendance(): React.ReactElement {
               <hr className="flex-1 border-gray-300" />
             </div>
 
-            <div className="grid grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
               {/* Check-in Date/Time */}
               <div className="flex flex-col gap-1">
                 <label className={labelClass}>Check-in Date & Time</label>
@@ -246,7 +254,7 @@ export default function Edit_Attendance(): React.ReactElement {
 
             <div className="flex gap-3">
               <button type="submit" className="btn btn-success text-white">
-                Assign Key
+                Update Attendance
               </button>
               <button
                 type="button"
@@ -257,6 +265,28 @@ export default function Edit_Attendance(): React.ReactElement {
               </button>
             </div>
           </form>
+
+          <ConfirmModal
+            ref={modalRef}
+            title="Confirm Update"
+            message={
+              <>
+                Are you sure you want to update this attendance record
+                {pendingCustomer ? (
+                  <>
+                    {" "}
+                    for{" "}
+                    <span className="font-semibold">
+                      {pendingCustomer.first_name} {pendingCustomer.last_name}
+                    </span>
+                  </>
+                ) : null}
+                ?
+              </>
+            }
+            confirmLabel="Yes, Update"
+            onConfirm={confirmSubmit}
+          />
         </div>
       </div>
     </div>

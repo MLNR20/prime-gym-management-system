@@ -1,5 +1,5 @@
 // @ts-ignore
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import CRUDTemplate from "../../templates/CRUDTemplate";
 import useFetchData from "../../data/fetchData";
@@ -8,12 +8,13 @@ import formatIsoDate from "../../utils/dateFormat";
 import patchUpdateData from "../../data/patchUpdateData";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-type FormData = {
-  _id: string;
-  amount_paid: number;
-  subscription_type: string;
-  payment_option: string;
-};
+import Alert from "../../components/Alert";
+import useCrudAlert from "../../utils/useCrudAlert";
+import EditSubscriptionModal, {
+  type EditSubscriptionFormData,
+} from "../../components/EditSubscriptionModal";
+
+type FormData = EditSubscriptionFormData;
 
 export default function Customer_View(): React.ReactElement {
   const retrieveData = useFetchData({
@@ -22,6 +23,8 @@ export default function Customer_View(): React.ReactElement {
   const navigate = useNavigate();
   const [customerData, setCustomerData] = useState<any[]>([]);
   const [selectedRow, setSelectedRow] = useState<FormData | null>(null);
+  const editModalRef = useRef<HTMLDialogElement>(null);
+  const { alertInfo, setAlertInfo } = useCrudAlert();
   const {
     register,
     handleSubmit,
@@ -39,8 +42,7 @@ export default function Customer_View(): React.ReactElement {
   const approveForm = async (row: any) => {
     console.log("Selected Row:", row);
     setSelectedRow(row);
-    const modal = document.getElementById("modal_approve");
-    if (modal instanceof HTMLDialogElement) modal.showModal();
+    editModalRef.current?.showModal();
   };
 
   useEffect(() => {
@@ -58,15 +60,18 @@ export default function Customer_View(): React.ReactElement {
   console.log(retrieveData);
 
   const onSubmit = async (formData: FormData) => {
-    console.log("Sbmit", formData);
-
     await patchUpdateData({
       url: `customers/update-subscription`,
       id: formData._id,
       updateData: formData,
     });
 
-    alert("Sibmitted");
+    editModalRef.current?.close();
+
+    sessionStorage.setItem(
+      "crudAlert",
+      JSON.stringify({ message: "Customer subscription updated successfully!", variant: "success" })
+    );
     navigate(0);
   };
 
@@ -140,132 +145,30 @@ export default function Customer_View(): React.ReactElement {
   }
 
   return (
-    <div className="flex background-white h-screen p-6 md:p-0 lg:p-0 lg:flex-row md:flex-row flex-col overflow-hidden">
-      <div className="w-full md:w-48 lg:w-64">
+    <div className="flex background-white h-screen p-6 min-[1025px]:p-0 landscape:min-[1024px]:p-0 min-[1025px]:flex-row landscape:min-[1024px]:flex-row flex-col overflow-hidden">
+      {alertInfo && (
+        <Alert
+          message={alertInfo.message}
+          variant={alertInfo.variant}
+          onClose={() => setAlertInfo(null)}
+        />
+      )}
+
+      <div className="w-full min-[1025px]:w-64 landscape:min-[1024px]:w-64">
         <Sidebar />
       </div>
 
-      <dialog id="modal_approve" className="modal modal-bottom sm:modal-middle">
-        <div className="modal-box bg-white text-black shadow-xl border border-gray-200">
-          <h3 className="font-bold text-lg">Edit Details</h3>
-          <p className="py-4">Edit transaction details here...</p>
-          <div className="modal-action flex-col">
-            <form key={selectedRow?._id} onSubmit={handleSubmit(onSubmit)}>
-              <div className="w-full">
-                <input type="hidden" {...register("_id")} />
-                <div className="flex w-full flex-col gap-2">
-                  <label className="label">
-                    <span className="label-text text-black">Amount Paid</span>
-                  </label>
-                  <input
-                    type="number"
-                    placeholder="Enter your password..."
-                    className={`input input-bordered h-12 border bg-white border-gray-700 w-full ${
-                      errors.amount_paid ? "input-error" : ""
-                    }`}
-                    {...register("amount_paid", {
-                      required: "Amount Paid is required",
-                      valueAsNumber: true,
-                      min: {
-                        value: 1,
-                        message: "Amount Paid must be greater than 0 pesos",
-                      },
-                    })}
-                  />
-                  {errors.amount_paid && (
-                    <span className="text-red-500 text-sm">
-                      {errors.amount_paid.message}
-                    </span>
-                  )}
-                </div>
-                <div className="flex w-full my-6 flex-col gap-2">
-                  <label className="label">
-                    <span className="label-text text-black">
-                      Subscription Status
-                    </span>
-                  </label>
+      <EditSubscriptionModal
+        ref={editModalRef}
+        formKey={selectedRow?._id}
+        register={register}
+        handleSubmit={handleSubmit}
+        errors={errors}
+        onSubmit={onSubmit}
+        onClose={() => editModalRef.current?.close()}
+      />
 
-                  <select
-                    className="select select-bordered h-12 border bg-white border-gray-700 w-full"
-                    {...register("subscription_type", {
-                      required: "Subscription status is required",
-                    })}
-                  >
-                    <option value="" disabled>
-                      Pick a subscription option
-                    </option>
-                    <option value="Daily Exercise">Daily Exercise</option>
-                    <option value="Monthly Subscription">
-                      Monthly Subscription
-                    </option>
-                    <option value="Coaching Subscription">
-                      Coaching Subscription
-                    </option>
-                    <option value="Monthly with Coaching">
-                      {" "}
-                      Monthly With Coaching
-                    </option>
-                  </select>
-
-                  {errors.subscription_type && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.subscription_type.message}
-                    </p>
-                  )}
-                </div>
-                <div className="flex w-full my-6 flex-col gap-2">
-                  <label className="label">
-                    <span className="label-text text-black">
-                      Payment Option
-                    </span>
-                  </label>
-                  <select
-                    className="select select-bordered h-12 border bg-white border-gray-700 w-full"
-                    {...register("payment_option", {
-                      required: "Payment option is required",
-                    })}
-                  >
-                    <option value="" disabled>
-                      Pick a payment option
-                    </option>
-                    <option value="Cash">Cash</option>
-                    <option value="GCash">GCash</option>
-                  </select>
-
-                  {errors.payment_option && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.payment_option.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="gap-2 flex flex-row">
-                <button type="submit" className="btn btn-success text-white">
-                  Submit
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const modal = document.getElementById("modal_approve");
-                    if (modal instanceof HTMLDialogElement) modal.close();
-                  }}
-                  className="btn btn-neutral btn-outline"
-                >
-                  Close
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-
-        {/* backdrop */}
-        <form method="dialog" className="modal-backdrop">
-          <button>close</button>
-        </form>
-      </dialog>
-
-      <div className="flex-1 p-6 md:p-24 lg:p-24 overflow-auto">
+      <div className="flex-1 p-6 min-[1025px]:p-24 landscape:min-[1024px]:p-24 overflow-auto">
         <CRUDTemplate
           header="Customer Management"
           Columns={columns}

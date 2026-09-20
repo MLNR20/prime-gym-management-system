@@ -7,6 +7,7 @@ import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 import { Eye, EyeOff } from "lucide-react";
 import primeImg from "../../assets/prime.jpg";
+import { API_URL } from "../../config/api";
 
 type FormData = {
   username: string;
@@ -24,21 +25,26 @@ export default function Login(): React.ReactElement {
 
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [otpPending, setOtpPending] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const onSubmit = async (data: FormData) => {
     setLoginError(null);
+    setOtpPending(false);
     setIsLoggingIn(true);
     try {
       const loginRoute = await axios.post(
-        "http://localhost:3002/auth/login",
+        `${API_URL}/auth/login`,
         data,
       );
       const token = loginRoute.data.token;
       login(token);
       navigate("/");
-    } catch (error) {
-      setLoginError("Invalid username or password. Please try again.");
+    } catch (error: any) {
+      const reason = error?.response?.data?.reason;
+      const message = error?.response?.data?.error;
+      setOtpPending(reason === "otp_pending");
+      setLoginError(message ?? "Invalid username or password. Please try again.");
     } finally {
       setIsLoggingIn(false);
     }
@@ -48,7 +54,7 @@ export default function Login(): React.ReactElement {
     <div className="flex flex-row min-h-screen">
       {/* LEFT SIDE — background image */}
       <div
-        className="w-7/12 hidden md:flex flex-col justify-end p-12"
+        className="hidden tablet-landscape:flex tablet-landscape:w-1/2 desktop-landscape:flex desktop-landscape:w-7/12 flex-col justify-end p-12"
         style={{
           backgroundImage: `url(${primeImg})`,
           backgroundSize: "cover",
@@ -58,9 +64,6 @@ export default function Login(): React.ReactElement {
       >
         {/* Overlay text */}
         <div className="bg-black/40 rounded-2xl p-8 backdrop-blur-sm">
-          <h2 className="text-white text-4xl font-bold leading-tight">
-            Prime Gym
-          </h2>
           <p className="text-white/80 mt-2 text-lg">
             Your fitness journey starts here.
           </p>
@@ -68,8 +71,8 @@ export default function Login(): React.ReactElement {
       </div>
 
       {/* RIGHT SIDE (form) */}
-      <div className="w-full md:w-5/12 flex-auto px-10 md:px-24 py-24 flex items-center bg-white">
-        <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-md">
+      <div className="w-full tablet-landscape:w-1/2 desktop-landscape:w-5/12 flex-auto px-10 md:px-24 py-24 flex items-center bg-white">
+        <form onSubmit={handleSubmit(onSubmit)} className="w-full md:landscape:max-w-md">
           <div className="flex min-w-full flex-col gap-6">
             <Header
               header="Login"
@@ -84,6 +87,14 @@ export default function Login(): React.ReactElement {
                 </svg>
                 <span>{loginError}</span>
               </div>
+            )}
+
+            {otpPending && (
+              <p className="text-sm text-gray-500">
+                <Link to="/verify-otp" className="text-primary font-medium hover:underline">
+                  Verify your email
+                </Link>
+              </p>
             )}
 
             {/* Username */}

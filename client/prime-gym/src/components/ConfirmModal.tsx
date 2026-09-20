@@ -8,6 +8,7 @@ type ConfirmModalProps = {
   cancelLabel?: string;
   confirmClassName?: string;
   onConfirm: () => void;
+  dimBackdrop?: boolean;
 };
 
 const ConfirmModal = forwardRef<HTMLDialogElement, ConfirmModalProps>(
@@ -19,6 +20,7 @@ const ConfirmModal = forwardRef<HTMLDialogElement, ConfirmModalProps>(
       cancelLabel = "Go Back",
       confirmClassName = "btn btn-success text-white",
       onConfirm,
+      dimBackdrop = true,
     },
     ref
   ) => {
@@ -31,13 +33,17 @@ const ConfirmModal = forwardRef<HTMLDialogElement, ConfirmModalProps>(
     return (
       <dialog
         ref={ref}
-        className="modal"
-        style={{ backgroundColor: "transparent" }}
+        className={`modal modal-bottom sm:modal-middle${
+          dimBackdrop ? "" : " modal-no-dim"
+        }`}
       >
-        <div className="modal-box bg-white text-gray-800 shadow-xl border border-gray-200">
-          <h3 className="font-bold text-lg text-gray-900">{title}</h3>
-          <div className="py-4 text-sm text-gray-600">{message}</div>
-          <div className="modal-action">
+        <div className="modal-box bg-white text-black shadow-xl border border-gray-200">
+          <h3 className="font-bold text-lg">{title}</h3>
+          <p className="py-4">{message}</p>
+          <div className="modal-action gap-2">
+            <button type="button" className={confirmClassName} onClick={onConfirm}>
+              {confirmLabel}
+            </button>
             <button
               type="button"
               className="btn btn-neutral btn-outline"
@@ -45,17 +51,10 @@ const ConfirmModal = forwardRef<HTMLDialogElement, ConfirmModalProps>(
             >
               {cancelLabel}
             </button>
-            <button type="button" className={confirmClassName} onClick={onConfirm}>
-              {confirmLabel}
-            </button>
           </div>
         </div>
 
-        <form
-          method="dialog"
-          className="modal-backdrop"
-          style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
-        >
+        <form method="dialog" className="modal-backdrop">
           <button>close</button>
         </form>
       </dialog>

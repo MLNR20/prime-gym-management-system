@@ -7,6 +7,18 @@ export class AdminRepository extends GenericRepository<IAdmin> {
   async deactivateAccount(user_id: string) {
     return this.model.updateOne({ _id: user_id }, { $set: { isDeleted: true } });
   }
+
+  async renewAccount(user_id: string) {
+    return this.model.updateOne({ _id: user_id }, { $set: { isDeleted: false } });
+  }
+
+  async approveAccount(user_id: string) {
+    return this.model.updateOne({ _id: user_id }, { $set: { approvalStatus: "approved" } });
+  }
+
+  async rejectAccount(user_id: string) {
+    return this.model.updateOne({ _id: user_id }, { $set: { approvalStatus: "rejected" } });
+  }
 }
 
 export default new AdminRepository(Admin);

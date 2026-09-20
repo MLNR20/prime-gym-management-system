@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { handleAuthError } from "./authErrorHandler";
+import { API_URL } from "../config/api";
 
 interface FetchProps {
   url: string;
@@ -45,7 +46,7 @@ export default function useFetchData({
       const startedAt = performance.now();
       try {
         const response = await axios.get(
-          `http://localhost:3002/${url}`,
+          `${API_URL}/${url}`,
           {
             params: {
               page,
@@ -115,7 +116,7 @@ export function useFetchDataWithStatus({
       const startedAt = performance.now();
       try {
         const response = await axios.get(
-          `http://localhost:3002/${url}`,
+          `${API_URL}/${url}`,
           {
             params: {
               page,

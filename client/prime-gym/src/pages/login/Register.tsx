@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import primeImg from "../../assets/prime.jpg";
+import { API_URL } from "../../config/api";
 
 type FormData = {
   first_name: string;
@@ -26,14 +27,14 @@ export default function Register(): React.ReactElement {
 
   const onSubmit = async (data: FormData) => {
     try {
-      await axios.post("http://localhost:3002/auth/register", {
+      await axios.post(`${API_URL}/auth/register`, {
         first_name: data.first_name,
         last_name: data.last_name,
         username: data.username,
         email: data.email,
         password: data.password,
       });
-      navigate("/login");
+      navigate("/verify-otp", { state: { email: data.email } });
     } catch (error) {
       console.log(error);
     }
@@ -43,7 +44,7 @@ export default function Register(): React.ReactElement {
     <div className="flex flex-row min-h-screen">
       {/* LEFT SIDE — background image */}
       <div
-        className="w-7/12 hidden md:flex flex-col justify-end p-12"
+        className="hidden tablet-landscape:flex tablet-landscape:w-1/2 desktop-landscape:flex desktop-landscape:w-7/12 flex-col justify-end p-12"
         style={{
           backgroundImage: `url(${primeImg})`,
           backgroundSize: "cover",
@@ -52,9 +53,6 @@ export default function Register(): React.ReactElement {
         }}
       >
         <div className="bg-black/40 rounded-2xl p-8 backdrop-blur-sm">
-          <h2 className="text-white text-4xl font-bold leading-tight">
-            Prime Gym
-          </h2>
           <p className="text-white/80 mt-2 text-lg">
             Your fitness journey starts here.
           </p>
@@ -62,8 +60,8 @@ export default function Register(): React.ReactElement {
       </div>
 
       {/* RIGHT SIDE (form) */}
-      <div className="w-full md:w-5/12 flex-auto px-10 md:px-24 py-16 flex items-center bg-white overflow-y-auto">
-        <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-md">
+      <div className="w-full tablet-landscape:w-1/2 desktop-landscape:w-5/12 flex-auto px-10 md:px-24 py-16 flex items-center bg-white overflow-y-auto">
+        <form onSubmit={handleSubmit(onSubmit)} className="w-full md:landscape:max-w-md">
           <div className="flex min-w-full flex-col gap-5">
             <Header
               header="Sign Up"

@@ -6,6 +6,7 @@ import Login from '../pages/login/Login'
 import Register from '../pages/login/Register'
 import ForgotPassword from '../pages/login/ForgotPassword'
 import ResetPassword from '../pages/login/ResetPassword'
+import VerifyOtp from '../pages/login/VerifyOtp'
 import Contact_View from '../pages/contacts/Contact_View'
 import Add_Contacts from '../pages/contacts/Add_Contacts'
 import Edit_Contacts from '../pages/contacts/Edit_Contacts'
@@ -58,6 +59,7 @@ export default function Router() {
         <Route path="/register" element={<Register/>} />
         <Route path="/forgot-password" element={<ForgotPassword/>} />
         <Route path="/reset-password/:token" element={<ResetPassword/>} />
+        <Route path="/verify-otp" element={<VerifyOtp/>} />
         <Route path="/analytics" element={<Analytics_View/>} />
         <Route path="/contacts" element={<Contact_View/>}/>
         <Route path="/add_contacts" element={<Add_Contacts/>}/>

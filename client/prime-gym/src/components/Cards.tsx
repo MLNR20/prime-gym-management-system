@@ -33,9 +33,9 @@ export default function Cards({ Card_Figure, Card_Header, Card_Subheader, icon, 
             {icon}
           </div>
         )}
-        <div className="flex flex-col gap-y-2">
+        <div className="flex flex-col gap-y-2 min-w-0 flex-1">
           <h2 className="card-title font-medium text-md text-black">{Card_Header}</h2>
-          <h1 className="font-extrabold text-3xl">{Card_Figure}</h1>
+          <h1 className="font-extrabold text-2xl sm:text-3xl break-words">{Card_Figure}</h1>
           <h2 className="font-light text-sm text-gray-500">{Card_Subheader}</h2>
         </div>
       </div>

@@ -262,14 +262,14 @@ export default function Finances_View(): React.ReactElement {
   ];
 
   return (
-    <div className="flex h-screen p-6 md:p-0 lg:p-0 lg:flex-row md:flex-row flex-col overflow-hidden">
+    <div className="flex h-screen p-6 min-[1025px]:p-0 landscape:min-[1024px]:p-0 min-[1025px]:flex-row landscape:min-[1024px]:flex-row flex-col overflow-hidden">
       {/* Sidebar */}
-      <div className="w-full md:w-48 lg:w-64">
+      <div className="w-full min-[1025px]:w-64 landscape:min-[1024px]:w-64">
         <Sidebar />
       </div>
 
       {/* Main content */}
-      <div className="flex-1 min-w-0 space-y-6 p-6 md:p-24 lg:p-24 overflow-auto">
+      <div className="flex-1 min-w-0 space-y-6 p-6 min-[1025px]:p-24 landscape:min-[1024px]:p-24 overflow-auto">
         <Header
           header="Finances"
           subheader="An overview of your gym's financial health — revenue, expenses, and net profit."

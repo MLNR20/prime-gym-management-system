@@ -4,6 +4,21 @@
   themes: light --default;
 }
 
+/* Tablet-landscape range covers iPad mini/Air/Pro landscape widths (1024-1366px).
+   Wider landscape viewports (laptops/desktops) fall into desktop-landscape instead,
+   so the two never overlap. */
+@custom-variant tablet-landscape {
+  @media (min-width: 768px) and (max-width: 1366px) and (orientation: landscape) {
+    @slot;
+  }
+}
+
+@custom-variant desktop-landscape {
+  @media (min-width: 1367px) and (orientation: landscape) {
+    @slot;
+  }
+}
+
 
 
 
@@ -38,6 +53,9 @@
 }
 
 
+
+
+
 /* index.css */
 dialog.modal {
   background-color: transparent;
@@ -56,10 +74,26 @@ dialog.modal::backdrop {
   z-index: 40 !important;
 }
 
+/* Opt-out of the dark overlay so the page behind the modal keeps its
+   normal background color instead of dimming. */
+dialog.modal.modal-no-dim::backdrop {
+  background-color: transparent !important;
+}
+
+.modal-no-dim .modal-backdrop {
+  background-color: transparent !important;
+}
+
 /* Ensure modal content sits above the backdrop */
 .modal-box {
   position: relative;
   z-index: 50;
+}
+
+/* Dim the page content behind the mobile/tablet sidebar drawer with a
+   translucent overlay instead of daisyUI's default, near-opaque one. */
+.drawer-side > .drawer-overlay {
+  background-color: rgba(0, 0, 0, 0.3) !important;
 }
 
 @keyframes skeleton-flicker {

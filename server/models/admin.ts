@@ -1,5 +1,7 @@
 import { Schema, model, Document } from "mongoose";
 
+export type ApprovalStatus = "pending" | "approved" | "rejected";
+
 export interface IAdmin extends Document {
   first_name: string;
   last_name: string;
@@ -10,6 +12,10 @@ export interface IAdmin extends Document {
   isDeleted: Boolean;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
+  isOtpVerified: boolean;
+  approvalStatus: ApprovalStatus;
+  otpHash?: string;
+  otpExpires?: Date;
 }
 
 const adminSchema = new Schema<IAdmin>(
@@ -22,7 +28,14 @@ const adminSchema = new Schema<IAdmin>(
     createdAt: { type: Date, default: Date.now },
     isDeleted: {type:Boolean, default: false},
     resetPasswordToken: { type: String },
-    resetPasswordExpires: { type: Date }
+    resetPasswordExpires: { type: Date },
+    // Default to true/"approved" so existing/seeded accounts aren't locked
+    // out; the self-service register() flow explicitly sets both otherwise
+    // for new signups.
+    isOtpVerified: { type: Boolean, default: true },
+    approvalStatus: { type: String, enum: ["pending", "approved", "rejected"], default: "approved" },
+    otpHash: { type: String },
+    otpExpires: { type: Date },
   },
   { collection: "Admin" }
 );

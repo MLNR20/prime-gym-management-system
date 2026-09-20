@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import primeImg from "../../assets/prime.jpg";
+import { API_URL } from "../../config/api";
 
 type FormData = {
   email: string;
@@ -25,7 +26,7 @@ export default function ForgotPassword(): React.ReactElement {
     setSubmitError(null);
     setIsSubmitting(true);
     try {
-      await axios.post("http://localhost:3002/auth/forgot-password", data);
+      await axios.post(`${API_URL}/auth/forgot-password`, data);
       setIsSubmitted(true);
     } catch (error) {
       setSubmitError("Something went wrong. Please try again.");
@@ -38,7 +39,7 @@ export default function ForgotPassword(): React.ReactElement {
     <div className="flex flex-row min-h-screen">
       {/* LEFT SIDE — background image */}
       <div
-        className="w-7/12 hidden md:flex flex-col justify-end p-12"
+        className="hidden tablet-landscape:flex tablet-landscape:w-1/2 desktop-landscape:flex desktop-landscape:w-7/12 flex-col justify-end p-12"
         style={{
           backgroundImage: `url(${primeImg})`,
           backgroundSize: "cover",
@@ -47,9 +48,6 @@ export default function ForgotPassword(): React.ReactElement {
         }}
       >
         <div className="bg-black/40 rounded-2xl p-8 backdrop-blur-sm">
-          <h2 className="text-white text-4xl font-bold leading-tight">
-            Prime Gym
-          </h2>
           <p className="text-white/80 mt-2 text-lg">
             Your fitness journey starts here.
           </p>
@@ -57,8 +55,8 @@ export default function ForgotPassword(): React.ReactElement {
       </div>
 
       {/* RIGHT SIDE (form) */}
-      <div className="w-full md:w-5/12 flex-auto px-10 md:px-24 py-24 flex items-center bg-white">
-        <div className="w-full max-w-md">
+      <div className="w-full tablet-landscape:w-1/2 desktop-landscape:w-5/12 flex-auto px-10 md:px-24 py-24 flex items-center bg-white">
+        <div className="w-full md:landscape:max-w-md">
           <div className="flex min-w-full flex-col gap-6">
             <Header
               header="Forgot Password"

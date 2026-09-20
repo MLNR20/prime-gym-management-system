@@ -94,19 +94,19 @@ export default function Dashboard(): React.ReactElement {
   ];
 
   return (
-    <div className="flex h-screen p-6 md:p-0 lg:p-0 lg:flex-row md:flex-row flex-col overflow-hidden">
+    <div className="flex h-screen p-6 min-[1025px]:p-0 landscape:min-[1024px]:p-0 min-[1025px]:flex-row landscape:min-[1024px]:flex-row flex-col overflow-hidden">
       {/* Sidebar */}
-      <div className="w-full md:w-48 lg:w-64">
+      <div className="w-full min-[1025px]:w-64 landscape:min-[1024px]:w-64">
         <Sidebar />
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 space-y-6 p-6 md:p-24 lg:p-24 overflow-auto">
+      <div className="flex-1 space-y-6 p-6 min-[1025px]:p-24 landscape:min-[1024px]:p-24 overflow-auto">
         <Header
           header="Dashboard"
           subheader="Welcome back! Let's take a look how your gym is performing..."
         />
-        <div className="flex gap-4 flex-col lg:w-full lg:flex-row">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-4 landscape:min-[1024px]:max-[1400px]:!grid-cols-2 portrait:min-[1024px]:max-[1100px]:!grid-cols-2">
           {statCards.map((card) => (
             <Cards
               key={card.key}
@@ -120,8 +120,8 @@ export default function Dashboard(): React.ReactElement {
           ))}
         </div>
 
-        <div className="flex flex-col lg:flex-row items-stretch gap-4">
-          <div className="flex-[2] min-w-0 overflow-x-auto" style={{ height: "600px" }}>
+        <div className="flex flex-col lg:flex-row landscape:min-[1024px]:max-[1400px]:!flex-col portrait:min-[1024px]:max-[1100px]:!flex-col items-stretch gap-4">
+          <div className="flex-[2] min-w-0 overflow-x-auto h-[700px] lg:h-[600px] landscape:min-[1024px]:max-[1400px]:!h-[700px] portrait:min-[1024px]:max-[1100px]:!h-[700px]">
             <SubscriptionLineChart subMonthsData={fetchhistory || []} loading={historyLoading} />
           </div>
           <div className="flex-1 min-w-0 overflow-x-auto" style={{ height: "600px" }}>

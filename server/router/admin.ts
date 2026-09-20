@@ -57,6 +57,9 @@ adminRouter.get(
         limit,
         search,
         fields: ["first_name", "last_name", "email"],
+        // Deactivated admins must stay visible here (unlike other entities)
+        // so an admin can be renewed instead of only ever deactivated.
+        includeDeleted: true,
       });
 
       const admin = req.admin;
@@ -98,4 +101,77 @@ adminRouter.patch(
     }
   },
 );
+
+adminRouter.patch(
+  "/:id/approve",
+  authMiddleware,
+  async (req: RequestWithUser, res: Response) => {
+    try {
+      const targetAdmin = await adminRepository.findById(req.params.id!);
+      if (!targetAdmin)
+        return res.status(404).json({ message: "Admin not found" });
+
+      const admin = req.admin;
+      await LogsRepository.logAction(
+        admin!._id.toString(),
+        `${admin!.first_name} ${admin?.last_name} approved admin account ${(targetAdmin as any)._id} at ${new Date().toISOString()}`,
+      );
+
+      await adminRepository.approveAccount((targetAdmin as any)._id.toString());
+      res.status(200).json({ message: "Admin account approved" });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Error approving admin account" });
+    }
+  },
+);
+
+adminRouter.patch(
+  "/:id/reject",
+  authMiddleware,
+  async (req: RequestWithUser, res: Response) => {
+    try {
+      const targetAdmin = await adminRepository.findById(req.params.id!);
+      if (!targetAdmin)
+        return res.status(404).json({ message: "Admin not found" });
+
+      const admin = req.admin;
+      await LogsRepository.logAction(
+        admin!._id.toString(),
+        `${admin!.first_name} ${admin?.last_name} rejected admin account ${(targetAdmin as any)._id} at ${new Date().toISOString()}`,
+      );
+
+      await adminRepository.rejectAccount((targetAdmin as any)._id.toString());
+      res.status(200).json({ message: "Admin account rejected" });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Error rejecting admin account" });
+    }
+  },
+);
+
+adminRouter.patch(
+  "/:id/renew",
+  authMiddleware,
+  async (req: RequestWithUser, res: Response) => {
+    try {
+      const targetAdmin = await adminRepository.findById(req.params.id!);
+      if (!targetAdmin)
+        return res.status(404).json({ message: "Admin not found" });
+
+      const admin = req.admin;
+      await LogsRepository.logAction(
+        admin!._id.toString(),
+        `${admin!.first_name} ${admin?.last_name} renewed admin account ${(targetAdmin as any)._id} at ${new Date().toISOString()}`,
+      );
+
+      await adminRepository.renewAccount((targetAdmin as any)._id.toString());
+      res.status(200).json({ message: "Admin account renewed" });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Error renewing admin account" });
+    }
+  },
+);
+
 export default adminRouter;

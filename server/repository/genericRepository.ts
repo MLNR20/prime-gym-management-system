@@ -154,18 +154,20 @@ class GenericRepository<T> {
     search = "",
     fields = [],
     filter = {},
+    includeDeleted = false,
   }: {
     page?: number;
     limit?: number;
     search?: string;
     fields?: string[];
     filter?: Record<string, any>;
+    includeDeleted?: boolean;
   }) {
     const skip = (page - 1) * limit;
 
     let query: any = { ...filter };
 
-    if (this.model.schema.paths.isDeleted) {
+    if (!includeDeleted && this.model.schema.paths.isDeleted) {
       query.isDeleted = { $ne: true };
     }
     if (this.model.schema.paths.is_active) {

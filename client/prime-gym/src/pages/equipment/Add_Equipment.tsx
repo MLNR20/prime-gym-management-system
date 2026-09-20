@@ -23,7 +23,9 @@ export default function Add_Equipment(): React.ReactElement {
       const createEquipment = await createData({ url: "equipment", data: data });
 
       if (createEquipment) {
-        usenavigate("/equipment");
+        usenavigate("/equipment", {
+          state: { alertMessage: "Equipment added successfully!", alertVariant: "success" },
+        });
       }
     } catch (error) {
       console.log(error);
@@ -31,13 +33,13 @@ export default function Add_Equipment(): React.ReactElement {
   };
 
   return (
-    <div className="flex background-white h-screen p-6 md:p-0 lg:p-0 lg:flex-row md:flex-row flex-col overflow-hidden">
-      <div className="w-full md:w-48 lg:w-64">
+    <div className="flex background-white h-screen p-6 min-[1025px]:p-0 landscape:min-[1024px]:p-0 min-[1025px]:flex-row landscape:min-[1024px]:flex-row flex-col overflow-hidden">
+      <div className="w-full min-[1025px]:w-64 landscape:min-[1024px]:w-64">
         <Sidebar />
       </div>
 
-      <div className="flex-1 p-6 md:p-24 lg:p-24 overflow-auto">
-        <div className="bg-white p-16 rounded-lg">
+      <div className="flex-1 p-6 min-[1025px]:p-24 landscape:min-[1024px]:p-24 overflow-auto">
+        <div className="bg-white p-6 sm:p-16 rounded-lg">
           <Header
             subheader="Fill in the details below to register new gym equipment."
             header="Add Equipment"

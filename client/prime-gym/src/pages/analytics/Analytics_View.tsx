@@ -16,6 +16,7 @@ import {
   CalendarCheck,
   Package2,
   Crown,
+  Eye,
 } from "lucide-react";
 import {
   Chart as ChartJS,
@@ -105,7 +106,7 @@ const lineOptions = {
 // ── stat card row ─────────────────────────────────────────────────────────────
 function StatRow({ cards }: { cards: React.ComponentProps<typeof Cards>[] }) {
   return (
-    <div className="flex gap-4 flex-col lg:flex-row">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:flex lg:flex-row">
       {cards.map((c, i) => (
         <Cards key={i} {...c} />
       ))}
@@ -143,15 +144,17 @@ function ChartPanel({
   title,
   subtitle,
   children,
+  chartHeight = "h-[260px]",
 }: {
   title: string;
   subtitle: string;
   children: React.ReactNode;
+  chartHeight?: string;
 }) {
   return (
     <div className="bg-white rounded-2xl p-12 flex flex-col w-full h-full">
       <Header header={title} subheader={subtitle} />
-      <div className="flex-1 mt-4 relative min-h-0" style={{ height: "260px" }}>
+      <div className={`flex-1 mt-4 relative min-h-0 ${chartHeight}`}>
         {children}
       </div>
     </div>
@@ -174,11 +177,19 @@ function CardSkeleton() {
   );
 }
 
-function ChartPanelSkeleton({ title, subtitle }: { title: string; subtitle: string }) {
+function ChartPanelSkeleton({
+  title,
+  subtitle,
+  chartHeight = "h-[260px]",
+}: {
+  title: string;
+  subtitle: string;
+  chartHeight?: string;
+}) {
   return (
     <div className="bg-white rounded-2xl p-12 flex flex-col w-full h-full">
       <Header header={title} subheader={subtitle} />
-      <div className="flex-1 mt-4 relative min-h-0" style={{ height: "260px" }}>
+      <div className={`flex-1 mt-4 relative min-h-0 ${chartHeight}`}>
         <Skeleton className="w-full h-full" />
       </div>
     </div>
@@ -400,24 +411,25 @@ export default function Analytics_View(): React.ReactElement {
       id: "view_details",
       cell: ({ row }: any) => (
         <button
-          className="btn btn-sm btn-info text-white"
+          className="btn btn-sm btn-info text-white sm:px-4 px-2"
           onClick={() => navigate(`/customers/${row.original._id}/details`)}
         >
-          View Details
+          <Eye size={16} className="sm:hidden" />
+          <span className="hidden sm:inline">View Details</span>
         </button>
       ),
     },
   ];
 
   return (
-    <div className="flex h-screen p-6 md:p-0 lg:p-0 lg:flex-row md:flex-row flex-col overflow-hidden">
+    <div className="flex h-screen p-6 min-[1025px]:p-0 landscape:min-[1024px]:p-0 min-[1025px]:flex-row landscape:min-[1024px]:flex-row flex-col overflow-hidden">
       {/* Sidebar */}
-      <div className="w-full md:w-48 lg:w-64">
+      <div className="w-full min-[1025px]:w-64 landscape:min-[1024px]:w-64">
         <Sidebar />
       </div>
 
       {/* Main content */}
-      <div className="flex-1 space-y-6 p-6 md:p-24 lg:p-24 overflow-auto">
+      <div className="flex-1 space-y-6 p-6 min-[1025px]:p-24 landscape:min-[1024px]:p-24 overflow-auto">
         <Header
           header="Analytics"
           subheader="A detailed view of your gym's performance..."
@@ -425,7 +437,7 @@ export default function Analytics_View(): React.ReactElement {
 
         {/* KPI Cards */}
         {isLoading ? (
-          <div className="flex gap-4 flex-col lg:flex-row">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:flex lg:flex-row">
             {Array.from({ length: 4 }).map((_, i) => (
               <CardSkeleton key={i} />
             ))}
@@ -436,13 +448,13 @@ export default function Analytics_View(): React.ReactElement {
 
         {/* Highlight row — Top paying customer + Top product */}
         {isLoading ? (
-          <div className="flex gap-4 flex-col lg:flex-row">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:flex lg:flex-row">
             {Array.from({ length: 3 }).map((_, i) => (
               <CardSkeleton key={i} />
             ))}
           </div>
         ) : (
-          <div className="flex gap-4 flex-col lg:flex-row">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:flex lg:flex-row">
             <HighlightCard
               title="Top Paying Customer"
               subtitle="Highest amount paid"
@@ -489,32 +501,36 @@ export default function Analytics_View(): React.ReactElement {
         </div>
 
         {/* Charts row 2 — Registration & Attendance side by side */}
-        <div className="flex flex-row items-stretch gap-4" style={{ height: "450px" }}>
-          <div className="flex-1 min-w-0">
+        <div className="flex flex-col lg:flex-row items-stretch gap-4 lg:h-[550px]">
+          <div className="flex-1 min-w-0 h-[650px] lg:h-auto">
             {isLoading ? (
               <ChartPanelSkeleton
                 title="Customer Registrations"
                 subtitle="New registrations per month..."
+                chartHeight="h-[480px] lg:h-[360px]"
               />
             ) : (
               <ChartPanel
                 title="Customer Registrations"
                 subtitle="New registrations per month..."
+                chartHeight="h-[480px] lg:h-[360px]"
               >
                 <Line data={regLineData} options={lineOptions} />
               </ChartPanel>
             )}
           </div>
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 h-[650px] lg:h-auto">
             {isLoading ? (
               <ChartPanelSkeleton
                 title="Attendance Trend"
                 subtitle="Daily attendance for the last 30 recorded dates..."
+                chartHeight="h-[480px] lg:h-[360px]"
               />
             ) : (
               <ChartPanel
                 title="Attendance Trend"
                 subtitle="Daily attendance for the last 30 recorded dates..."
+                chartHeight="h-[480px] lg:h-[360px]"
               >
                 <Line data={attLineData} options={lineOptions} />
               </ChartPanel>

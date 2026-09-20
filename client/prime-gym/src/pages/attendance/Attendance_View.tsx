@@ -1,14 +1,20 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import CRUDTemplate from "../../templates/CRUDTemplate";
 import useFetchData from "../../data/fetchData";
 import updateData from "../../data/updateData";
 import Pills from "../../components/Pills";
+import Alert from "../../components/Alert";
+import ConfirmModal from "../../components/ConfirmModal";
+import useCrudAlert from "../../utils/useCrudAlert";
 
 export default function Attendance_View(): React.ReactElement {
   // Use the paginated "show" endpoint to match how other views fetch lists
  const retrieveData = useFetchData({ url: "attendance/show/" });
- 
+ const { alertInfo, setAlertInfo } = useCrudAlert();
+ const [pendingCheckOut, setPendingCheckOut] = useState<any | null>(null);
+ const checkOutModalRef = useRef<HTMLDialogElement>(null);
+
   const formatTimestamp = (timeStr: string) => {
     if (!timeStr || timeStr === "N/A" || timeStr === "") return "N/A";
     const date = new Date(timeStr);
@@ -23,27 +29,33 @@ export default function Attendance_View(): React.ReactElement {
     });
   };
 
-  const handleCheckOut = async (row: any) => {
+  const handleCheckOut = (row: any) => {
     if (row.status === "Returned") {
-      alert("This customer has already checked out.");
+      setAlertInfo({ message: "This customer has already checked out.", variant: "error" });
       return;
     }
-    const confirmCheckOut = window.confirm(
-      `Are you sure you want to check out ${row.first_name} ${row.last_name}?`
-    );
-    if (!confirmCheckOut) return;
+    setPendingCheckOut(row);
+    checkOutModalRef.current?.showModal();
+  };
 
+  const confirmCheckOut = async () => {
+    if (!pendingCheckOut) return;
     try {
       await updateData({
         url: "attendance",
-        id: row._id,
+        id: pendingCheckOut._id,
         updateData: {},
       });
-      alert("Checked out successfully.");
+      checkOutModalRef.current?.close();
+      sessionStorage.setItem(
+        "crudAlert",
+        JSON.stringify({ message: "Checked out successfully.", variant: "success" })
+      );
       window.location.reload();
     } catch (error) {
       console.error(error);
-      alert("Failed to check out.");
+      checkOutModalRef.current?.close();
+      setAlertInfo({ message: "Failed to check out.", variant: "error" });
     }
   };
 
@@ -89,12 +101,20 @@ export default function Attendance_View(): React.ReactElement {
   ];
 
   return (
-    <div className="flex background-white h-screen p-6 md:p-0 lg:p-0 lg:flex-row md:flex-row flex-col overflow-hidden">
-      <div className="w-full md:w-48 lg:w-64">
+    <div className="flex background-white h-screen p-6 min-[1025px]:p-0 landscape:min-[1024px]:p-0 min-[1025px]:flex-row landscape:min-[1024px]:flex-row flex-col overflow-hidden">
+      {alertInfo && (
+        <Alert
+          message={alertInfo.message}
+          variant={alertInfo.variant}
+          onClose={() => setAlertInfo(null)}
+        />
+      )}
+
+      <div className="w-full min-[1025px]:w-64 landscape:min-[1024px]:w-64">
         <Sidebar />
       </div>
 
-      <div className="flex-1 p-6 md:p-24 lg:p-24 overflow-auto">
+      <div className="flex-1 p-6 min-[1025px]:p-24 landscape:min-[1024px]:p-24 overflow-auto">
         <CRUDTemplate
           header="Attendance Management"
           Columns={columns}
@@ -108,6 +128,22 @@ export default function Attendance_View(): React.ReactElement {
           subheader="Let's handle your client's attendance..."
         />
       </div>
+
+      <ConfirmModal
+        ref={checkOutModalRef}
+        title="Confirm Check-out"
+        message={
+          <>
+            Are you sure you want to check out{" "}
+            <span className="font-semibold">
+              {pendingCheckOut?.first_name} {pendingCheckOut?.last_name}
+            </span>
+            ?
+          </>
+        }
+        confirmLabel="Yes, Check-out"
+        onConfirm={confirmCheckOut}
+      />
     </div>
   );
 }

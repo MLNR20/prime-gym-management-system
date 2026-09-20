@@ -3,13 +3,7 @@ import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import Tables from "../components/Tables";
 import useFetchData from "../data/fetchData";
-
-interface LogEntry {
-  _id: string;
-  admin_id: string;
-  logs: string;
-  createdAt: string;
-}
+import formatIsoDate from "../utils/dateFormat";
 
 interface DecodedToken {
   id: string;
@@ -32,12 +26,7 @@ function decodeToken(token: string | null): DecodedToken | null {
 export default function Profile(): React.ReactElement {
   const token = localStorage.getItem("token");
   const admin = decodeToken(token);
-
-  const logsData = useFetchData({ url: "logs/show/", limit: 100 });
-  const loginHistory: LogEntry[] = (logsData.data ?? []).filter(
-    (entry: LogEntry) =>
-      entry.admin_id === admin?.id && entry.logs.includes("logged in")
-  );
+  const adminProfile = useFetchData({ url: "admin/me" });
 
   const formatTimestamp = (timeStr: string) => {
     const date = new Date(timeStr);
@@ -55,7 +44,11 @@ export default function Profile(): React.ReactElement {
   const loginHistoryColumns = [
     {
       header: "#",
-      cell: ({ row }: any) => row.index + 1,
+      cell: ({ row, table }: any) => {
+        const page = table.options.meta?.page ?? 1;
+        const limit = table.options.meta?.limit ?? 10;
+        return (page - 1) * limit + row.index + 1;
+      },
     },
     {
       header: "Details",
@@ -69,25 +62,26 @@ export default function Profile(): React.ReactElement {
   ];
 
   return (
-    <div className="flex background-white h-screen p-6 md:p-0 lg:p-0 lg:flex-row md:flex-row flex-col overflow-hidden">
-      <div className="w-full md:w-48 lg:w-64">
+    <div className="flex background-white h-screen p-6 min-[1025px]:p-0 landscape:min-[1024px]:p-0 min-[1025px]:flex-row landscape:min-[1024px]:flex-row flex-col overflow-hidden">
+      <div className="w-full min-[1025px]:w-64 landscape:min-[1024px]:w-64">
         <Sidebar />
       </div>
 
-      <div className="flex-1 p-6 md:p-24 lg:p-24 overflow-auto">
+      <div className="flex-1 p-6 min-[1025px]:p-24 landscape:min-[1024px]:p-24 overflow-auto">
         <div className="bg-white p-16 gap-3 flex flex-col rounded-lg">
           <Header
             header="Profile"
             subheader={`Welcome, ${admin?.first_name ?? ""} ${admin?.last_name ?? ""}`}
           />
 
+          {adminProfile?.createdAt && (
+            <p className="text-gray-500">
+              Date Joined: {formatIsoDate(adminProfile.createdAt)}
+            </p>
+          )}
+
           <h3 className="text-lg font-bold mt-8 mb-2">Login Information</h3>
-          <Tables
-            data={loginHistory}
-            columns={loginHistoryColumns}
-            url="logs"
-            disableFetch
-          />
+          <Tables data={[]} columns={loginHistoryColumns} url="logs" />
         </div>
       </div>
     </div>

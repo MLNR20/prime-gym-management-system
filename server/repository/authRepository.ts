@@ -12,7 +12,17 @@ export class AuthRepository implements IAuthRepository {
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    const admin = new Admin({ first_name, last_name, password: passwordHash, username, email });
+    // Self-service signups must be verified (OTP) and approved by an existing
+    // admin before they can log in, unlike seeded/legacy accounts which default to approved.
+    const admin = new Admin({
+      first_name,
+      last_name,
+      password: passwordHash,
+      username,
+      email,
+      isOtpVerified: false,
+      approvalStatus: "pending",
+    });
     return await admin.save();
   }
 
@@ -52,6 +62,20 @@ export class AuthRepository implements IAuthRepository {
     await Admin.findByIdAndUpdate(admin_id, {
       password: passwordHash,
       $unset: { resetPasswordToken: "", resetPasswordExpires: "" },
+    }).exec();
+  }
+
+  async setOtp(admin_id: string, otpHash: string, expires: Date): Promise<void> {
+    await Admin.findByIdAndUpdate(admin_id, {
+      otpHash,
+      otpExpires: expires,
+    }).exec();
+  }
+
+  async markOtpVerified(admin_id: string): Promise<void> {
+    await Admin.findByIdAndUpdate(admin_id, {
+      isOtpVerified: true,
+      $unset: { otpHash: "", otpExpires: "" },
     }).exec();
   }
 }

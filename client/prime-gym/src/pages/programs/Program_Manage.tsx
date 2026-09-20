@@ -3,6 +3,7 @@ import Sidebar from "../../components/Sidebar";
 import Header from "../../components/Header";
 import { useParams, useNavigate } from "react-router-dom";
 import useFetchData from "../../data/fetchData";
+import { API_URL } from "../../config/api";
 
 export default function Program_Manage(): React.ReactElement {
   const { id } = useParams();
@@ -10,6 +11,7 @@ export default function Program_Manage(): React.ReactElement {
 
   const [program, setProgram] = useState<any>(null);
   const [assigned, setAssigned] = useState<any[]>([]);
+  const [selectedExerciseId, setSelectedExerciseId] = useState<string | null>(null);
   const exercisesData = useFetchData({ url: "exercises" }) as any;
   const allExercises: any[] = Array.isArray(exercisesData) ? exercisesData : exercisesData.data || [];
   const [loading, setLoading] = useState(false);
@@ -26,7 +28,7 @@ export default function Program_Manage(): React.ReactElement {
 
     const load = async () => {
       try {
-        const res = await fetch(`http://localhost:3002/programs/${id}`, {
+        const res = await fetch(`${API_URL}/programs/${id}`, {
           headers: { Authorization: token ? `Bearer ${token}` : "" },
         });
         if (res.ok) {
@@ -34,7 +36,7 @@ export default function Program_Manage(): React.ReactElement {
           setProgram(json);
         }
 
-        const a = await fetch(`http://localhost:3002/programs/${id}/exercises`, {
+        const a = await fetch(`${API_URL}/programs/${id}/exercises`, {
           headers: { Authorization: token ? `Bearer ${token}` : "" },
         });
         if (a.ok) {
@@ -53,13 +55,13 @@ export default function Program_Manage(): React.ReactElement {
     if (!id) return;
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:3002/programs/${id}/exercises`, {
+      const res = await fetch(`${API_URL}/programs/${id}/exercises`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: token ? `Bearer ${token}` : "" },
         body: JSON.stringify({ exercise_id: exId }),
       });
       if (res.ok) {
-        const assignedRes = await fetch(`http://localhost:3002/programs/${id}/exercises`, {
+        const assignedRes = await fetch(`${API_URL}/programs/${id}/exercises`, {
           headers: { Authorization: token ? `Bearer ${token}` : "" },
         });
         const arr = await assignedRes.json();
@@ -78,12 +80,12 @@ export default function Program_Manage(): React.ReactElement {
     if (!id) return;
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:3002/programs/${id}/exercises/${exId}`, {
+      const res = await fetch(`${API_URL}/programs/${id}/exercises/${exId}`, {
         method: "DELETE",
         headers: { Authorization: token ? `Bearer ${token}` : "" },
       });
       if (res.ok) {
-        const assignedRes = await fetch(`http://localhost:3002/programs/${id}/exercises`, {
+        const assignedRes = await fetch(`${API_URL}/programs/${id}/exercises`, {
           headers: { Authorization: token ? `Bearer ${token}` : "" },
         });
         const arr = await assignedRes.json();
@@ -94,6 +96,20 @@ export default function Program_Manage(): React.ReactElement {
     } finally {
       setLoading(false);
     }
+  }
+
+  function confirmUnassignExercise(exId: string) {
+    setSelectedExerciseId(exId);
+    const modal = document.getElementById("remove_exercise_modal");
+    if (modal instanceof HTMLDialogElement) modal.showModal();
+  }
+
+  async function handleConfirmRemove() {
+    if (!selectedExerciseId) return;
+    await unassignExercise(selectedExerciseId);
+    setSelectedExerciseId(null);
+    const modal = document.getElementById("remove_exercise_modal");
+    if (modal instanceof HTMLDialogElement) modal.close();
   }
 
   const assignedIds = assigned.map((a) => String(a._id));
@@ -115,12 +131,12 @@ export default function Program_Manage(): React.ReactElement {
   });
 
   return (
-    <div className="flex background-white h-screen p-6 md:p-0 lg:p-0 lg:flex-row md:flex-row flex-col overflow-hidden">
-      <div className="w-full md:w-48 lg:w-64">
+    <div className="flex background-white h-screen p-6 min-[1025px]:p-0 landscape:min-[1024px]:p-0 min-[1025px]:flex-row landscape:min-[1024px]:flex-row flex-col overflow-hidden">
+      <div className="w-full min-[1025px]:w-64 landscape:min-[1024px]:w-64">
         <Sidebar />
       </div>
 
-      <div className="flex-1 p-6 md:p-24 lg:p-24 overflow-auto">
+      <div className="flex-1 p-6 min-[1025px]:p-24 landscape:min-[1024px]:p-24 overflow-auto">
         <div className="bg-white p-16 rounded-lg">
           <div className="flex items-start justify-between">
             <Header subheader="Manage program exercises" header={program ? program.program_name : "Program"} />
@@ -177,7 +193,7 @@ export default function Program_Manage(): React.ReactElement {
                       <div className="text-sm text-gray-500">{ex.target_area} • {ex.reps} reps • {ex.sets} sets</div>
                     </div>
                     <div>
-                      <button className="btn btn-sm btn-outline" disabled={loading} onClick={() => unassignExercise(String(ex._id))}>
+                      <button className="btn btn-sm btn-outline" disabled={loading} onClick={() => confirmUnassignExercise(String(ex._id))}>
                         Remove
                       </button>
                     </div>
@@ -216,6 +232,29 @@ export default function Program_Manage(): React.ReactElement {
           </div>
         </div>
       </div>
+
+      <dialog id="remove_exercise_modal" className="modal modal-bottom sm:modal-middle">
+        <div className="modal-box bg-white text-black shadow-xl border border-gray-200">
+          <h3 className="font-bold text-lg">Delete!</h3>
+          <p className="py-4">
+            You're about to delete <strong>this exercise</strong>? This action
+            cannot be reversed!
+          </p>
+
+          <div className="modal-action gap-2">
+            <button className="btn btn-error text-white" disabled={loading} onClick={handleConfirmRemove}>
+              Delete
+            </button>
+            <form method="dialog">
+              <button className="btn btn-neutral btn-outline">Close</button>
+            </form>
+          </div>
+        </div>
+
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
     </div>
   );
 }

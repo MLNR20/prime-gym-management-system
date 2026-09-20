@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { CheckCircle2, XCircle, AlertTriangle, Info, X } from "lucide-react";
 
-type AlertVariant = "success" | "error" | "warning" | "info";
+export type AlertVariant = "success" | "error" | "warning" | "info";
 
 type AlertProps = {
   message: string;

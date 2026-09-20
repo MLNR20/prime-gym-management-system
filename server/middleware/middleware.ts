@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import admin from "../models/admin"; // your admin/user model
 import { RequestWithUser } from "./types/express";
 import { AuthRepository } from "../repository/authRepository";
+import { JWT_SECRET } from "../config/env";
 
 
 const authRepository = new AuthRepository();
@@ -15,7 +16,7 @@ export async function authMiddleware(req: RequestWithUser, res: Response, next: 
     if (!authHeader) return res.status(401).json({ message: "No token provided" });
 
     const token = authHeader.replace("Bearer ", "");
-    const payload = jwt.verify(token, process.env.JWT_SECRET || "secret") as { id: string };
+    const payload = jwt.verify(token, JWT_SECRET) as { id: string };
 
     const admin = await authRepository.findById(payload.id);
     if (!admin) return res.status(401).json({ message: "Invalid token" });

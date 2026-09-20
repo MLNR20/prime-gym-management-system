@@ -27,7 +27,9 @@ export default function Add_Customers(): React.ReactElement {
     try {
       const createCustomer = await createData({ url: "customers", data: data });
       if (createCustomer) {
-        usenavigate("/customers");
+        usenavigate("/customers", {
+          state: { alertMessage: "Customer added successfully!", alertVariant: "success" },
+        });
       }
     } catch (error) {
       console.log(error);
@@ -40,13 +42,13 @@ export default function Add_Customers(): React.ReactElement {
   const selectClass = "select select-bordered h-12 border bg-white border-gray-400 text-gray-500 w-full";
 
   return (
-    <div className="flex h-screen p-6 md:p-0 lg:p-0 lg:flex-row md:flex-row flex-col overflow-hidden">
-      <div className="w-full md:w-48 lg:w-64">
+    <div className="flex h-screen p-6 min-[1025px]:p-0 landscape:min-[1024px]:p-0 min-[1025px]:flex-row landscape:min-[1024px]:flex-row flex-col overflow-hidden">
+      <div className="w-full min-[1025px]:w-64 landscape:min-[1024px]:w-64">
         <Sidebar />
       </div>
 
-      <div className="flex-1 p-6 md:p-24 lg:p-24 overflow-auto">
-        <div className="bg-white p-16 rounded-lg">
+      <div className="flex-1 p-6 min-[1025px]:p-24 landscape:min-[1024px]:p-24 overflow-auto">
+        <div className="bg-white p-6 sm:p-16 rounded-lg">
           <Header
             subheader="Hey, there! Let's create a new customer!"
             header="Add Customer"
@@ -61,7 +63,7 @@ export default function Add_Customers(): React.ReactElement {
               <hr className="flex-1 border-gray-300" />
             </div>
 
-            <div className="grid grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
               {/* First Name */}
               <div className="flex flex-col gap-1">
                 <label className={labelClass}>First Name</label>
@@ -142,7 +144,7 @@ export default function Add_Customers(): React.ReactElement {
               <hr className="flex-1 border-gray-300" />
             </div>
 
-            <div className="grid grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
               {/* Amount Paid */}
               <div className="flex flex-col gap-1">
                 <label className={labelClass}>Amount Paid</label>

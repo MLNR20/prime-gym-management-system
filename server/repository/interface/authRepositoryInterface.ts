@@ -9,5 +9,7 @@ export interface IAuthRepository {
   setResetToken(admin_id: string, tokenHash: string, expires: Date): Promise<void>;
   findByResetTokenHash(tokenHash: string): Promise<IAdmin | null>;
   resetPassword(admin_id: string, newPassword: string): Promise<void>;
+  setOtp(admin_id: string, otpHash: string, expires: Date): Promise<void>;
+  markOtpVerified(admin_id: string): Promise<void>;
 
 }

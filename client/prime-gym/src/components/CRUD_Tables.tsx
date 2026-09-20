@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -10,6 +10,49 @@ import { useFetchDataWithStatus } from "../data/fetchData";
 import getWindowedPages from "../utils/getWindowedPages";
 import softDeleteData from "../data/softDeleteData";
 import { TableRowsSkeleton } from "./Skeleton";
+import EmptyState from "./EmptyState";
+import DeleteModal from "./DeleteModal";
+
+const DELETE_ALERT_ENTITY: Record<string, string> = {
+  customers: "Customer",
+  contacts: "Contact",
+  attendance: "Attendance record",
+  equipment: "Equipment",
+  exercises: "Exercise",
+  expenses: "Expense",
+  inventory: "Inventory item",
+  lockers: "Locker",
+  sales: "Sale",
+};
+
+const GENERIC_DELETE_LABEL: Record<string, string> = {
+  sales: "this sale",
+  customers: "this customer",
+  contacts: "this contact",
+  attendance: "this attendance record",
+  equipment: "this equipment",
+  exercises: "this exercise",
+  lockers: "this locker",
+  programs: "this program",
+  sessions: "this session",
+};
+
+function getDisplayLabel(row: any, url?: string): string {
+  if (!row) return "";
+  if (url && GENERIC_DELETE_LABEL[url]) return GENERIC_DELETE_LABEL[url];
+  if (row.first_name || row.last_name) {
+    return `${row.first_name ?? ""} ${row.last_name ?? ""}`.trim();
+  }
+  return (
+    row.exercise_name ??
+    row.equipment_name ??
+    row.expense_title ??
+    row.item_name ??
+    row.locker_number ??
+    row.name ??
+    row._id
+  );
+}
 
 interface TableProps {
   data: any[];
@@ -18,6 +61,7 @@ interface TableProps {
   deleteType: string;
   buttonString?: string;
   additionalFunctionality?: (row?: any) => void;
+  onEditRow?: (row: any) => void;
 }
 
 export default function CRUDTables({
@@ -26,8 +70,11 @@ export default function CRUDTables({
   deleteType,
   buttonString,
   additionalFunctionality,
+  onEditRow,
 }: TableProps): React.ReactElement {
   const [selectedRow, setSelectedRow] = useState<any>(null);
+  const [selectedRowLabel, setSelectedRowLabel] = useState<string>("");
+  const deleteModalRef = useRef<HTMLDialogElement>(null);
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
   //This line of code is responsible for search functionality...
@@ -63,6 +110,7 @@ export default function CRUDTables({
 
   const redirectURL = useNavigate();
   const rowCount = table.getRowModel().rows.length;
+  const isEmpty = !loading && rowCount === 0;
 
   //Sessions and session history are read-only views, so they get no Actions column at all...
   const showActionButton =
@@ -76,8 +124,14 @@ export default function CRUDTables({
         await deleteData({ url: url, id: selectedRow });
       if (deleteType === "Soft Delete")
         await softDeleteData({ url: url, id: selectedRow });
-      const modal = document.getElementById("my_modal_5");
-      if (modal instanceof HTMLDialogElement) modal.close();
+      deleteModalRef.current?.close();
+      const entityLabel = DELETE_ALERT_ENTITY[url];
+      if (entityLabel) {
+        sessionStorage.setItem(
+          "crudAlert",
+          JSON.stringify({ message: `${entityLabel} deleted successfully!`, variant: "error" })
+        );
+      }
       window.location.reload();
     } catch (error) {
       console.error(error);
@@ -116,98 +170,113 @@ export default function CRUDTables({
         </div>
       </div>
       <div className="overflow-x-auto w-full">
-        <table className="table table-zebra">
-          {/* THEAD */}
-          <thead className="bg-gray-200 p-2">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    className="text-black text-[0.950rem] p-5 bg-gray-100"
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
-                  </th>
-                ))}
-                {hasActions && (
-                  <th className="text-black text-[0.950rem] p-5 bg-gray-100">
-                    Actions
-                  </th>
-                )}
-              </tr>
-            ))}
-          </thead>
+          <table className="table table-zebra">
+            {/* THEAD */}
+            <thead className="bg-gray-200 p-2">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <th
+                      key={header.id}
+                      className="text-black text-[0.950rem] p-5 bg-gray-100"
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                    </th>
+                  ))}
+                  {hasActions && (
+                    <th className="text-black text-[0.950rem] p-5 bg-gray-100">
+                      Actions
+                    </th>
+                  )}
+                </tr>
+              ))}
+            </thead>
 
-          {/* TBODY */}
-          <tbody>
-            {loading && tableData.length === 0 ? (
-              <TableRowsSkeleton
-                rows={limit > 10 ? 10 : limit}
-                columns={columns.length + (hasActions ? 1 : 0)}
-              />
-            ) : (
-              table.getRowModel().rows.map((row) => (
-              <tr
-                key={row.id}
-                className="odd:bg-white even:bg-gray-100 border-2 text-[0.950rem] p-5 border-indigo-200 border-b-gray-300"
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <td
-                    key={cell.id}
-                    className="border-b text-nowrap border-gray-300"
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            {/* TBODY */}
+            <tbody>
+              {loading && tableData.length === 0 ? (
+                <TableRowsSkeleton
+                  rows={limit > 10 ? 10 : limit}
+                  columns={columns.length + (hasActions ? 1 : 0)}
+                />
+              ) : isEmpty ? (
+                <tr>
+                  <td className="p-0" colSpan={columns.length + (hasActions ? 1 : 0)}>
+                    <EmptyState
+                      className="w-full bg-gray-50"
+                      iconClassName="bg-white text-gray-400 border border-gray-200 rounded-full"
+                      title="No records found"
+                      subtitle="There's nothing to show here yet."
+                    />
                   </td>
-                ))}
-                {hasActions && (
-                  <td className="border-b border-gray-300">
-                    <div className="flex gap-2 items-center">
-                      {showActionButton && (
-                        <button
-                          className="btn btn-primary"
-                          onClick={() => additionalFunctionality?.(row.original)}
-                        >
-                          {buttonString ?? (url === "programs" ? "Assign Exercises" : "Action")}
-                        </button>
-                      )}
-                      {showEditDelete && (
-                        <>
+                </tr>
+              ) : (
+                table.getRowModel().rows.map((row) => (
+                <tr
+                  key={row.id}
+                  className="odd:bg-white even:bg-gray-100 border-2 text-[0.950rem] p-5 border-indigo-200 border-b-gray-300"
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <td
+                      key={cell.id}
+                      className="border-b text-nowrap border-gray-300"
+                    >
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  ))}
+                  {hasActions && (
+                    <td className="border-b border-gray-300">
+                      <div className="flex gap-2 items-center">
+                        {showActionButton && (
                           <button
-                            className="btn btn-info text-white bg-blue-500"
-                            onClick={() => {
-                              const id = (row.original as any)._id;
-                              setSelectedRow(id);
-                              redirectURL(`${id}`);
-                            }}
+                            className="btn btn-primary"
+                            onClick={() => additionalFunctionality?.(row.original)}
                           >
-                            Edit
+                            {buttonString ?? (url === "programs" ? "Assign Exercises" : "Action")}
                           </button>
-                          <button
-                            className="btn btn-error text-white"
-                            onClick={() => {
-                              const id = (row.original as any)._id;
-                              setSelectedRow(id);
-                              const modal = document.getElementById("my_modal_5");
-                              if (modal instanceof HTMLDialogElement) modal.showModal();
-                            }}
-                          >
-                            Delete
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </td>
-                )}
-              </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+                        )}
+                        {showEditDelete && (
+                          <>
+                            <button
+                              className="btn btn-info text-white bg-blue-500"
+                              onClick={() => {
+                                const id = (row.original as any)._id;
+                                if (onEditRow) {
+                                  onEditRow(row.original);
+                                  return;
+                                }
+                                setSelectedRow(id);
+                                redirectURL(`${id}`);
+                              }}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              className="btn btn-error text-white"
+                              onClick={() => {
+                                const original = row.original as any;
+                                setSelectedRow(original._id);
+                                setSelectedRowLabel(getDisplayLabel(original, url));
+                                deleteModalRef.current?.showModal();
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  )}
+                </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:gap-auto w-full items-center">
           <div className="flex gap-2 flex-row w-full overflow-x-auto">
             <div className="flex gap-2 justify-center items-center mx-auto sm:mx-0">
@@ -253,32 +322,11 @@ export default function CRUDTables({
         </div>
       </div>
 
-      <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle">
-        <div className="modal-box bg-white text-black shadow-xl border border-gray-200">
-          <h3 className="font-bold text-lg">Delete!</h3>
-          <p className="py-4">
-            You're about to delete <strong>{selectedRow}</strong>? This action
-            cannot be reversed!
-          </p>
-
-          <div className="modal-action gap-2">
-            <button
-              className="btn btn-error text-white"
-              onClick={deleteEntry} // ✅ uses selectedRow internally
-            >
-              Delete
-            </button>
-            <form method="dialog">
-              <button className="btn btn-neutral btn-outline">Close</button>
-            </form>
-          </div>
-        </div>
-
-        {/* backdrop */}
-        <form method="dialog" className="modal-backdrop">
-          <button>close</button>
-        </form>
-      </dialog>
+      <DeleteModal
+        ref={deleteModalRef}
+        label={selectedRowLabel}
+        onConfirm={deleteEntry} // ✅ uses selectedRow internally
+      />
     </div>
   );
 }

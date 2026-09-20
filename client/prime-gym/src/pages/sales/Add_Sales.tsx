@@ -48,7 +48,9 @@ export default function Add_Sales(): React.ReactElement {
     try {
       const result = await createData({ url: "sales", data });
       if (result) {
-        navigate("/sales");
+        navigate("/sales", {
+          state: { alertMessage: "Sale added successfully!", alertVariant: "success" },
+        });
       }
     } catch (error: any) {
       const message =
@@ -64,13 +66,13 @@ export default function Add_Sales(): React.ReactElement {
     `select select-bordered h-12 border bg-white border-gray-400 text-gray-500 w-full ${hasError ? "select-error" : ""}`;
 
   return (
-    <div className="flex h-screen p-6 md:p-0 lg:p-0 lg:flex-row md:flex-row flex-col overflow-hidden">
-      <div className="w-full md:w-48 lg:w-64">
+    <div className="flex background-white h-screen p-6 min-[1025px]:p-0 landscape:min-[1024px]:p-0 min-[1025px]:flex-row landscape:min-[1024px]:flex-row flex-col overflow-hidden">
+      <div className="w-full min-[1025px]:w-64 landscape:min-[1024px]:w-64">
         <Sidebar />
       </div>
 
-      <div className="flex-1 p-6 md:p-24 lg:p-24 overflow-auto">
-        <div className="bg-white p-16 rounded-lg">
+      <div className="flex-1 p-6 min-[1025px]:p-24 landscape:min-[1024px]:p-24 overflow-auto">
+        <div className="bg-white p-6 sm:p-16 rounded-lg">
           <Header
             header="Record New Sale"
             subheader="Select an inventory item marked for sale. Stock will be deducted automatically."
@@ -84,7 +86,7 @@ export default function Add_Sales(): React.ReactElement {
               <hr className="flex-1 border-gray-200" />
             </div>
 
-            <div className="grid grid-cols-2 gap-6 mb-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-2">
               <div className="flex flex-col gap-1">
                 <label className={labelClass}>Customer</label>
                 <select

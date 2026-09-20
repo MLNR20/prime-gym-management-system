@@ -91,7 +91,9 @@ export default function Add_Exercise(): React.ReactElement {
 
         const response = await createData({ url: "exercises/many/", data: payload });
         if (response) {
-          navigate("/exercises");
+          navigate("/exercises", {
+            state: { alertMessage: "Exercises added successfully!", alertVariant: "success" },
+          });
         }
       } else {
         const response = await createData({
@@ -105,7 +107,9 @@ export default function Add_Exercise(): React.ReactElement {
         });
 
         if (response) {
-          navigate("/exercises");
+          navigate("/exercises", {
+            state: { alertMessage: "Exercise added successfully!", alertVariant: "success" },
+          });
         }
       }
     } catch (error) {
@@ -114,13 +118,13 @@ export default function Add_Exercise(): React.ReactElement {
   };
 
   return (
-    <div className="flex h-screen p-6 md:p-0 lg:p-0 lg:flex-row md:flex-row flex-col overflow-hidden">
-      <div className="w-full md:w-48 lg:w-64">
+    <div className="flex h-screen p-6 min-[1025px]:p-0 landscape:min-[1024px]:p-0 min-[1025px]:flex-row landscape:min-[1024px]:flex-row flex-col overflow-hidden">
+      <div className="w-full min-[1025px]:w-64 landscape:min-[1024px]:w-64">
         <Sidebar />
       </div>
 
-      <div className="flex-1 p-6 md:p-24 lg:p-24 overflow-auto">
-        <div className="bg-white p-16 rounded-lg">
+      <div className="flex-1 p-6 min-[1025px]:p-24 landscape:min-[1024px]:p-24 overflow-auto">
+        <div className="bg-white p-6 sm:p-16 rounded-lg">
           <Header
             subheader="Create a new exercise with reps, sets, and target area."
             header="Add Exercise"
@@ -142,7 +146,7 @@ export default function Add_Exercise(): React.ReactElement {
             </label>
 
             {!isMultiple ? (
-              <div className="grid grid-cols-2 gap-6 mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
                 {/* Exercise Name */}
                 <div className="flex flex-col gap-1">
                   <label className={labelClass}>Exercise Name</label>
@@ -222,7 +226,7 @@ export default function Add_Exercise(): React.ReactElement {
                     return (
                       <div
                         key={field.id}
-                        className="grid grid-cols-[2fr_1fr_1fr_auto] gap-4 items-end rounded-lg border border-gray-300 bg-white p-4"
+                        className="grid grid-cols-1 sm:grid-cols-[2fr_1fr_1fr_auto] gap-4 items-end rounded-lg border border-gray-300 bg-white p-4"
                       >
                         <div className="flex flex-col gap-1">
                           <label className={labelClass}>Exercise</label>

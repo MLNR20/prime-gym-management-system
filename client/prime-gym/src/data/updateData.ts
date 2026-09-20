@@ -1,5 +1,6 @@
 import axios from "axios";
 import { handleAuthError } from "./authErrorHandler";
+import { API_URL } from "../config/api";
 
 interface RequestStructure<T = any> {
   url: string;
@@ -16,7 +17,7 @@ export default async function updateData({
 
   try {
     const response = await axios.put(
-      `http://localhost:3002/${url}/${id}`,
+      `${API_URL}/${url}/${id}`,
       updateData,
       {
         headers: {

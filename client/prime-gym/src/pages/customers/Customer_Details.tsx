@@ -166,12 +166,12 @@ export default function Customer_Details(): React.ReactElement {
   }
 
   return (
-    <div className="flex h-screen p-6 md:p-0 lg:p-0 lg:flex-row md:flex-row flex-col overflow-hidden">
-      <div className="w-full md:w-48 lg:w-64">
+    <div className="flex h-screen p-6 min-[1025px]:p-0 landscape:min-[1024px]:p-0 min-[1025px]:flex-row landscape:min-[1024px]:flex-row flex-col overflow-hidden">
+      <div className="w-full min-[1025px]:w-64 landscape:min-[1024px]:w-64">
         <Sidebar />
       </div>
 
-      <div className="flex-1 p-6 md:p-24 lg:p-24 overflow-auto">
+      <div className="flex-1 p-6 min-[1025px]:p-24 landscape:min-[1024px]:p-24 overflow-auto">
         <div className="bg-white p-16 rounded-lg flex flex-col gap-8">
           <Header
             header="Customer Details"
@@ -180,7 +180,7 @@ export default function Customer_Details(): React.ReactElement {
 
           <hr className="border-t border-gray-200" />
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 min-[768px]:max-[1367px]:grid-cols-2 min-[1368px]:grid-cols-4 gap-6">
             <div className="flex flex-col gap-1">
               <span className="text-sm font-semibold text-gray-500">Name</span>
               <span className="text-lg font-semibold text-black">

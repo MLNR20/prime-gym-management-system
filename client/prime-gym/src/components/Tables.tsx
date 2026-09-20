@@ -9,11 +9,15 @@ import { useNavigate } from "react-router-dom";
 import { useFetchDataWithStatus } from "../data/fetchData";
 import getWindowedPages from "../utils/getWindowedPages";
 import { TableRowsSkeleton } from "./Skeleton";
+import EmptyState from "./EmptyState";
 interface TableProps {
   data: any[];
   columns: any[];
   url: string;
   additionalFunctionality?: (id: string) => void;
+  onApprove?: (id: string) => void;
+  onReject?: (id: string) => void;
+  onRenew?: (id: string) => void;
   onRowClick?: (row: any) => void;
   disableFetch?: boolean;
   customerId?: string;
@@ -24,6 +28,9 @@ export default function Tables({
   columns,
   url,
   additionalFunctionality,
+  onApprove,
+  onReject,
+  onRenew,
   onRowClick,
   disableFetch = false,
   customerId,
@@ -67,9 +74,10 @@ export default function Tables({
   });
 
   const rowCount = table.getRowModel().rows.length;
+  const isEmpty = !loading && rowCount === 0;
 
   return (
-    <div className="overflow-x-auto mt-2">
+    <div>
       {!disableFetch && (
         <div className="mb-4 flex flex-col sm:flex-row gap-3 sm:gap-auto w-full">
           {/*Search functionality whenever global filter is typed it changes the value and filters the value...*/}
@@ -101,113 +109,160 @@ export default function Tables({
           </div>
         </div>
       )}
-      <table className="table table-zebra">
-        {/* THEAD */}
-        <thead className="bg-slate-300 text-md">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr className="bg-slate-300" key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <th
-                  key={header.id}
-                  className="text-black font-bold text-[0.950rem] p-5 bg-gray-100"
-                >
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
-                </th>
-              ))}
-
-              {url === "admin" && (
-                <th className="text-black text-[0.950rem] p-5 bg-gray-100" >
-                  Actions
-                </th>
-              )}
-            </tr>
-          ))}
-        </thead>
-
-        {/* TBODY */}
-        <tbody>
-          {loading && tableData.length === 0 ? (
-            <TableRowsSkeleton
-              rows={limit > 10 ? 10 : limit}
-              columns={columns.length + (url === "admin" ? 1 : 0)}
-            />
-          ) : (
-            table.getRowModel().rows.map((row) => (
-              <tr
-                key={row.id}
-                onClick={() => onRowClick?.((row as any).original)}
-                className={`odd:bg-white even:bg-gray-100 border-2 border-indigo-200 border-b-gray-300 ${
-                  onRowClick ? "cursor-pointer hover:bg-gray-200" : ""
-                }`}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <td
-                    key={cell.id}
-                    className="border-b p-5 text-[0.950rem] border-gray-300"
+      <div className="overflow-x-auto w-full">
+        <table className="table table-zebra">
+          {/* THEAD */}
+          <thead className="bg-slate-300 text-md">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr className="bg-slate-300" key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <th
+                    key={header.id}
+                    className="text-black font-bold text-[0.950rem] p-5 bg-gray-100"
                   >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                  </th>
                 ))}
+
                 {url === "admin" && (
-                  <td className="border-b p-5 border-gray-300">
-                  <button className="btn text-white btn-error" onClick={() => additionalFunctionality?.((row as any).original?._id)}>Delete</button>
-                  </td>
+                  <th className="text-black text-[0.950rem] p-5 bg-gray-100" >
+                    Actions
+                  </th>
                 )}
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-      {!disableFetch && (
-        <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:gap-auto w-full items-center">
-          <div className="flex gap-2 flex-row w-full overflow-x-auto">
-            <div className="flex gap-2 justify-center items-center mx-auto sm:mx-0">
-              {/* Prev */}
-              <button
-                className={
-                  page === 1
-                    ? "text-gray-400 font-normal btn bg-transparent border-none"
-                    : "hover:bg-black hover:text-white btn bg-transparent  border-none text-black"
-                }
-                disabled={page === 1}
-                onClick={() => setPage((p) => p - 1)}
-              >
-                Prev
-              </button>
+            ))}
+          </thead>
 
-              {/* Page numbers */}
-              {pages.map((p) => (
-                <button
-                  key={p}
-                  onClick={() => setPage(p)}
-                  className={`btn border-none ${page === p ? "btn-neutral" : "btn-outline"}`}
+          {/* TBODY */}
+          <tbody>
+            {loading && tableData.length === 0 ? (
+              <TableRowsSkeleton
+                rows={limit > 10 ? 10 : limit}
+                columns={columns.length + (url === "admin" ? 1 : 0)}
+              />
+            ) : isEmpty ? (
+              <tr>
+                <td className="p-0" colSpan={columns.length + (url === "admin" ? 1 : 0)}>
+                  <EmptyState
+                    className="w-full bg-gray-50"
+                    iconClassName="bg-white text-gray-400 border border-gray-200 rounded-full"
+                    title="No records found"
+                    subtitle="There's nothing to show here yet."
+                  />
+                </td>
+              </tr>
+            ) : (
+              table.getRowModel().rows.map((row) => (
+                <tr
+                  key={row.id}
+                  onClick={() => onRowClick?.((row as any).original)}
+                  className={`odd:bg-white even:bg-gray-100 border-2 border-indigo-200 border-b-gray-300 ${
+                    onRowClick ? "cursor-pointer hover:bg-gray-200" : ""
+                  }`}
                 >
-                  {p}
+                  {row.getVisibleCells().map((cell) => (
+                    <td
+                      key={cell.id}
+                      className="border-b text-nowrap text-[0.950rem] border-gray-300 py-5"
+                    >
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  ))}
+                  {url === "admin" && (() => {
+                    const original = (row as any).original ?? {};
+                    const approvalStatus = original.approvalStatus ?? "approved";
+                    const isDeactivated = !!original.isDeleted;
+                    return (
+                      <td className="border-b border-gray-300">
+                        <div className="dropdown dropdown-end">
+                          <button tabIndex={0} className="btn btn-sm btn-outline text-xs px-2">
+                            Actions ▾
+                          </button>
+                          <ul
+                            tabIndex={0}
+                            className="dropdown-content menu menu-sm bg-white border rounded-lg shadow-lg z-10 w-40 p-2 gap-1"
+                          >
+                            {onApprove && approvalStatus !== "approved" && (
+                              <li>
+                                <button onClick={() => onApprove(original._id)}>Approve</button>
+                              </li>
+                            )}
+                            {onReject && approvalStatus !== "rejected" && (
+                              <li>
+                                <button className="text-error" onClick={() => onReject(original._id)}>Reject</button>
+                              </li>
+                            )}
+                            {onRenew && isDeactivated && (
+                              <li>
+                                <button onClick={() => onRenew(original._id)}>Renew</button>
+                              </li>
+                            )}
+                            {!isDeactivated && (
+                              <li>
+                                <button className="text-error" onClick={() => additionalFunctionality?.(original._id)}>Deactivate</button>
+                              </li>
+                            )}
+                          </ul>
+                        </div>
+                      </td>
+                    );
+                  })()}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+        {!disableFetch && (
+          <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:gap-auto w-full items-center">
+            <div className="flex gap-2 flex-row w-full overflow-x-auto">
+              <div className="flex gap-2 justify-center items-center mx-auto sm:mx-0">
+                {/* Prev */}
+                <button
+                  className={
+                    page === 1
+                      ? "text-gray-400 font-normal btn bg-transparent border-none"
+                      : "hover:bg-black hover:text-white btn bg-transparent  border-none text-black"
+                  }
+                  disabled={page === 1}
+                  onClick={() => setPage((p) => p - 1)}
+                >
+                  Prev
                 </button>
-              ))}
 
-              {/* Next */}
-              <button
-                className={
-                  page === totalPage
-                    ? "text-gray-400 font-normal btn bg-transparent border-none"
-                    : "hover:bg-black hover:text-white  btn bg-transparent border-none text-black"
-                }
-                disabled={page === totalPage}
-                onClick={() => setPage((p) => p + 1)}
-              >
-                Next
-              </button>
+                {/* Page numbers */}
+                {pages.map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p)}
+                    className={`btn border-none ${page === p ? "btn-neutral" : "btn-outline"}`}
+                  >
+                    {p}
+                  </button>
+                ))}
+
+                {/* Next */}
+                <button
+                  className={
+                    page === totalPage
+                      ? "text-gray-400 font-normal btn bg-transparent border-none"
+                      : "hover:bg-black hover:text-white  btn bg-transparent border-none text-black"
+                  }
+                  disabled={page === totalPage}
+                  onClick={() => setPage((p) => p + 1)}
+                >
+                  Next
+                </button>
+              </div>
             </div>
+            <h4 className="w-full text-center sm:text-end">Showing {rowCount} entries</h4>
           </div>
-          <h4 className="w-full text-center sm:text-end">Showing {rowCount} entries</h4>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

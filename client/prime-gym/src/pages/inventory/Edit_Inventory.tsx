@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../../components/Sidebar";
+import EditLoadingScreen from "../../components/EditLoadingScreen";
 import Header from "../../components/Header";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
@@ -43,7 +44,9 @@ export default function Edit_Inventory(): React.ReactElement {
         },
       });
       if (result) {
-        navigate("/inventory");
+        navigate("/inventory", {
+          state: { alertMessage: "Inventory item updated successfully!", alertVariant: "success" },
+        });
       }
     } catch (error) {
       console.error(error);
@@ -72,11 +75,7 @@ export default function Edit_Inventory(): React.ReactElement {
   }, [id, reset]);
 
   if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <span className="loading loading-spinner loading-lg"></span>
-      </div>
-    );
+    return <EditLoadingScreen message="Loading inventory record..." />;
   }
 
   const labelClass = "text-sm font-medium text-gray-500";
@@ -86,13 +85,13 @@ export default function Edit_Inventory(): React.ReactElement {
     `select select-bordered h-12 border bg-white border-gray-400 text-gray-500 w-full ${hasError ? "select-error" : ""}`;
 
   return (
-    <div className="flex h-screen p-6 md:p-0 lg:p-0 lg:flex-row md:flex-row flex-col overflow-hidden">
-      <div className="w-full md:w-48 lg:w-64">
+    <div className="flex background-white h-screen p-6 min-[1025px]:p-0 landscape:min-[1024px]:p-0 min-[1025px]:flex-row landscape:min-[1024px]:flex-row flex-col overflow-hidden">
+      <div className="w-full min-[1025px]:w-64 landscape:min-[1024px]:w-64">
         <Sidebar />
       </div>
 
-      <div className="flex-1 p-6 md:p-24 lg:p-24 overflow-auto">
-        <div className="bg-white p-16 rounded-lg">
+      <div className="flex-1 p-6 min-[1025px]:p-24 landscape:min-[1024px]:p-24 overflow-auto">
+        <div className="bg-white p-6 sm:p-16 rounded-lg">
           <Header
             header="Edit Inventory Item"
             subheader="Update the details of the inventory item."
@@ -108,7 +107,7 @@ export default function Edit_Inventory(): React.ReactElement {
               <hr className="flex-1 border-gray-200" />
             </div>
 
-            <div className="grid grid-cols-2 gap-6 mb-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-2">
 
               {/* Item Name */}
               <div className="flex flex-col gap-1">
@@ -207,7 +206,7 @@ export default function Edit_Inventory(): React.ReactElement {
               <hr className="flex-1 border-gray-200" />
             </div>
 
-            <div className="grid grid-cols-2 gap-6 mb-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-2">
 
               {/* Quantity */}
               <div className="flex flex-col gap-1">

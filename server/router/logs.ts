@@ -20,11 +20,18 @@ logsRouter.get("/show/", authMiddleware, async (request: RequestWithUser, respon
     try {
       const limit = parseInt(request.query.limit as string) || 10;
       const page = parseInt(request.query.page as string) || 1;
-      const result = await logsRepository.paginate({
+      const search = (request.query.search as string) || "";
+      const admin = request.admin;
+      const result = await logsRepository.search({
         page,
         limit,
+        search,
+        fields: ["logs"],
+        filter: {
+          admin_id: admin!._id.toString(),
+          logs: { $regex: "logged in", $options: "i" },
+        },
       });
-      const admin = request.admin;
       await LogsRepository.logAction(
         admin!._id.toString(),
         `${admin!.first_name} ${admin?.last_name} accessed logs list at ${new Date().toISOString()}`,

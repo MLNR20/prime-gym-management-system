@@ -1,6 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Sidebar from "../../components/Sidebar";
+import EditLoadingScreen from "../../components/EditLoadingScreen";
 import Header from "../../components/Header";
+import ConfirmModal from "../../components/ConfirmModal";
 import { useForm, useWatch } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import updateData from "../../data/updateData";
@@ -23,6 +25,8 @@ export default function Edit_Sales(): React.ReactElement {
   const [loading, setLoading] = useState(true);
   const [originalQuantity, setOriginalQuantity] = useState(0);
   const [currentSaleItem, setCurrentSaleItem] = useState<any>(null);
+  const [pendingData, setPendingData] = useState<FormData | null>(null);
+  const modalRef = useRef<HTMLDialogElement>(null);
 
   const {
     register,
@@ -64,19 +68,28 @@ export default function Edit_Sales(): React.ReactElement {
     return Number(quantity) * Number(unitPrice);
   }, [selectedItem, quantity]);
 
-  const onSubmit = async (data: FormData) => {
+  const onValidSubmit = (data: FormData) => {
+    setPendingData(data);
+    modalRef.current?.showModal();
+  };
+
+  const confirmSubmit = async () => {
+    if (!pendingData) return;
     try {
       const result = await updateData({
         url: "sales",
         id: id!.toString(),
         updateData: {
-          inventory_id: data.inventory_id,
-          quantity: data.quantity,
-          is_active: data.is_active === "true",
+          inventory_id: pendingData.inventory_id,
+          quantity: pendingData.quantity,
+          is_active: pendingData.is_active === "true",
         },
       });
       if (result) {
-        navigate("/sales");
+        modalRef.current?.close();
+        navigate("/sales", {
+          state: { alertMessage: "Sale updated successfully!", alertVariant: "success" },
+        });
       }
     } catch (error: any) {
       const message =
@@ -118,11 +131,7 @@ export default function Edit_Sales(): React.ReactElement {
   }, [id, reset]);
 
   if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <span className="loading loading-spinner loading-lg"></span>
-      </div>
-    );
+    return <EditLoadingScreen message="Loading sales record..." />;
   }
 
   const labelClass = "text-sm font-medium text-gray-500";
@@ -132,19 +141,19 @@ export default function Edit_Sales(): React.ReactElement {
     `select select-bordered h-12 border bg-white border-gray-400 text-gray-500 w-full ${hasError ? "select-error" : ""}`;
 
   return (
-    <div className="flex h-screen p-6 md:p-0 lg:p-0 lg:flex-row md:flex-row flex-col overflow-hidden">
-      <div className="w-full md:w-48 lg:w-64">
+    <div className="flex background-white h-screen p-6 min-[1025px]:p-0 landscape:min-[1024px]:p-0 min-[1025px]:flex-row landscape:min-[1024px]:flex-row flex-col overflow-hidden">
+      <div className="w-full min-[1025px]:w-64 landscape:min-[1024px]:w-64">
         <Sidebar />
       </div>
 
-      <div className="flex-1 p-6 md:p-24 lg:p-24 overflow-auto">
-        <div className="bg-white p-16 rounded-lg">
+      <div className="flex-1 p-6 min-[1025px]:p-24 landscape:min-[1024px]:p-24 overflow-auto">
+        <div className="bg-white p-6 sm:p-16 rounded-lg">
           <Header
             header="Edit Sale"
             subheader="Update sale details. Inventory stock will adjust automatically."
           />
 
-          <form onSubmit={handleSubmit(onSubmit)} className="w-full mt-10">
+          <form onSubmit={handleSubmit(onValidSubmit)} className="w-full mt-10">
             <div className="flex items-center gap-4 mb-6">
               <span className="text-xs font-semibold uppercase tracking-widest text-gray-400 whitespace-nowrap">
                 Sale Details
@@ -152,7 +161,7 @@ export default function Edit_Sales(): React.ReactElement {
               <hr className="flex-1 border-gray-200" />
             </div>
 
-            <div className="grid grid-cols-2 gap-6 mb-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-2">
               <div className="flex flex-col gap-1">
                 <label className={labelClass}>Inventory Item</label>
                 <select
@@ -246,6 +255,25 @@ export default function Edit_Sales(): React.ReactElement {
               </button>
             </div>
           </form>
+
+          <ConfirmModal
+            ref={modalRef}
+            title="Confirm Update"
+            message={
+              <>
+                Are you sure you want to save these changes
+                {selectedItem ? (
+                  <>
+                    {" "}
+                    to <span className="font-semibold">{selectedItem.item_name}</span>
+                  </>
+                ) : null}
+                ?
+              </>
+            }
+            confirmLabel="Yes, Update"
+            onConfirm={confirmSubmit}
+          />
         </div>
       </div>
     </div>

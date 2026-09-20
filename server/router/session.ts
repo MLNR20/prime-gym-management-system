@@ -33,15 +33,46 @@ sessionRouter.get(
       const search = (request.query.search as string) || "";
       const customerId = (request.query.customerId as string) || "";
 
-      const result = await sessionRepository.search({
+      const pipeline = [
+        ...(customerId ? [{ $match: { customer_id: customerId } }] : []),
+        {
+          $addFields: {
+            customer_id: { $toObjectId: "$customer_id" },
+          },
+        },
+        {
+          $lookup: {
+            from: "Customer",
+            localField: "customer_id",
+            foreignField: "_id",
+            as: "customer",
+          },
+        },
+        {
+          $unwind: {
+            path: "$customer",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            customer_id: 1,
+            session_balance: 1,
+            created_at: 1,
+            first_name: { $ifNull: ["$customer.first_name", "N/A"] },
+            last_name: { $ifNull: ["$customer.last_name", ""] },
+          },
+        },
+      ];
+
+      const result = await sessionRepository.paginateWithLookup({
         page,
         limit,
+        pipeline,
         search,
-        fields: [],
-        filter: customerId ? { customer_id: customerId } : {},
+        fields: ["first_name", "last_name"],
       });
-
-      const enrichedData = await enrichSessionsWithCustomer(result.data);
 
       const admin = request.admin;
       await LogsRepository.logAction(
@@ -49,7 +80,7 @@ sessionRouter.get(
         `${admin!.first_name} ${admin?.last_name} accessed sessions list at ${new Date().toISOString()}`
       );
 
-      response.status(200).json({ ...result, data: enrichedData });
+      response.status(200).json(result);
     } catch (error) {
       console.error(error);
       response.status(500).json({ message: "Error fetching sessions" });

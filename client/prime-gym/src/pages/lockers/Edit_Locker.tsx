@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Sidebar from "../../components/Sidebar";
+import EditLoadingScreen from "../../components/EditLoadingScreen";
 import Header from "../../components/Header";
+import ConfirmModal from "../../components/ConfirmModal";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import updateData from "../../data/updateData";
@@ -25,11 +27,22 @@ export default function Edit_Lockers(): React.ReactElement {
   } = useForm<FormData>();
 
   const [loading, setLoading] = useState(true);
+  const [pendingData, setPendingData] = useState<FormData | null>(null);
+  const modalRef = useRef<HTMLDialogElement>(null);
 
-  const onSubmit = async (data: FormData) => {
+  const onValidSubmit = (data: FormData) => {
+    setPendingData(data);
+    modalRef.current?.showModal();
+  };
+
+  const confirmSubmit = async () => {
+    if (!pendingData) return;
     try {
-      await updateData({ url: "lockers", id: id!.toString(), updateData: data });
-      redirect("/lockers");
+      await updateData({ url: "lockers", id: id!.toString(), updateData: pendingData });
+      modalRef.current?.close();
+      redirect("/lockers", {
+        state: { alertMessage: "Locker updated successfully!", alertVariant: "success" },
+      });
     } catch (error) {
       console.log(error);
     }
@@ -52,11 +65,7 @@ export default function Edit_Lockers(): React.ReactElement {
   }, [id, reset]);
 
   if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <span className="loading loading-spinner loading-lg"></span>
-      </div>
-    );
+    return <EditLoadingScreen message="Loading locker record..." />;
   }
 
   const labelClass = "text-sm font-medium text-gray-500";
@@ -64,19 +73,19 @@ export default function Edit_Lockers(): React.ReactElement {
     `input input-bordered h-12 border bg-white border-gray-400 text-gray-500 placeholder-gray-400 w-full ${hasError ? "input-error" : ""}`;
 
   return (
-    <div className="flex h-screen p-6 md:p-0 lg:p-0 lg:flex-row md:flex-row flex-col overflow-hidden">
-      <div className="w-full md:w-48 lg:w-64">
+    <div className="flex background-white h-screen p-6 min-[1025px]:p-0 landscape:min-[1024px]:p-0 min-[1025px]:flex-row landscape:min-[1024px]:flex-row flex-col overflow-hidden">
+      <div className="w-full min-[1025px]:w-64 landscape:min-[1024px]:w-64">
         <Sidebar />
       </div>
 
-      <div className="flex-1 p-6 md:p-24 lg:p-24 overflow-auto">
-        <div className="bg-white p-16 rounded-lg">
+      <div className="flex-1 p-6 min-[1025px]:p-24 landscape:min-[1024px]:p-24 overflow-auto">
+        <div className="bg-white p-6 sm:p-16 rounded-lg">
           <Header
             subheader="Update the details of this locker."
             header="Edit Locker"
           />
 
-          <form onSubmit={handleSubmit(onSubmit)} className="w-full mt-10">
+          <form onSubmit={handleSubmit(onValidSubmit)} className="w-full mt-10">
 
             {/* ── LOCKER INFO ── */}
             <div className="flex items-center gap-4 mb-6">
@@ -86,7 +95,7 @@ export default function Edit_Lockers(): React.ReactElement {
               <hr className="flex-1 border-gray-200" />
             </div>
 
-            <div className="grid grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
               {/* Locker Number */}
               <div className="flex flex-col gap-1">
                 <label className={labelClass}>Locker Number</label>
@@ -121,6 +130,19 @@ export default function Edit_Lockers(): React.ReactElement {
               </button>
             </div>
           </form>
+
+          <ConfirmModal
+            ref={modalRef}
+            title="Confirm Update"
+            message={
+              <>
+                Are you sure you want to save these changes to{" "}
+                <span className="font-semibold">Locker #{pendingData?.locker_number}</span>?
+              </>
+            }
+            confirmLabel="Yes, Update"
+            onConfirm={confirmSubmit}
+          />
         </div>
       </div>
     </div>
