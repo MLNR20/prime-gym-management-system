@@ -1,5 +1,5 @@
 // src/router/Router.tsx
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from '../context/AuthContext'
 import Dashboard from '../pages/Dashboard'
 import Login from '../pages/login/Login'
@@ -100,6 +100,7 @@ export default function Router() {
         <Route path="/sessions" element={<Sessions_View/>}/>
         <Route path="/sessions/assign" element={<Assign_Sessions/>}/>
         <Route path="/sessions/history" element={<Session_History/>}/>
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
       </AuthProvider>
     </BrowserRouter>
