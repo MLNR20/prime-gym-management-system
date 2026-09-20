@@ -73,6 +73,7 @@ export default function VerifyOtp(): React.ReactElement {
         }}
       >
         <div className="bg-black/40 rounded-2xl p-8 backdrop-blur-sm">
+          <h1 className="text-white text-3xl font-bold">Prime Gym</h1>
           <p className="text-white/80 mt-2 text-lg">
             Your fitness journey starts here.
           </p>
