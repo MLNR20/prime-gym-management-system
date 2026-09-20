@@ -39,13 +39,7 @@ export class AuthService {
       `User ${first_name} ${last_name} created an account at ${new Date().toISOString()}`
     );
 
-    const admin = await this.authRepository.createUser(first_name, last_name, password, username, email);
-
-    const otp = generateOtp();
-    await this.authRepository.setOtp(admin._id!.toString(), hashToken(otp), new Date(Date.now() + OTP_TTL_MS));
-    await MailService.sendOtpEmail(email, otp);
-
-    return admin;
+    return await this.authRepository.createUser(first_name, last_name, password, username, email);
   }
 
   async login(username: string, password: string): Promise<LoginResult>

@@ -12,16 +12,16 @@ export class AuthRepository implements IAuthRepository {
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    // Self-service signups must be verified (OTP) and approved by an existing
-    // admin before they can log in, unlike seeded/legacy accounts which default to approved.
+    // Self-service signups are auto-confirmed so new users can log in
+    // immediately after registering, without an OTP or admin approval step.
     const admin = new Admin({
       first_name,
       last_name,
       password: passwordHash,
       username,
       email,
-      isOtpVerified: false,
-      approvalStatus: "pending",
+      isOtpVerified: true,
+      approvalStatus: "approved",
     });
     return await admin.save();
   }

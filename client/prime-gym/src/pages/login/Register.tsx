@@ -34,7 +34,7 @@ export default function Register(): React.ReactElement {
         email: data.email,
         password: data.password,
       });
-      navigate("/verify-otp", { state: { email: data.email } });
+      navigate("/login");
     } catch (error) {
       console.log(error);
     }
