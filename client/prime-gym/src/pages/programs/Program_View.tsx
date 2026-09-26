@@ -146,9 +146,12 @@ export default function Program_View(): React.ReactElement {
 
       const res = await createData({ url: "programs", data: payload });
       if (res) {
-        alert("Program created");
         setPage(1); // Go back to first page to see the new program
         setGeneratedTitle("");
+        sessionStorage.setItem(
+          "crudAlert",
+          JSON.stringify({ message: "Program created", variant: "success" })
+        );
         window.location.reload();
       }
     } catch (err: any) {
