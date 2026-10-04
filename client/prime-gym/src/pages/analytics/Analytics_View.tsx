@@ -482,16 +482,18 @@ export default function Analytics_View(): React.ReactElement {
         )}
 
         {/* Charts row 1 — Subscription trend */}
-        <div style={{ height: "450px" }}>
+        <div className="h-[620px] sm:h-[450px]">
           {isLoading ? (
             <ChartPanelSkeleton
               title="Monthly Subscription Trend"
               subtitle="Subscriptions broken down by type over time..."
+              chartHeight="h-[520px] sm:h-[350px]"
             />
           ) : (
             <ChartPanel
               title="Monthly Subscription Trend"
               subtitle="Subscriptions broken down by type over time..."
+              chartHeight="h-[520px] sm:h-[350px]"
             >
               <Line data={subChartData} options={lineOptions} />
             </ChartPanel>
@@ -500,7 +502,7 @@ export default function Analytics_View(): React.ReactElement {
 
         {/* Charts row 2 — Registration & Attendance side by side */}
         <div className="flex flex-col lg:flex-row items-stretch gap-4 lg:h-[550px]">
-          <div className="flex-1 min-w-0 h-[650px] lg:h-auto">
+          <div className="min-w-0 h-[650px] lg:flex-1 lg:h-auto">
             {isLoading ? (
               <ChartPanelSkeleton
                 title="Customer Registrations"
@@ -517,7 +519,7 @@ export default function Analytics_View(): React.ReactElement {
               </ChartPanel>
             )}
           </div>
-          <div className="flex-1 min-w-0 h-[650px] lg:h-auto">
+          <div className="min-w-0 h-[650px] lg:flex-1 lg:h-auto">
             {isLoading ? (
               <ChartPanelSkeleton
                 title="Attendance Trend"
