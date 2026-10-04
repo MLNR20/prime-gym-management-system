@@ -501,36 +501,36 @@ export default function Analytics_View(): React.ReactElement {
         </div>
 
         {/* Charts row 2 — Registration & Attendance side by side */}
-        <div className="flex flex-col lg:flex-row items-stretch gap-4 lg:h-[550px]">
-          <div className="min-w-0 h-[650px] lg:flex-1 lg:h-auto">
+        <div className="flex flex-col xl:flex-row items-stretch gap-4 xl:h-[550px]">
+          <div className="min-w-0 h-[650px] xl:flex-1 xl:h-auto">
             {isLoading ? (
               <ChartPanelSkeleton
                 title="Customer Registrations"
                 subtitle="New registrations per month..."
-                chartHeight="h-[480px] lg:h-[360px]"
+                chartHeight="h-[480px] xl:h-[360px]"
               />
             ) : (
               <ChartPanel
                 title="Customer Registrations"
                 subtitle="New registrations per month..."
-                chartHeight="h-[480px] lg:h-[360px]"
+                chartHeight="h-[480px] xl:h-[360px]"
               >
                 <Line data={regLineData} options={lineOptions} />
               </ChartPanel>
             )}
           </div>
-          <div className="min-w-0 h-[650px] lg:flex-1 lg:h-auto">
+          <div className="min-w-0 h-[650px] xl:flex-1 xl:h-auto">
             {isLoading ? (
               <ChartPanelSkeleton
                 title="Attendance Trend"
                 subtitle="Daily attendance for the last 30 recorded dates..."
-                chartHeight="h-[480px] lg:h-[360px]"
+                chartHeight="h-[480px] xl:h-[360px]"
               />
             ) : (
               <ChartPanel
                 title="Attendance Trend"
                 subtitle="Daily attendance for the last 30 recorded dates..."
-                chartHeight="h-[480px] lg:h-[360px]"
+                chartHeight="h-[480px] xl:h-[360px]"
               >
                 <Line data={attLineData} options={lineOptions} />
               </ChartPanel>
