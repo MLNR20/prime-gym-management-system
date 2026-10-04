@@ -104,7 +104,7 @@ const lineOptions = {
 // ── stat card row ─────────────────────────────────────────────────────────────
 function StatRow({ cards }: { cards: React.ComponentProps<typeof Cards>[] }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:flex lg:flex-row">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 xl:flex xl:flex-row">
       {cards.map((c, i) => (
         <Cards key={i} {...c} />
       ))}
@@ -435,7 +435,7 @@ export default function Analytics_View(): React.ReactElement {
 
         {/* KPI Cards */}
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:flex lg:flex-row">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 xl:flex xl:flex-row">
             {Array.from({ length: 4 }).map((_, i) => (
               <CardSkeleton key={i} />
             ))}
@@ -446,13 +446,13 @@ export default function Analytics_View(): React.ReactElement {
 
         {/* Highlight row — Top paying customer + Top product */}
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:flex lg:flex-row">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 xl:flex xl:flex-row">
             {Array.from({ length: 3 }).map((_, i) => (
               <CardSkeleton key={i} />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:flex lg:flex-row">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 xl:flex xl:flex-row">
             <HighlightCard
               title="Top Paying Customer"
               subtitle="Highest amount paid"
