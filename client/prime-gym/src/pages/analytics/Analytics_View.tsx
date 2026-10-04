@@ -104,7 +104,7 @@ const lineOptions = {
 // ── stat card row ─────────────────────────────────────────────────────────────
 function StatRow({ cards }: { cards: React.ComponentProps<typeof Cards>[] }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 xl:flex xl:flex-row">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-[1367px]:flex min-[1367px]:flex-row">
       {cards.map((c, i) => (
         <Cards key={i} {...c} />
       ))}
@@ -163,9 +163,9 @@ function ChartPanel({
 function CardSkeleton() {
   return (
     <div className="card mt-2 p-1 bg-white w-full gap-y-4">
-      <div className="card-body flex-row items-start gap-4">
+      <div className="card-body flex-row items-start gap-4 min-[768px]:max-[1367px]:flex-col min-[768px]:max-[1367px]:items-center min-[768px]:max-[1367px]:gap-3">
         <Skeleton className="h-11 w-11 rounded-xl shrink-0" />
-        <div className="flex flex-col gap-y-2 w-full">
+        <div className="flex flex-col gap-y-2 w-full min-[768px]:max-[1367px]:items-center">
           <Skeleton className="h-4 w-2/3" />
           <Skeleton className="h-7 w-1/2" />
           <Skeleton className="h-3 w-3/4" />
@@ -435,7 +435,7 @@ export default function Analytics_View(): React.ReactElement {
 
         {/* KPI Cards */}
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 xl:flex xl:flex-row">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-[1367px]:flex min-[1367px]:flex-row">
             {Array.from({ length: 4 }).map((_, i) => (
               <CardSkeleton key={i} />
             ))}
@@ -446,13 +446,13 @@ export default function Analytics_View(): React.ReactElement {
 
         {/* Highlight row — Top paying customer + Top product */}
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 xl:flex xl:flex-row">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-[1367px]:flex min-[1367px]:flex-row">
             {Array.from({ length: 3 }).map((_, i) => (
               <CardSkeleton key={i} />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 xl:flex xl:flex-row">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-[1367px]:flex min-[1367px]:flex-row">
             <HighlightCard
               title="Top Paying Customer"
               subtitle="Highest amount paid"
@@ -501,36 +501,36 @@ export default function Analytics_View(): React.ReactElement {
         </div>
 
         {/* Charts row 2 — Registration & Attendance side by side */}
-        <div className="flex flex-col xl:flex-row items-stretch gap-4 xl:h-[550px]">
-          <div className="min-w-0 h-[650px] xl:flex-1 xl:h-auto">
+        <div className="flex flex-col min-[1367px]:flex-row items-stretch gap-4 min-[1367px]:h-[550px]">
+          <div className="min-w-0 h-[650px] min-[1367px]:flex-1 min-[1367px]:h-auto">
             {isLoading ? (
               <ChartPanelSkeleton
                 title="Customer Registrations"
                 subtitle="New registrations per month..."
-                chartHeight="h-[480px] xl:h-[360px]"
+                chartHeight="h-[480px] min-[1367px]:h-[360px]"
               />
             ) : (
               <ChartPanel
                 title="Customer Registrations"
                 subtitle="New registrations per month..."
-                chartHeight="h-[480px] xl:h-[360px]"
+                chartHeight="h-[480px] min-[1367px]:h-[360px]"
               >
                 <Line data={regLineData} options={lineOptions} />
               </ChartPanel>
             )}
           </div>
-          <div className="min-w-0 h-[650px] xl:flex-1 xl:h-auto">
+          <div className="min-w-0 h-[650px] min-[1367px]:flex-1 min-[1367px]:h-auto">
             {isLoading ? (
               <ChartPanelSkeleton
                 title="Attendance Trend"
                 subtitle="Daily attendance for the last 30 recorded dates..."
-                chartHeight="h-[480px] xl:h-[360px]"
+                chartHeight="h-[480px] min-[1367px]:h-[360px]"
               />
             ) : (
               <ChartPanel
                 title="Attendance Trend"
                 subtitle="Daily attendance for the last 30 recorded dates..."
-                chartHeight="h-[480px] xl:h-[360px]"
+                chartHeight="h-[480px] min-[1367px]:h-[360px]"
               >
                 <Line data={attLineData} options={lineOptions} />
               </ChartPanel>
