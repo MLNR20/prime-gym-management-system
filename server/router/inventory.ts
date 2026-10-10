@@ -1,8 +1,9 @@
-import express from "express";
+import express, { Response } from "express";
 import inventoryRepository from "../repository/inventoryRepository";
 import LogsRepository from "../repository/logsRepository";
 import { RequestWithUser } from "../middleware/types/express";
 import { authMiddleware } from "../middleware/middleware";
+import { validate, createInventoryValidation, updateInventoryValidation } from "../utils/validation";
 
 const inventoryRouter = express.Router();
 
@@ -100,7 +101,9 @@ inventoryRouter.get(
 inventoryRouter.post(
   "/",
   authMiddleware,
-  async (request: RequestWithUser, response) => {
+  createInventoryValidation,
+  validate,
+  async (request: RequestWithUser, response: Response) => {
     try {
       const newItem = await inventoryRepository.create(request.body);
 
@@ -120,7 +123,9 @@ inventoryRouter.post(
 inventoryRouter.put(
   "/:id",
   authMiddleware,
-  async (request: RequestWithUser, response) => {
+  updateInventoryValidation,
+  validate,
+  async (request: RequestWithUser, response: Response) => {
     try {
       const { id } = request.params;
       if (!id) {

@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Response } from "express";
 import CustomerRepository from "../repository/customerRepository";
 import SubscriptionHistoryRepository from "../repository/subscriptionhistoryRepository";
 import SessionRepository from "../repository/sessionRepository";
@@ -7,12 +7,18 @@ import { CustomerService } from "../repository/services/customerService";
 import { authMiddleware } from "../middleware/middleware";
 import { RequestWithUser } from "../middleware/types/express";
 import customerRepository from "../repository/customerRepository";
+import {
+  validate,
+  createCustomerValidation,
+  updateCustomerValidation,
+  updateSubscriptionValidation,
+} from "../utils/validation";
 
 const customerRouter = express.Router();
 const customerService = new CustomerService(CustomerRepository, SubscriptionHistoryRepository, SessionRepository);
 
 // CREATE
-customerRouter.post("/", authMiddleware, async (request: RequestWithUser, response) => {
+customerRouter.post("/", authMiddleware, createCustomerValidation, validate, async (request: RequestWithUser, response: Response) => {
   try {
     const newCustomer = {
       first_name: request.body.first_name,
@@ -216,7 +222,7 @@ customerRouter.patch("/:id", authMiddleware, async (request: RequestWithUser, re
 });
 
 // UPDATE SUBSCRIPTION IF EXPIRED
-customerRouter.patch("/update-subscription/:id", authMiddleware, async (request: RequestWithUser, response) => {
+customerRouter.patch("/update-subscription/:id", authMiddleware, updateSubscriptionValidation, validate, async (request: RequestWithUser, response: Response) => {
   try {
     const id = request.params.id;
     if (!id) return response.status(400).json({ success: false, message: "Customer ID is required" });
@@ -238,7 +244,7 @@ customerRouter.patch("/update-subscription/:id", authMiddleware, async (request:
 });
 
 // UPDATE
-customerRouter.put("/:id", authMiddleware, async (request: RequestWithUser, response) => {
+customerRouter.put("/:id", authMiddleware, updateCustomerValidation, validate, async (request: RequestWithUser, response: Response) => {
   try {
 
     const thirtyDaysFromNow = new Date();

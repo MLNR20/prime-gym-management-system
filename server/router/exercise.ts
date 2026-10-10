@@ -1,16 +1,17 @@
-import express from "express";
+import express, { Response } from "express";
 import ExerciseRepository from "../repository/exerciseRepository";
 import LogsRepository from "../repository/logsRepository";
 import { authMiddleware } from "../middleware/middleware";
 import { RequestWithUser } from "../middleware/types/express";
 
 import exerciseRepository from "../repository/exerciseRepository";
+import { validate, createExerciseValidation, updateExerciseValidation } from "../utils/validation";
 
 const exerciseRouter = express.Router();
 //const customerService = new CustomerService(CustomerRepository);
 
 // CREATE
-exerciseRouter.post("/", authMiddleware, async (request: RequestWithUser, response) => {
+exerciseRouter.post("/", authMiddleware, createExerciseValidation, validate, async (request: RequestWithUser, response: Response) => {
   try {
     const newExercise = {
       exercise_name: request.body.exercise_name,
@@ -89,7 +90,7 @@ exerciseRouter.get("/:id", authMiddleware, async (request: RequestWithUser, resp
 
 
 // UPDATE
-exerciseRouter.put("/:id", authMiddleware, async (request: RequestWithUser, response) => {
+exerciseRouter.put("/:id", authMiddleware, updateExerciseValidation, validate, async (request: RequestWithUser, response: Response) => {
   try {
     const updatedCustomer = await ExerciseRepository.update(
       request.params.id!,

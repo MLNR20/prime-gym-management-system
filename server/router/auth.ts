@@ -2,12 +2,20 @@
 import express, { Request, Response } from "express";
 import { AuthService } from "../repository/services/authService";
 import { AuthRepository } from "../repository/authRepository";
+import {
+  validate,
+  registerValidation,
+  loginValidation,
+  verifyOtpValidation,
+  emailOnlyValidation,
+  resetPasswordValidation,
+} from "../utils/validation";
 
 const authRouter = express.Router();
 const authService = new AuthService(new AuthRepository());
 
 // Register
-authRouter.post("/register", async (req: Request, res: Response) => {
+authRouter.post("/register", registerValidation, validate, async (req: Request, res: Response) => {
   try {
     const { first_name,last_name, password, username, email } = req.body;
     const user = await authService.register(first_name, last_name, password, username, email);
@@ -18,7 +26,7 @@ authRouter.post("/register", async (req: Request, res: Response) => {
 });
 
 // Login
-authRouter.post("/login", async (req: Request, res: Response) => {
+authRouter.post("/login", loginValidation, validate, async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body;
     const result = await authService.login(username, password);
@@ -50,12 +58,9 @@ authRouter.post("/login", async (req: Request, res: Response) => {
 });
 
 // Verify OTP
-authRouter.post("/verify-otp", async (req: Request, res: Response) => {
+authRouter.post("/verify-otp", verifyOtpValidation, validate, async (req: Request, res: Response) => {
   try {
     const { email, otp } = req.body;
-    if (!email || !otp) {
-      return res.status(400).json({ error: "Email and code are required" });
-    }
     const verified = await authService.verifyOtp(email, otp);
     if (!verified) {
       return res.status(400).json({ error: "That code is invalid or has expired" });
@@ -67,12 +72,9 @@ authRouter.post("/verify-otp", async (req: Request, res: Response) => {
 });
 
 // Resend OTP
-authRouter.post("/resend-otp", async (req: Request, res: Response) => {
+authRouter.post("/resend-otp", emailOnlyValidation, validate, async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
-    if (!email) {
-      return res.status(400).json({ error: "Email is required" });
-    }
     await authService.resendOtp(email);
     res.status(200).json({ message: "If that email needs verification, a new code has been sent." });
   } catch (err) {
@@ -81,12 +83,9 @@ authRouter.post("/resend-otp", async (req: Request, res: Response) => {
 });
 
 // Forgot password
-authRouter.post("/forgot-password", async (req: Request, res: Response) => {
+authRouter.post("/forgot-password", emailOnlyValidation, validate, async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
-    if (!email) {
-      return res.status(400).json({ error: "Email is required" });
-    }
     await authService.forgotPassword(email);
     res.status(200).json({ message: "If that email is registered, a reset link has been sent." });
   } catch (err) {
@@ -95,12 +94,12 @@ authRouter.post("/forgot-password", async (req: Request, res: Response) => {
 });
 
 // Reset password
-authRouter.post("/reset-password/:token", async (req: Request, res: Response) => {
+authRouter.post("/reset-password/:token", resetPasswordValidation, validate, async (req: Request, res: Response) => {
   try {
     const { token } = req.params;
     const { password } = req.body;
-    if (!token || !password) {
-      return res.status(400).json({ error: "Token and password are required" });
+    if (!token) {
+      return res.status(400).json({ error: "Token is required" });
     }
     const success = await authService.resetPassword(token, password);
     if (!success) {

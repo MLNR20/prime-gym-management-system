@@ -1,13 +1,14 @@
-import express from "express";
+import express, { Response } from "express";
 import ExpenseRepository from "../repository/expenseRepository";
 import LogsRepository from "../repository/logsRepository";
 import { authMiddleware } from "../middleware/middleware";
 import { RequestWithUser } from "../middleware/types/express";
+import { validate, createExpenseValidation, updateExpenseValidation } from "../utils/validation";
 
 const expenseRouter = express.Router();
 
 // CREATE
-expenseRouter.post("/", authMiddleware, async (request: RequestWithUser, response) => {
+expenseRouter.post("/", authMiddleware, createExpenseValidation, validate, async (request: RequestWithUser, response: Response) => {
   try {
     const newExpense = {
       expense_title: request.body.expense_title,
@@ -84,7 +85,7 @@ expenseRouter.get("/:id", authMiddleware, async (request: RequestWithUser, respo
 });
 
 // UPDATE
-expenseRouter.put("/:id", authMiddleware, async (request: RequestWithUser, response) => {
+expenseRouter.put("/:id", authMiddleware, updateExpenseValidation, validate, async (request: RequestWithUser, response: Response) => {
   try {
     const updatedExpense = await ExpenseRepository.update(
       request.params.id!,

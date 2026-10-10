@@ -1,15 +1,22 @@
-import express from "express";
+import express, { Response } from "express";
 import ProgramRepository from "../repository/programRepository";
 import LogsRepository from "../repository/logsRepository";
 import { authMiddleware } from "../middleware/middleware";
 import { RequestWithUser } from "../middleware/types/express";
 import ProgramAndExercisesRepository from "../repository/programAndExercisesRepository";
 import ProgramAndCustomerRepository from "../repository/programAndCustomerRepository";
+import {
+  validate,
+  createProgramValidation,
+  updateProgramValidation,
+  assignExerciseToProgramValidation,
+  assignCustomerToProgramValidation,
+} from "../utils/validation";
 
 const programRouter = express.Router();
 
 // CREATE
-programRouter.post("/", authMiddleware, async (request: RequestWithUser, response) => {
+programRouter.post("/", authMiddleware, createProgramValidation, validate, async (request: RequestWithUser, response: Response) => {
   try {
     const newProgram = {
       program_name: request.body.program_name,
@@ -98,7 +105,7 @@ programRouter.get("/:id", authMiddleware, async (request: RequestWithUser, respo
 });
 
 // UPDATE
-programRouter.put("/:id", authMiddleware, async (request: RequestWithUser, response) => {
+programRouter.put("/:id", authMiddleware, updateProgramValidation, validate, async (request: RequestWithUser, response: Response) => {
   try {
     const updatedProgram = await ProgramRepository.update(request.params.id!, request.body);
 
@@ -257,12 +264,10 @@ programRouter.get("/:id/exercises", authMiddleware, async (request: RequestWithU
 });
 
 // ASSIGN EXERCISE TO PROGRAM
-programRouter.post("/:id/exercises", authMiddleware, async (request: RequestWithUser, response) => {
+programRouter.post("/:id/exercises", authMiddleware, assignExerciseToProgramValidation, validate, async (request: RequestWithUser, response: Response) => {
   try {
     const programId = request.params.id!;
     const { exercise_id } = request.body;
-
-    if (!exercise_id) return response.status(400).json({ message: "exercise_id required" });
 
     const assigned = await ProgramAndExercisesRepository.assign(programId, exercise_id);
 
@@ -320,12 +325,10 @@ programRouter.get("/:id/customers", authMiddleware, async (request: RequestWithU
 });
 
 // ASSIGN PROGRAM TO CUSTOMER
-programRouter.post("/:id/customers", authMiddleware, async (request: RequestWithUser, response) => {
+programRouter.post("/:id/customers", authMiddleware, assignCustomerToProgramValidation, validate, async (request: RequestWithUser, response: Response) => {
   try {
     const programId = request.params.id!;
     const { customer_id } = request.body;
-
-    if (!customer_id) return response.status(400).json({ message: "customer_id required" });
 
     const program = await ProgramRepository.findById(programId);
     if (!program) return response.status(404).json({ message: "Program not found" });

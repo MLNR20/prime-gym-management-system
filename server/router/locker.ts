@@ -1,9 +1,10 @@
-import express,{request, response} from "express"
+import express,{request, response, Response} from "express"
 import { authMiddleware } from "../middleware/middleware";
 import { RequestWithUser } from "../middleware/types/express";
 import LogsRepository from "../repository/logsRepository";
 import lockerRepository from "../repository/lockerRepository";
 import lockerAssignmentRepository from "../repository/lockerAssignmentRepository";
+import { validate, createLockerValidation, updateLockerValidation } from "../utils/validation";
 
 const lockerRouter = express.Router();
 
@@ -113,7 +114,7 @@ lockerRouter.get("/:id", authMiddleware, async(request:RequestWithUser, response
 
 
 //CREATE LOCKER
-lockerRouter.post("/", authMiddleware, async(request:RequestWithUser, response)=>{
+lockerRouter.post("/", authMiddleware, createLockerValidation, validate, async(request:RequestWithUser, response: Response)=>{
     try
     {
         const lockerNumber = request.body.lockerNumber;
@@ -136,7 +137,7 @@ lockerRouter.post("/", authMiddleware, async(request:RequestWithUser, response)=
 })
 
 //UPDATE LOCKER
-lockerRouter.put("/:id", authMiddleware, async(request:RequestWithUser, response)=>{
+lockerRouter.put("/:id", authMiddleware, updateLockerValidation, validate, async(request:RequestWithUser, response: Response)=>{
     try
     {
         const locker = await lockerRepository.findById(request.params.id!);    

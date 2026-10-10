@@ -1,9 +1,10 @@
-import express from "express";
+import express, { Response } from "express";
 import sessionRepository from "../repository/sessionRepository";
 import customerRepository from "../repository/customerRepository";
 import LogsRepository from "../repository/logsRepository";
 import { RequestWithUser } from "../middleware/types/express";
 import { authMiddleware } from "../middleware/middleware";
+import { validate, assignSessionValidation } from "../utils/validation";
 
 const sessionRouter = express.Router();
 
@@ -128,12 +129,11 @@ sessionRouter.get(
 sessionRouter.post(
   "/assign",
   authMiddleware,
-  async (request: RequestWithUser, response) => {
+  assignSessionValidation,
+  validate,
+  async (request: RequestWithUser, response: Response) => {
     try {
       const customerId = request.body.customer_id;
-      if (!customerId) {
-        return response.status(400).json({ message: "customer_id is required" });
-      }
 
       const updatedSession = await sessionRepository.deductSession(customerId, 1);
       if (!updatedSession) {

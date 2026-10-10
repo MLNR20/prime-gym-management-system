@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Response } from "express";
 import salesRepository from "../repository/salesRepository";
 import inventoryRepository from "../repository/inventoryRepository";
 import customerRepository from "../repository/customerRepository";
@@ -6,6 +6,7 @@ import salesService from "../repository/services/salesService";
 import LogsRepository from "../repository/logsRepository";
 import { RequestWithUser } from "../middleware/types/express";
 import { authMiddleware } from "../middleware/middleware";
+import { validate, createSalesValidation, updateSalesValidation } from "../utils/validation";
 
 const salesRouter = express.Router();
 
@@ -139,19 +140,11 @@ salesRouter.get(
 salesRouter.post(
   "/",
   authMiddleware,
-  async (request: RequestWithUser, response) => {
+  createSalesValidation,
+  validate,
+  async (request: RequestWithUser, response: Response) => {
     try {
       const { customer_id, inventory_id, quantity } = request.body;
-
-      if (!customer_id) {
-        return response.status(400).json({ message: "Customer is required" });
-      }
-      if (!inventory_id) {
-        return response.status(400).json({ message: "Inventory item is required" });
-      }
-      if (!quantity || quantity < 1) {
-        return response.status(400).json({ message: "Valid quantity is required" });
-      }
 
       const newSale = await salesService.createSale({ customer_id, inventory_id, quantity });
 
@@ -171,7 +164,9 @@ salesRouter.post(
 salesRouter.put(
   "/:id",
   authMiddleware,
-  async (request: RequestWithUser, response) => {
+  updateSalesValidation,
+  validate,
+  async (request: RequestWithUser, response: Response) => {
     try {
       const { id } = request.params;
       if (!id) {

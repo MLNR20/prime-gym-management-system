@@ -1,10 +1,11 @@
-import express from "express";
+import express, { Response } from "express";
 import sessionAssignmentRepository from "../repository/sessionAssignmentRepository";
 import sessionRepository from "../repository/sessionRepository";
 import programRepository from "../repository/programRepository";
 import LogsRepository from "../repository/logsRepository";
 import { RequestWithUser } from "../middleware/types/express";
 import { authMiddleware } from "../middleware/middleware";
+import { validate, createSessionAssignmentValidation } from "../utils/validation";
 
 const sessionAssignmentRouter = express.Router();
 
@@ -12,12 +13,11 @@ const sessionAssignmentRouter = express.Router();
 sessionAssignmentRouter.post(
   "/",
   authMiddleware,
-  async (request: RequestWithUser, response) => {
+  createSessionAssignmentValidation,
+  validate,
+  async (request: RequestWithUser, response: Response) => {
     try {
       const { customer_id, program_id } = request.body;
-      if (!customer_id || !program_id) {
-        return response.status(400).json({ message: "customer_id and program_id are required" });
-      }
 
       const program = await programRepository.findById(program_id);
       if (!program) return response.status(404).json({ message: "Program not found" });

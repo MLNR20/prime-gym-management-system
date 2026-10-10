@@ -1,8 +1,9 @@
-import express from "express";
+import express, { Response as ExpressResponse } from "express";
 import equipmentRepository from "../repository/equipmentRepository";
 import LogsRepository from "../repository/logsRepository";
 import { RequestWithUser } from "../middleware/types/express";
 import { authMiddleware } from "../middleware/middleware";
+import { validate, equipmentValidation } from "../utils/validation";
 
 const equipmentRouter = express.Router();
 
@@ -86,7 +87,9 @@ equipmentRouter.get(
 equipmentRouter.post(
   "/",
   authMiddleware,
-  async (Request: RequestWithUser, Response) => {
+  equipmentValidation,
+  validate,
+  async (Request: RequestWithUser, Response: ExpressResponse) => {
     try {
       const newEquipment = await equipmentRepository.create(Request.body);
       const admin = Request.admin;
@@ -134,7 +137,9 @@ equipmentRouter.delete(
 equipmentRouter.put(
   "/:id",
   authMiddleware,
-  async (Request: RequestWithUser, Response) => {
+  equipmentValidation,
+  validate,
+  async (Request: RequestWithUser, Response: ExpressResponse) => {
     try {
       const id = Request.params.id!;
       const updateEquiment = await equipmentRepository.update(id, Request.body);

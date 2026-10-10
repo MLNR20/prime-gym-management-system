@@ -3,6 +3,7 @@ import contactRepository from "../repository/contactRepository";
 import LogsRepository from "../repository/logsRepository";
 import { authMiddleware } from "../middleware/middleware";
 import { RequestWithUser } from "../middleware/types/express";
+import { validate, createContactValidation } from "../utils/validation";
 
 const contactRouter = express.Router();
 
@@ -10,6 +11,8 @@ const contactRouter = express.Router();
 contactRouter.post(
   "/",
   authMiddleware,
+  createContactValidation,
+  validate,
   async (req: RequestWithUser, res: Response) => {
     try {
       const newContacts = {
