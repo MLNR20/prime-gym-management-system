@@ -10,6 +10,7 @@ import {
   emailOnlyValidation,
   resetPasswordValidation,
 } from "../utils/validation";
+import { LoginRequestDto, toLoginResponseDto } from "../dto/auth.dto";
 
 const authRouter = express.Router();
 const authService = new AuthService(new AuthRepository());
@@ -26,32 +27,12 @@ authRouter.post("/register", registerValidation, validate, async (req: Request, 
 });
 
 // Login
-authRouter.post("/login", loginValidation, validate, async (req: Request, res: Response) => {
+authRouter.post("/login", loginValidation, validate, async (req: Request<{}, {}, LoginRequestDto>, res: Response) => {
   try {
     const { username, password } = req.body;
     const result = await authService.login(username, password);
-
-    switch (result.status) {
-      case "success":
-        return res.status(200).json({ token: result.token });
-      case "otp_pending":
-        return res.status(403).json({
-          error: "Please verify your email using the code we sent you before logging in.",
-          reason: "otp_pending",
-        });
-      case "approval_pending":
-        return res.status(403).json({
-          error: "Your account is awaiting admin approval.",
-          reason: "approval_pending",
-        });
-      case "approval_rejected":
-        return res.status(403).json({
-          error: "Your account request was rejected. Please contact an administrator.",
-          reason: "approval_rejected",
-        });
-      default:
-        return res.status(401).json({ error: "Invalid credentials" });
-    }
+    const { statusCode, body } = toLoginResponseDto(result);
+    return res.status(statusCode).json(body);
   } catch (err) {
     res.status(500).json({ error: "Login failed" });
   }
