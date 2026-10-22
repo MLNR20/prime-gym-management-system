@@ -1,11 +1,13 @@
 import express, { Response } from "express";
-import inventoryRepository from "../repository/inventoryRepository";
+import unitOfWork from "../repository/unitOfWork";
+import { InventoryService } from "../repository/services/inventoryService";
 import LogsRepository from "../repository/logsRepository";
 import { RequestWithUser } from "../middleware/types/express";
 import { authMiddleware } from "../middleware/middleware";
 import { validate, createInventoryValidation, updateInventoryValidation } from "../utils/validation";
 
 const inventoryRouter = express.Router();
+const inventoryService = new InventoryService(unitOfWork);
 
 // VIEW ALL INVENTORY (paginated + searchable)
 inventoryRouter.get(
@@ -17,12 +19,7 @@ inventoryRouter.get(
       const page = parseInt(request.query.page as string) || 1;
       const search = (request.query.search as string) || "";
 
-      const result = await inventoryRepository.search({
-        page,
-        limit,
-        search,
-        fields: ["item_name", "item_code", "category"],
-      });
+      const result = await inventoryService.search(page, limit, search);
 
       const admin = request.admin;
       await LogsRepository.logAction(
@@ -43,7 +40,7 @@ inventoryRouter.get(
   authMiddleware,
   async (request: RequestWithUser, response) => {
     try {
-      const inventory = await inventoryRepository.findAll();
+      const inventory = await inventoryService.getAll();
       return response.status(200).json(inventory);
     } catch (error) {
       return response.status(500).json({ message: "Inventory not retrieved!" });
@@ -57,10 +54,7 @@ inventoryRouter.get(
   authMiddleware,
   async (_request: RequestWithUser, response) => {
     try {
-      const items = await inventoryRepository.findAll();
-      const forSale = items.filter(
-        (item) => item.is_for_sale && item.quantity > 0
-      );
+      const forSale = await inventoryService.getForSale();
       return response.status(200).json(forSale);
     } catch (error) {
       return response.status(500).json({ message: "For-sale inventory not retrieved!" });
@@ -79,7 +73,7 @@ inventoryRouter.get(
         return response.status(400).json({ message: "Inventory item id is required" });
       }
 
-      const item = await inventoryRepository.findById(id);
+      const item = await inventoryService.getById(id);
 
       if (!item) {
         return response.status(404).json({ message: "Inventory item not found" });
@@ -105,7 +99,7 @@ inventoryRouter.post(
   validate,
   async (request: RequestWithUser, response: Response) => {
     try {
-      const newItem = await inventoryRepository.create(request.body);
+      const newItem = await inventoryService.create(request.body);
 
       const admin = request.admin;
       await LogsRepository.logAction(
@@ -132,10 +126,7 @@ inventoryRouter.put(
         return response.status(400).json({ message: "Inventory item id is required" });
       }
 
-      const updatedItem = await inventoryRepository.update(id, {
-        ...request.body,
-        updatedAt: new Date(),
-      });
+      const updatedItem = await inventoryService.update(id, request.body);
 
       if (!updatedItem) {
         return response.status(404).json({ message: "Inventory item not found" });
@@ -164,7 +155,7 @@ inventoryRouter.delete(
         return response.status(400).json({ message: "Inventory item id is required" });
       }
 
-      const deletedItem = await inventoryRepository.delete(id);
+      const deletedItem = await inventoryService.delete(id);
 
       if (!deletedItem) {
         return response.status(404).json({ message: "Inventory item not found" });

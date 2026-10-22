@@ -1,4 +1,4 @@
-import { Model, HydratedDocument } from "mongoose";
+import { Model, HydratedDocument, ClientSession } from "mongoose";
 
 interface PaginationOptions {
   page?: number;
@@ -8,9 +8,20 @@ interface PaginationOptions {
 class GenericRepository<T> {
   protected model: Model<T>;
   protected hiddenFields: string[] = [];
+  protected dbSession: ClientSession | null = null;
 
   constructor(model: Model<T>) {
     this.model = model;
+  }
+
+  /**
+   * Returns a copy of this repository whose operations run inside the given
+   * transaction session. Used by the unit of work; the original is untouched.
+   */
+  withSession(session: ClientSession): this {
+    const bound = Object.create(Object.getPrototypeOf(this)) as this;
+    Object.assign(bound, this, { dbSession: session });
+    return bound;
   }
 
   protected sanitize(doc: any) {
@@ -27,11 +38,14 @@ class GenericRepository<T> {
     return obj;
   }
   async create(data: Partial<T>): Promise<HydratedDocument<T>> {
-    return this.model.create(data);
+    const [doc] = await this.model.create([data], { session: this.dbSession });
+    return doc as HydratedDocument<T>;
   }
 
   async createMany(data: Partial<T>[]): Promise<HydratedDocument<T>[]> {
-    return (await this.model.insertMany(data)) as HydratedDocument<T>[];
+    return (await this.model.insertMany(data, {
+      session: this.dbSession,
+    })) as unknown as HydratedDocument<T>[];
   }
 
   async deleteMany(data: Partial<T>[]): Promise<HydratedDocument<T>[]> {
@@ -140,12 +154,12 @@ class GenericRepository<T> {
     return await this.model.findByIdAndUpdate(
       id,
       { $set: data },
-      { new: true },
+      { new: true, session: this.dbSession },
     );
   }
 
   async findAll(): Promise<HydratedDocument<T>[]> {
-    return this.model.find();
+    return this.model.find().session(this.dbSession);
   }
 
   async search({
@@ -197,9 +211,15 @@ class GenericRepository<T> {
       });
     }
 
-    const data = await this.model.find(query).skip(skip).limit(limit);
+    const data = await this.model
+      .find(query)
+      .session(this.dbSession)
+      .skip(skip)
+      .limit(limit);
 
-    const total = await this.model.countDocuments(query);
+    const total = await this.model
+      .countDocuments(query)
+      .session(this.dbSession);
 
     return {
       data: data.map((d) => this.sanitize(d)),
@@ -239,22 +259,26 @@ class GenericRepository<T> {
     return this.model.findOneAndUpdate(
       { _id: id },
       { $set: { isDeleted: status } },
+      { session: this.dbSession },
     );
   }
 
   async findById(id: string): Promise<HydratedDocument<T> | null> {
-    return this.model.findById(id);
+    return this.model.findById(id).session(this.dbSession);
   }
 
   async update(
     id: string,
     data: Partial<T>,
   ): Promise<HydratedDocument<T> | null> {
-    return this.model.findByIdAndUpdate(id, data, { new: true });
+    return this.model.findByIdAndUpdate(id, data, {
+      new: true,
+      session: this.dbSession,
+    });
   }
 
   async delete(id: string): Promise<HydratedDocument<T> | null> {
-    return this.model.findByIdAndDelete(id);
+    return this.model.findByIdAndDelete(id, { session: this.dbSession });
   }
 }
 

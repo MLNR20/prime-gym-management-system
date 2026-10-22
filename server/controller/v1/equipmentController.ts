@@ -1,7 +1,10 @@
 import { Response } from "express";
-import equipmentRepository from "../../repository/equipmentRepository";
+import unitOfWork from "../../repository/unitOfWork";
+import { EquipmentService } from "../../repository/services/equipmentService";
 import LogsRepository from "../../repository/logsRepository";
 import { RequestWithUser } from "../../middleware/types/express";
+
+const equipmentService = new EquipmentService(unitOfWork);
 
 const logAdminAction = async (request: RequestWithUser, action: string) => {
   const admin = request.admin;
@@ -17,7 +20,7 @@ export const getAllEquipment = async (
   response: Response,
 ) => {
   try {
-    const retrieveEquipment = await equipmentRepository.findAll();
+    const retrieveEquipment = await equipmentService.getAll();
     await logAdminAction(request, "accessed equipment list");
     return response.status(200).json(retrieveEquipment);
   } catch (error) {
@@ -35,12 +38,7 @@ export const searchEquipment = async (
     const page = parseInt(request.query.page as string) || 1;
     const search = (request.query.search as string) || "";
 
-    const result = await equipmentRepository.search({
-      page,
-      limit,
-      search,
-      fields: ["equipment_name"],
-    });
+    const result = await equipmentService.search(page, limit, search);
 
     await logAdminAction(request, "accessed equipment list");
     return response.status(200).json(result);
@@ -56,9 +54,7 @@ export const getEquipmentById = async (
   response: Response,
 ) => {
   try {
-    const retrieveEquipment = await equipmentRepository.findById(
-      request.params.id!,
-    );
+    const retrieveEquipment = await equipmentService.getById(request.params.id!);
 
     if (!retrieveEquipment) {
       return response.status(404).json("Failed to retrieve equipment");
@@ -77,7 +73,7 @@ export const createEquipment = async (
   response: Response,
 ) => {
   try {
-    const newEquipment = await equipmentRepository.create(request.body);
+    const newEquipment = await equipmentService.create(request.body);
     await logAdminAction(request, "created equipment");
     return response.status(200).json(newEquipment);
   } catch (error) {
@@ -92,7 +88,7 @@ export const updateEquipment = async (
 ) => {
   try {
     const id = request.params.id!;
-    const updatedEquipment = await equipmentRepository.update(id, request.body);
+    const updatedEquipment = await equipmentService.update(id, request.body);
 
     if (!updatedEquipment) {
       return response.status(404).json({
@@ -114,7 +110,7 @@ export const deleteEquipment = async (
 ) => {
   try {
     const id = request.params.id!;
-    const deletedEquipment = await equipmentRepository.delete(id);
+    const deletedEquipment = await equipmentService.delete(id);
 
     if (!deletedEquipment) {
       return response.status(404).json({

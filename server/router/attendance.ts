@@ -1,20 +1,19 @@
 import express, { Response } from "express";
 import { authMiddleware } from "../middleware/middleware";
 import { RequestWithUser } from "../middleware/types/express";
-import lockerRepository from "../repository/lockerRepository";
 import lockerAssignmentRepository from "../repository/lockerAssignmentRepository";
-import customerRepository from "../repository/customerRepository";
+import unitOfWork from "../repository/unitOfWork";
 import logsRepository from "../repository/logsRepository";
 
 import { AttendanceService } from "../repository/services/attendanceService";
+import { CustomerService } from "../repository/services/customerService";
+import { LockerService } from "../repository/services/lockerService";
 
 
 const attendanceRouter = express.Router();
-const attendanceService = new AttendanceService(
-  lockerRepository,
-  lockerAssignmentRepository,
-  customerRepository,
-);
+const attendanceService = new AttendanceService(unitOfWork);
+const customerService = new CustomerService(unitOfWork);
+const lockerService = new LockerService(unitOfWork);
 
 attendanceRouter.post(
   "/",
@@ -37,7 +36,7 @@ attendanceRouter.post(
         time_in,
       );
 
-      const lockerDetails = await lockerRepository.findById(req.body.locker_id);
+      const lockerDetails = await lockerService.getById(req.body.locker_id);
 
       const admin = req.admin;
       await logsRepository.logAction(
@@ -99,7 +98,7 @@ attendanceRouter.put(
       if (!lockerAssignmentDetails)
         return res.status(404).json({ message: "Attendance Details is missing." });
 
-      const lockerDetails = await lockerRepository.findById(
+      const lockerDetails = await lockerService.getById(
         String(lockerAssignmentDetails.locker_id),
       );
 
@@ -287,10 +286,10 @@ attendanceRouter.get(
         return res.status(404).json({ message: "Attendance record not found." });
       }
 
-      const customerDetails = await customerRepository.findById(
+      const customerDetails = await customerService.getById(
         String(lockerAssignmentDetails.customer_id),
       );
-      const lockerDetails = await lockerRepository.findById(
+      const lockerDetails = await lockerService.getById(
         String(lockerAssignmentDetails.locker_id),
       );
 

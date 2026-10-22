@@ -1,11 +1,13 @@
 import express, { Response as ExpressResponse } from "express";
-import equipmentRepository from "../repository/equipmentRepository";
+import unitOfWork from "../repository/unitOfWork";
+import { EquipmentService } from "../repository/services/equipmentService";
 import LogsRepository from "../repository/logsRepository";
 import { RequestWithUser } from "../middleware/types/express";
 import { authMiddleware } from "../middleware/middleware";
 import { validate, equipmentValidation } from "../utils/validation";
 
 const equipmentRouter = express.Router();
+const equipmentService = new EquipmentService(unitOfWork);
 
 //VIEW EQUIPMENT
 equipmentRouter.get(
@@ -13,7 +15,7 @@ equipmentRouter.get(
   authMiddleware,
   async (Request: RequestWithUser, Response) => {
     try {
-      const retrieveEquipment = await equipmentRepository.findAll();
+      const retrieveEquipment = await equipmentService.getAll();
       const admin = Request.admin;
       await LogsRepository.logAction(
         admin!._id.toString(),
@@ -36,12 +38,7 @@ equipmentRouter.get(
       const page = parseInt(request.query.page as string) || 1;
       const search = (request.query.search as string) || "";
 
-      const result = await equipmentRepository.search({
-        page,
-        limit,
-        search,
-        fields: ["equipment_name"],
-      });
+      const result = await equipmentService.search(page, limit, search);
 
       const admin = request.admin;
       await LogsRepository.logAction(
@@ -62,9 +59,7 @@ equipmentRouter.get(
   authMiddleware,
   async (Request: RequestWithUser, Response) => {
     try {
-      const retrieveEquipment = await equipmentRepository.findById(
-        Request.params.id!,
-      );
+      const retrieveEquipment = await equipmentService.getById(Request.params.id!);
 
       if (!retrieveEquipment) {
         return Response.status(404).json("Failed to retrieve equipment");
@@ -91,7 +86,7 @@ equipmentRouter.post(
   validate,
   async (Request: RequestWithUser, Response: ExpressResponse) => {
     try {
-      const newEquipment = await equipmentRepository.create(Request.body);
+      const newEquipment = await equipmentService.create(Request.body);
       const admin = Request.admin;
       await LogsRepository.logAction(
         admin!._id.toString(),
@@ -111,7 +106,7 @@ equipmentRouter.delete(
   async (Request: RequestWithUser, Response) => {
     try {
       const id = Request.params.id!;
-      const deleteEquipment = await equipmentRepository.delete(id);
+      const deleteEquipment = await equipmentService.delete(id);
 
       if (!deleteEquipment) {
         return Response.status(404).json({
@@ -142,7 +137,7 @@ equipmentRouter.put(
   async (Request: RequestWithUser, Response: ExpressResponse) => {
     try {
       const id = Request.params.id!;
-      const updateEquiment = await equipmentRepository.update(id, Request.body);
+      const updateEquiment = await equipmentService.update(id, Request.body);
 
       if (!updateEquiment) {
         return Response.status(404).json({

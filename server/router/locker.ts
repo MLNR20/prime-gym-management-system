@@ -2,18 +2,20 @@ import express,{request, response, Response} from "express"
 import { authMiddleware } from "../middleware/middleware";
 import { RequestWithUser } from "../middleware/types/express";
 import LogsRepository from "../repository/logsRepository";
-import lockerRepository from "../repository/lockerRepository";
+import unitOfWork from "../repository/unitOfWork";
+import { LockerService } from "../repository/services/lockerService";
 import lockerAssignmentRepository from "../repository/lockerAssignmentRepository";
 import { validate, createLockerValidation, updateLockerValidation } from "../utils/validation";
 
 const lockerRouter = express.Router();
+const lockerService = new LockerService(unitOfWork);
 
 
 //RETRIEVE LOCKER
 lockerRouter.get("/", authMiddleware, async(request:RequestWithUser, response)=>{
     try
     {
-        const retrieveLockers = await lockerRepository.findAll();
+        const retrieveLockers = await lockerService.getAll();
 
         const admin = request.admin; 
         await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} requested locker list at ${new Date().toISOString()}`);
@@ -31,7 +33,7 @@ lockerRouter.get("/", authMiddleware, async(request:RequestWithUser, response)=>
 lockerRouter.get("/find-active", authMiddleware, async(request: RequestWithUser, response)=>{
     try
     {
-        const retrieveActiveLockers = await lockerRepository.findActiveLockerDocument(false);
+        const retrieveActiveLockers = await lockerService.getByActiveStatus(false);
         const admin = request.admin; 
         await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} requested awaited locker list at ${new Date().toISOString()}`);
         return response.status(200).json(retrieveActiveLockers);
@@ -56,12 +58,7 @@ lockerRouter.get(
       const page = parseInt(request.query.page as string) || 1;
       const search = (request.query.search as string)   || "";
 
-      const result = await lockerRepository.search({
-        page,
-        limit,
-        search,
-        fields: ["locker_number"],
-      });
+      const result = await lockerService.search(page, limit, search);
       const admin = request.admin;
       await LogsRepository.logAction(
         admin!._id.toString(),
@@ -78,7 +75,7 @@ lockerRouter.get(
 lockerRouter.get("/active-lockers", authMiddleware, async(request:RequestWithUser, response)=>{
     try
     {
-        const locker = await lockerRepository.findAvailableLockers();
+        const locker = await lockerService.getAvailable();
         const admin = request.admin; 
         await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} requested active locker details at ${new Date().toISOString()}`);
         
@@ -95,7 +92,7 @@ lockerRouter.get("/active-lockers", authMiddleware, async(request:RequestWithUse
 lockerRouter.get("/:id", authMiddleware, async(request:RequestWithUser, response)=>{
     try
     {
-        const locker = await lockerRepository.findById(request.params.id!);    
+        const locker = await lockerService.getById(request.params.id!);    
 
         if (!locker) {
             return response.status(404).json({ message: "Locker not found" });
@@ -126,7 +123,7 @@ lockerRouter.post("/", authMiddleware, createLockerValidation, validate, async(r
 
         const admin = request.admin; 
         await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created new locker at ${new Date().toISOString()}`);
-        const newLocker = await lockerRepository.create({locker_number:lockerNumber});
+        const newLocker = await lockerService.create(lockerNumber);
 
         return response.status(201).json(newLocker);
     }
@@ -140,7 +137,7 @@ lockerRouter.post("/", authMiddleware, createLockerValidation, validate, async(r
 lockerRouter.put("/:id", authMiddleware, updateLockerValidation, validate, async(request:RequestWithUser, response: Response)=>{
     try
     {
-        const locker = await lockerRepository.findById(request.params.id!);    
+        const locker = await lockerService.getById(request.params.id!);    
 
         if (!locker) {
             return response.status(404).json({ message: "Locker not found" });
@@ -148,7 +145,7 @@ lockerRouter.put("/:id", authMiddleware, updateLockerValidation, validate, async
 
         const admin = request.admin; 
         await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} updated locker at ${new Date().toISOString()}`);
-        const updatedLocker = await lockerRepository.update(request.params.id!, request.body);
+        const updatedLocker = await lockerService.update(request.params.id!, request.body);
 
         return response.status(200).json(updatedLocker);
     }
@@ -163,7 +160,7 @@ lockerRouter.put("/:id", authMiddleware, updateLockerValidation, validate, async
 lockerRouter.patch("/:id", authMiddleware, async(request:RequestWithUser, response)=>{
     try
     {
-        const locker = await lockerRepository.findById(request.params.id!);    
+        const locker = await lockerService.getById(request.params.id!);    
 
         if (!locker) {
             return response.status(404).json({ message: "Locker not found" });
@@ -172,7 +169,7 @@ lockerRouter.patch("/:id", authMiddleware, async(request:RequestWithUser, respon
         const admin = request.admin; 
         await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} deleted locker at ${new Date().toISOString()}`);
 
-        await lockerRepository.update(request.params.id!, {is_active: false})
+        await lockerService.deactivate(request.params.id!)
         return response.status(204).json({message:"Locker successfully deleted"});
     }
     catch(error)
@@ -185,7 +182,7 @@ lockerRouter.patch("/:id", authMiddleware, async(request:RequestWithUser, respon
 lockerRouter.delete("/:id", authMiddleware, async(request:RequestWithUser, response)=>{
     try
     {
-        const locker = await lockerRepository.findById(request.params.id!);    
+        const locker = await lockerService.getById(request.params.id!);    
 
         if (!locker) {
             return response.status(404).json({ message: "Locker not found" });
@@ -194,7 +191,7 @@ lockerRouter.delete("/:id", authMiddleware, async(request:RequestWithUser, respo
         const admin = request.admin; 
         await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} successfully deleted locker at ${new Date().toISOString()}`);
 
-       await lockerRepository.delete(request.params.id!);
+       await lockerService.delete(request.params.id!);
        return response.status(204).json({message:"Locker successfully deleted"});
     }
     catch(error)
