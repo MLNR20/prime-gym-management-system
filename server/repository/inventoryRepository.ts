@@ -7,7 +7,10 @@ export class InventoryRepository
   implements IInventoryRepository
 {
   async findByItemCode(item_code: string): Promise<IInventoryDocument | null> {
-    return this.model.findOne({ item_code }).session(this.dbSession);
+    return this.model
+      .findOne({ item_code })
+      .collation({ locale: "en", strength: 2 })
+      .session(this.dbSession);
   }
 }
 
