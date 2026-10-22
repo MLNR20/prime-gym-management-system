@@ -1,9 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import Header from "../../components/Header";
 import { useForm } from "react-hook-form";
 import createData from "../../data/createData";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import Alert from "../../components/Alert";
+import type { CrudAlertInfo } from "../../utils/useCrudAlert";
 
 type FormData = {
   item_name: string;
@@ -19,9 +22,11 @@ export default function Add_Inventory(): React.ReactElement {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<FormData>();
   const navigate = useNavigate();
+  const [alertInfo, setAlertInfo] = useState<CrudAlertInfo | null>(null);
 
   const onSubmit = async (data: FormData) => {
     try {
@@ -39,6 +44,16 @@ export default function Add_Inventory(): React.ReactElement {
       }
     } catch (error) {
       console.error(error);
+      const isDuplicate = axios.isAxiosError(error) && error.response?.status === 409;
+      if (isDuplicate) {
+        setError("item_code", { type: "server", message: "Item code already exists" });
+      }
+      setAlertInfo({
+        message: isDuplicate
+          ? "Item code already exists. Please use a unique code."
+          : "Failed to add inventory item.",
+        variant: "error",
+      });
     }
   };
 
@@ -50,6 +65,14 @@ export default function Add_Inventory(): React.ReactElement {
 
   return (
     <div className="background-white flex h-screen p-6 min-[1025px]:p-0 landscape:min-[1024px]:p-0 min-[1025px]:flex-row landscape:min-[1024px]:flex-row flex-col overflow-hidden">
+      {alertInfo && (
+        <Alert
+          message={alertInfo.message}
+          variant={alertInfo.variant}
+          onClose={() => setAlertInfo(null)}
+        />
+      )}
+
       <div className="w-full min-[1025px]:w-64 landscape:min-[1024px]:w-64">
         <Sidebar />
       </div>

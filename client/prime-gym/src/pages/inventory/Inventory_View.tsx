@@ -5,6 +5,7 @@ import CRUDTemplate from "../../templates/CRUDTemplate";
 import useFetchData from "../../data/fetchData";
 import Alert from "../../components/Alert";
 import useCrudAlert from "../../utils/useCrudAlert";
+import formatIsoDate from "../../utils/dateFormat";
 
 export default function Inventory_View(): React.ReactElement {
   const retrieveData = useFetchData({ url: "inventory/show/" });
@@ -55,8 +56,7 @@ export default function Inventory_View(): React.ReactElement {
     {
       header: "Date Added",
       accessorKey: "createdAt",
-      cell: ({ row }: any) =>
-        new Date(row.original.createdAt).toLocaleDateString(),
+      cell: ({ getValue }: any) => formatIsoDate(getValue()),
     },
   ];
 

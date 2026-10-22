@@ -4,6 +4,9 @@ import EditLoadingScreen from "../../components/EditLoadingScreen";
 import Header from "../../components/Header";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
+import Alert from "../../components/Alert";
+import type { CrudAlertInfo } from "../../utils/useCrudAlert";
 import updateData from "../../data/updateData";
 import fetchRecord from "../../data/fetchRecord";
 
@@ -25,11 +28,13 @@ export default function Edit_Inventory(): React.ReactElement {
   const { id } = useParams<Params>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [alertInfo, setAlertInfo] = useState<CrudAlertInfo | null>(null);
 
   const {
     register,
     handleSubmit,
     reset,
+    setError,
     formState: { errors },
   } = useForm<FormData>();
 
@@ -50,6 +55,16 @@ export default function Edit_Inventory(): React.ReactElement {
       }
     } catch (error) {
       console.error(error);
+      const isDuplicate = axios.isAxiosError(error) && error.response?.status === 409;
+      if (isDuplicate) {
+        setError("item_code", { type: "server", message: "Item code already exists" });
+      }
+      setAlertInfo({
+        message: isDuplicate
+          ? "Item code already exists. Please use a unique code."
+          : "Failed to update inventory item.",
+        variant: "error",
+      });
     }
   };
 
@@ -86,6 +101,14 @@ export default function Edit_Inventory(): React.ReactElement {
 
   return (
     <div className="background-white flex h-screen p-6 min-[1025px]:p-0 landscape:min-[1024px]:p-0 min-[1025px]:flex-row landscape:min-[1024px]:flex-row flex-col overflow-hidden">
+      {alertInfo && (
+        <Alert
+          message={alertInfo.message}
+          variant={alertInfo.variant}
+          onClose={() => setAlertInfo(null)}
+        />
+      )}
+
       <div className="w-full min-[1025px]:w-64 landscape:min-[1024px]:w-64">
         <Sidebar />
       </div>

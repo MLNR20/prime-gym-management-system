@@ -1,6 +1,6 @@
 import express, { Response } from "express";
 import unitOfWork from "../repository/unitOfWork";
-import { InventoryService } from "../repository/services/inventoryService";
+import { InventoryService, DuplicateItemCodeError } from "../repository/services/inventoryService";
 import LogsRepository from "../repository/logsRepository";
 import { RequestWithUser } from "../middleware/types/express";
 import { authMiddleware } from "../middleware/middleware";
@@ -108,6 +108,9 @@ inventoryRouter.post(
       );
       return response.status(201).json(newItem);
     } catch (error) {
+      if (error instanceof DuplicateItemCodeError) {
+        return response.status(409).json({ message: error.message });
+      }
       return response.status(500).json({ message: "Inventory item not created" });
     }
   },
@@ -139,6 +142,9 @@ inventoryRouter.put(
       );
       return response.status(200).json(updatedItem);
     } catch (error) {
+      if (error instanceof DuplicateItemCodeError) {
+        return response.status(409).json({ message: error.message });
+      }
       return response.status(500).json({ message: "Failed to update inventory item" });
     }
   },
