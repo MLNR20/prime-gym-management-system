@@ -5,6 +5,33 @@ interface PaginationOptions {
   limit?: number;
 }
 
+// Numeric fields are searched as text so "12" can match 120 or 12.5.
+const NUMERIC_SEARCH_FIELDS = ["amount", "locker_number"];
+
+const escapeRegex = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
+ * Builds the match clauses for a search box. The text is split on whitespace and
+ * every word must match at least one of the fields, so "john doe" finds a
+ * customer whose first_name is John and last_name is Doe. Words are matched
+ * literally, so characters like ( + . [ never act as regex syntax.
+ */
+export function buildSearchClauses(search: string, fields: string[]): Record<string, any>[] {
+  const terms = String(search ?? "").split(/\s+/).filter(Boolean);
+  if (terms.length === 0 || fields.length === 0) return [];
+
+  return terms.map((term) => {
+    const pattern = escapeRegex(term);
+    return {
+      $or: fields.map((field) =>
+        NUMERIC_SEARCH_FIELDS.includes(field)
+          ? { $expr: { $regexMatch: { input: { $toString: `$${field}` }, regex: pattern, options: "i" } } }
+          : { [field]: { $regex: pattern, $options: "i" } },
+      ),
+    };
+  });
+}
+
 class GenericRepository<T> {
   protected model: Model<T>;
   protected hiddenFields: string[] = [];
@@ -96,28 +123,8 @@ class GenericRepository<T> {
       query.is_active = { $ne: false };
     }
 
-    if (search && fields.length > 0) {
-      query.$or = fields.map((field) => {
-        if (field === "amount") {
-          return {
-            $expr: {
-              $regexMatch: {
-                input: { $toString: `$${field}` },
-                regex: search,
-                options: "i",
-              },
-            },
-          };
-        }
-
-        return {
-          [field]: {
-            $regex: search,
-            $options: "i",
-          },
-        };
-      });
-    }
+    const searchClauses = buildSearchClauses(search, fields);
+    if (searchClauses.length > 0) query.$and = searchClauses;
 
     const matchStage = Object.keys(query).length > 0 ? [{ $match: query }] : [];
 
@@ -188,28 +195,8 @@ class GenericRepository<T> {
       query.is_active = { $ne: false };
     }
 
-    if (search && fields.length > 0) {
-      query.$or = fields.map((field) => {
-        if (field === "locker_number") {
-          return {
-            $expr: {
-              $regexMatch: {
-                input: { $toString: `$${field}` },
-                regex: search,
-                options: "i",
-              },
-            },
-          };
-        }
-
-        return {
-          [field]: {
-            $regex: search,
-            $options: "i",
-          },
-        };
-      });
-    }
+    const searchClauses = buildSearchClauses(search, fields);
+    if (searchClauses.length > 0) query.$and = [...(query.$and ?? []), ...searchClauses];
 
     const data = await this.model
       .find(query)
