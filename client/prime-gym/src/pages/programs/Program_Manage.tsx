@@ -183,8 +183,8 @@ export default function Program_Manage(): React.ReactElement {
             <div>
               <h3 className="font-semibold mb-2">Assigned Exercises ({assigned.length})</h3>
 
-              <div className="space-y-2">
-                {assigned.length === 0 && <p className="text-gray-500">No exercises assigned.</p>}
+              <div className="space-y-2 max-h-96 overflow-auto border p-2 rounded">
+                {assigned.length === 0 &&<p className="text-gray-500">No exercises assigned.</p>}
                 {assigned.length > 0 && filteredAssigned.length === 0 && (
                   <p className="text-gray-500">No assigned exercises match your search.</p>
                 )}
