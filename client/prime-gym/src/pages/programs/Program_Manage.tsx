@@ -13,7 +13,9 @@ export default function Program_Manage(): React.ReactElement {
   const [assigned, setAssigned] = useState<any[]>([]);
   const [selectedExerciseId, setSelectedExerciseId] = useState<string | null>(null);
   const exercisesData = useFetchData({ url: "exercises" }) as any;
-  const allExercises: any[] = Array.isArray(exercisesData) ? exercisesData : exercisesData.data || [];
+  const fetchedExercises: any[] = Array.isArray(exercisesData) ? exercisesData : exercisesData.data || [];
+  // Soft-deleted (inactive) exercises must not be offered for assignment.
+  const allExercises = fetchedExercises.filter((ex: any) => !ex.isDeleted);
   const [loading, setLoading] = useState(false);
 
   // Filter States
