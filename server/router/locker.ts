@@ -4,7 +4,14 @@ import { RequestWithUser } from "../middleware/types/express";
 import LogsRepository from "../repository/logsRepository";
 import unitOfWork from "../repository/unitOfWork";
 import { LockerService } from "../repository/services/lockerService";
-import lockerAssignmentRepository from "../repository/lockerAssignmentRepository";
+import {
+    CreateLockerRequestDto,
+    UpdateLockerRequestDto,
+    toUpdateLockerData,
+    toLockerResponseDto,
+    toLockerListResponseDto,
+    toLockerPageResponseDto,
+} from "../dto/locker.dto";
 import { validate, createLockerValidation, updateLockerValidation } from "../utils/validation";
 
 const lockerRouter = express.Router();
@@ -20,7 +27,7 @@ lockerRouter.get("/", authMiddleware, async(request:RequestWithUser, response)=>
         const admin = request.admin; 
         await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} requested locker list at ${new Date().toISOString()}`);
 
-        return response.status(200).json(retrieveLockers);
+        return response.status(200).json(toLockerListResponseDto(retrieveLockers));
     }
     catch(error)
     {
@@ -36,7 +43,7 @@ lockerRouter.get("/find-active", authMiddleware, async(request: RequestWithUser,
         const retrieveActiveLockers = await lockerService.getByActiveStatus(false);
         const admin = request.admin; 
         await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} requested awaited locker list at ${new Date().toISOString()}`);
-        return response.status(200).json(retrieveActiveLockers);
+        return response.status(200).json(toLockerListResponseDto(retrieveActiveLockers ?? []));
 
     }
     catch(error)
@@ -64,7 +71,7 @@ lockerRouter.get(
         admin!._id.toString(),
         `${admin!.first_name} ${admin?.last_name} accessed lockers list at ${new Date().toISOString()}`,
       );
-      response.status(200).json(result);
+      response.status(200).json(toLockerPageResponseDto(result));
     } catch (error) {
       console.error(error);
       response.status(500).json({ message: "Error fetching lockers" });
@@ -79,7 +86,7 @@ lockerRouter.get("/active-lockers", authMiddleware, async(request:RequestWithUse
         const admin = request.admin; 
         await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} requested active locker details at ${new Date().toISOString()}`);
         
-        return response.status(200).json(locker);
+        return response.status(200).json(toLockerListResponseDto(locker));
     }
     catch(error)
     {
@@ -101,7 +108,7 @@ lockerRouter.get("/:id", authMiddleware, async(request:RequestWithUser, response
         const admin = request.admin; 
         await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} requested locker details at ${new Date().toISOString()}`);
         
-        return response.status(200).json(locker);
+        return response.status(200).json(toLockerResponseDto(locker));
     }
     catch(error)
     {
@@ -114,7 +121,7 @@ lockerRouter.get("/:id", authMiddleware, async(request:RequestWithUser, response
 lockerRouter.post("/", authMiddleware, createLockerValidation, validate, async(request:RequestWithUser, response: Response)=>{
     try
     {
-        const lockerNumber = request.body.lockerNumber;
+        const { lockerNumber } = request.body as CreateLockerRequestDto;
 
         if(!lockerNumber)
         {
@@ -125,7 +132,7 @@ lockerRouter.post("/", authMiddleware, createLockerValidation, validate, async(r
         await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} created new locker at ${new Date().toISOString()}`);
         const newLocker = await lockerService.create(lockerNumber);
 
-        return response.status(201).json(newLocker);
+        return response.status(201).json(toLockerResponseDto(newLocker));
     }
     catch(error)
     {
@@ -145,9 +152,9 @@ lockerRouter.put("/:id", authMiddleware, updateLockerValidation, validate, async
 
         const admin = request.admin; 
         await LogsRepository.logAction(admin!._id.toString(), `${admin!.first_name} ${admin?.last_name} updated locker at ${new Date().toISOString()}`);
-        const updatedLocker = await lockerService.update(request.params.id!, request.body);
+        const updatedLocker = await lockerService.update(request.params.id!, toUpdateLockerData(request.body as UpdateLockerRequestDto));
 
-        return response.status(200).json(updatedLocker);
+        return response.status(200).json(updatedLocker ? toLockerResponseDto(updatedLocker) : null);
     }
     catch(error)
     {

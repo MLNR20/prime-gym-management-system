@@ -1,27 +1,13 @@
 import express, { Response } from "express";
-import sessionRepository from "../repository/sessionRepository";
-import customerRepository from "../repository/customerRepository";
+import unitOfWork from "../repository/unitOfWork";
+import { SessionService } from "../repository/services/sessionService";
 import LogsRepository from "../repository/logsRepository";
 import { RequestWithUser } from "../middleware/types/express";
 import { authMiddleware } from "../middleware/middleware";
 import { validate, assignSessionValidation } from "../utils/validation";
 
 const sessionRouter = express.Router();
-
-async function enrichSessionsWithCustomer(sessions: any[]) {
-  return Promise.all(
-    sessions.map(async (session) => {
-      const customer = session.customer_id
-        ? await customerRepository.findById(session.customer_id)
-        : null;
-      return {
-        ...session,
-        first_name: customer?.first_name ?? "N/A",
-        last_name: customer?.last_name ?? "",
-      };
-    })
-  );
-}
+const sessionService = new SessionService(unitOfWork);
 
 // READ (paginated, searchable list for the Sessions table)
 sessionRouter.get(
@@ -34,46 +20,7 @@ sessionRouter.get(
       const search = (request.query.search as string) || "";
       const customerId = (request.query.customerId as string) || "";
 
-      const pipeline = [
-        ...(customerId ? [{ $match: { customer_id: customerId } }] : []),
-        {
-          $addFields: {
-            customer_id: { $toObjectId: "$customer_id" },
-          },
-        },
-        {
-          $lookup: {
-            from: "Customer",
-            localField: "customer_id",
-            foreignField: "_id",
-            as: "customer",
-          },
-        },
-        {
-          $unwind: {
-            path: "$customer",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $project: {
-            _id: 1,
-            customer_id: 1,
-            session_balance: 1,
-            created_at: 1,
-            first_name: { $ifNull: ["$customer.first_name", "N/A"] },
-            last_name: { $ifNull: ["$customer.last_name", ""] },
-          },
-        },
-      ];
-
-      const result = await sessionRepository.paginateWithLookup({
-        page,
-        limit,
-        pipeline,
-        search,
-        fields: ["first_name", "last_name"],
-      });
+      const result = await sessionService.search(page, limit, search, customerId);
 
       const admin = request.admin;
       await LogsRepository.logAction(
@@ -95,21 +42,7 @@ sessionRouter.get(
   authMiddleware,
   async (request: RequestWithUser, response) => {
     try {
-      const customers = await customerRepository.findCoachingCustomers();
-
-      const withBalance = await Promise.all(
-        customers.map(async (customer: any) => {
-          const balance = await sessionRepository.getTotalBalance(String(customer._id));
-          return {
-            _id: customer._id,
-            first_name: customer.first_name,
-            last_name: customer.last_name,
-            subscription_type: customer.subscription_type,
-            status: customer.status,
-            session_balance: balance,
-          };
-        })
-      );
+      const withBalance = await sessionService.getCoachingCustomers();
 
       const admin = request.admin;
       await LogsRepository.logAction(
@@ -135,12 +68,10 @@ sessionRouter.post(
     try {
       const customerId = request.body.customer_id;
 
-      const updatedSession = await sessionRepository.deductSession(customerId, 1);
-      if (!updatedSession) {
+      const balance = await sessionService.assign(customerId);
+      if (balance === null) {
         return response.status(400).json({ message: "Customer has no remaining sessions" });
       }
-
-      const balance = await sessionRepository.getTotalBalance(customerId);
 
       const admin = request.admin;
       await LogsRepository.logAction(
@@ -168,12 +99,9 @@ sessionRouter.get(
       }
 
       const limit = parseInt(request.query.limit as string) || 10;
-      const sessions = await sessionRepository.findByCustomerId(customerId, limit);
-      const enriched = await enrichSessionsWithCustomer(
-        sessions.map((s) => (s.toObject ? s.toObject() : s))
-      );
+      const sessions = await sessionService.getByCustomerId(customerId, limit);
 
-      return response.status(200).json(enriched);
+      return response.status(200).json(sessions);
     } catch (error) {
       return response.status(500).json({ message: "Error fetching customer sessions" });
     }

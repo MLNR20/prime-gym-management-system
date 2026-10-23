@@ -6,6 +6,9 @@ import lockerAssignmentRepository, { LockerAssignmentRepository } from "./locker
 import inventoryRepository, { InventoryRepository } from "./inventoryRepository";
 import subscriptionHistoryRepository, { SubscriptionHistoryRepository } from "./subscriptionhistoryRepository";
 import sessionRepository, { SessionRepository } from "./sessionRepository";
+import sessionAssignmentRepository, { SessionAssignmentRepository } from "./sessionAssignmentRepository";
+import salesRepository, { SalesRepository } from "./salesRepository";
+import programRepository, { ProgramRepository } from "./programRepository";
 
 export interface Repositories {
   customers: CustomerRepository;
@@ -15,6 +18,9 @@ export interface Repositories {
   inventory: InventoryRepository;
   subscriptionHistory: SubscriptionHistoryRepository;
   sessions: SessionRepository;
+  sessionAssignments: SessionAssignmentRepository;
+  sales: SalesRepository;
+  programs: ProgramRepository;
 }
 
 export interface IUnitOfWork extends Repositories {
@@ -33,6 +39,9 @@ const defaultRepositories: Repositories = {
   inventory: inventoryRepository,
   subscriptionHistory: subscriptionHistoryRepository,
   sessions: sessionRepository,
+  sessionAssignments: sessionAssignmentRepository,
+  sales: salesRepository,
+  programs: programRepository,
 };
 
 // Transactions need a replica set or mongos. A standalone mongod (such as the
@@ -52,6 +61,9 @@ export class UnitOfWork implements IUnitOfWork {
   readonly inventory: InventoryRepository;
   readonly subscriptionHistory: SubscriptionHistoryRepository;
   readonly sessions: SessionRepository;
+  readonly sessionAssignments: SessionAssignmentRepository;
+  readonly sales: SalesRepository;
+  readonly programs: ProgramRepository;
 
   constructor(repositories: Repositories = defaultRepositories) {
     this.customers = repositories.customers;
@@ -61,6 +73,9 @@ export class UnitOfWork implements IUnitOfWork {
     this.inventory = repositories.inventory;
     this.subscriptionHistory = repositories.subscriptionHistory;
     this.sessions = repositories.sessions;
+    this.sessionAssignments = repositories.sessionAssignments;
+    this.sales = repositories.sales;
+    this.programs = repositories.programs;
   }
 
   private bindTo(session: ClientSession): Repositories {
@@ -72,6 +87,9 @@ export class UnitOfWork implements IUnitOfWork {
       inventory: this.inventory.withSession(session),
       subscriptionHistory: this.subscriptionHistory.withSession(session),
       sessions: this.sessions.withSession(session),
+      sessionAssignments: this.sessionAssignments.withSession(session),
+      sales: this.sales.withSession(session),
+      programs: this.programs.withSession(session),
     };
   }
 

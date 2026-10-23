@@ -3,6 +3,15 @@ import unitOfWork from "../../repository/unitOfWork";
 import { EquipmentService } from "../../repository/services/equipmentService";
 import LogsRepository from "../../repository/logsRepository";
 import { RequestWithUser } from "../../middleware/types/express";
+import {
+  CreateEquipmentRequestDto,
+  UpdateEquipmentRequestDto,
+  toCreateEquipmentData,
+  toUpdateEquipmentData,
+  toEquipmentResponseDto,
+  toEquipmentListResponseDto,
+  toEquipmentPageResponseDto,
+} from "../../dto/equipment.dto";
 
 const equipmentService = new EquipmentService(unitOfWork);
 
@@ -22,7 +31,7 @@ export const getAllEquipment = async (
   try {
     const retrieveEquipment = await equipmentService.getAll();
     await logAdminAction(request, "accessed equipment list");
-    return response.status(200).json(retrieveEquipment);
+    return response.status(200).json(toEquipmentListResponseDto(retrieveEquipment));
   } catch (error) {
     return response.status(500).json({ message: "Equipment not retrieved!" });
   }
@@ -41,7 +50,7 @@ export const searchEquipment = async (
     const result = await equipmentService.search(page, limit, search);
 
     await logAdminAction(request, "accessed equipment list");
-    return response.status(200).json(result);
+    return response.status(200).json(toEquipmentPageResponseDto(result));
   } catch (error) {
     console.error(error);
     return response.status(500).json({ message: "Error fetching customers" });
@@ -61,7 +70,7 @@ export const getEquipmentById = async (
     }
 
     await logAdminAction(request, "accessed equipment");
-    return response.status(200).json(retrieveEquipment);
+    return response.status(200).json(toEquipmentResponseDto(retrieveEquipment));
   } catch (error) {
     return response.status(500).json({ message: "Equipment not retrieved!" });
   }
@@ -73,9 +82,9 @@ export const createEquipment = async (
   response: Response,
 ) => {
   try {
-    const newEquipment = await equipmentService.create(request.body);
+    const newEquipment = await equipmentService.create(toCreateEquipmentData(request.body as CreateEquipmentRequestDto));
     await logAdminAction(request, "created equipment");
-    return response.status(200).json(newEquipment);
+    return response.status(200).json(toEquipmentResponseDto(newEquipment));
   } catch (error) {
     return response.status(500).json({ message: "Equipment not created" });
   }
@@ -88,7 +97,7 @@ export const updateEquipment = async (
 ) => {
   try {
     const id = request.params.id!;
-    const updatedEquipment = await equipmentService.update(id, request.body);
+    const updatedEquipment = await equipmentService.update(id, toUpdateEquipmentData(request.body as UpdateEquipmentRequestDto));
 
     if (!updatedEquipment) {
       return response.status(404).json({
@@ -97,7 +106,7 @@ export const updateEquipment = async (
     }
 
     await logAdminAction(request, "updated equipment");
-    return response.status(200).json(updatedEquipment);
+    return response.status(200).json(toEquipmentResponseDto(updatedEquipment));
   } catch (error) {
     return response.status(500).json({ message: "Delete equipment failed!" });
   }

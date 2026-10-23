@@ -5,6 +5,15 @@ import LogsRepository from "../repository/logsRepository";
 import { RequestWithUser } from "../middleware/types/express";
 import { authMiddleware } from "../middleware/middleware";
 import { validate, equipmentValidation } from "../utils/validation";
+import {
+  CreateEquipmentRequestDto,
+  UpdateEquipmentRequestDto,
+  toCreateEquipmentData,
+  toUpdateEquipmentData,
+  toEquipmentResponseDto,
+  toEquipmentListResponseDto,
+  toEquipmentPageResponseDto,
+} from "../dto/equipment.dto";
 
 const equipmentRouter = express.Router();
 const equipmentService = new EquipmentService(unitOfWork);
@@ -21,7 +30,7 @@ equipmentRouter.get(
         admin!._id.toString(),
         `${admin!.first_name} ${admin?.last_name} accessed equipment list at ${new Date().toISOString()}`,
       );
-      return Response.status(200).json(retrieveEquipment);
+      return Response.status(200).json(toEquipmentListResponseDto(retrieveEquipment));
     } catch (error) {
       return Response.status(500).json({ message: "Equipment not retrieved!" });
     }
@@ -45,7 +54,7 @@ equipmentRouter.get(
         admin!._id.toString(),
         `${admin!.first_name} ${admin?.last_name} accessed customers list at ${new Date().toISOString()}`,
       );
-      response.status(200).json(result);
+      response.status(200).json(toEquipmentPageResponseDto(result));
     } catch (error) {
       console.error(error);
       response.status(500).json({ message: "Error fetching customers" });
@@ -71,7 +80,7 @@ equipmentRouter.get(
         `${admin!.first_name} ${admin?.last_name} accessed equipment at ${new Date().toISOString()}`,
       );
 
-      return Response.status(200).json(retrieveEquipment);
+      return Response.status(200).json(toEquipmentResponseDto(retrieveEquipment));
     } catch (error) {
       return Response.status(500).json({ message: "Equipment not retrieved!" });
     }
@@ -86,13 +95,13 @@ equipmentRouter.post(
   validate,
   async (Request: RequestWithUser, Response: ExpressResponse) => {
     try {
-      const newEquipment = await equipmentService.create(Request.body);
+      const newEquipment = await equipmentService.create(toCreateEquipmentData(Request.body as CreateEquipmentRequestDto));
       const admin = Request.admin;
       await LogsRepository.logAction(
         admin!._id.toString(),
         `${admin!.first_name} ${admin?.last_name} created equipment at ${new Date().toISOString()}`,
       );
-      return Response.status(200).json(newEquipment);
+      return Response.status(200).json(toEquipmentResponseDto(newEquipment));
     } catch (error) {
       return Response.status(500).json({ message: "Equipment not created" });
     }
@@ -137,7 +146,7 @@ equipmentRouter.put(
   async (Request: RequestWithUser, Response: ExpressResponse) => {
     try {
       const id = Request.params.id!;
-      const updateEquiment = await equipmentService.update(id, Request.body);
+      const updateEquiment = await equipmentService.update(id, toUpdateEquipmentData(Request.body as UpdateEquipmentRequestDto));
 
       if (!updateEquiment) {
         return Response.status(404).json({
@@ -150,7 +159,7 @@ equipmentRouter.put(
         admin!._id.toString(),
         `${admin!.first_name} ${admin?.last_name} updated equipment at ${new Date().toISOString()}`,
       );
-      return Response.status(200).json(updateEquiment);
+      return Response.status(200).json(toEquipmentResponseDto(updateEquiment));
     } catch (error) {
       return Response.status(500).json({ message: "Delete equipment failed!" });
     }

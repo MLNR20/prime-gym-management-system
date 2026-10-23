@@ -1,32 +1,13 @@
 import express, { Response } from "express";
-import salesRepository from "../repository/salesRepository";
-import inventoryRepository from "../repository/inventoryRepository";
-import customerRepository from "../repository/customerRepository";
-import salesService from "../repository/services/salesService";
+import unitOfWork from "../repository/unitOfWork";
+import { SalesService } from "../repository/services/salesService";
 import LogsRepository from "../repository/logsRepository";
 import { RequestWithUser } from "../middleware/types/express";
 import { authMiddleware } from "../middleware/middleware";
 import { validate, createSalesValidation, updateSalesValidation } from "../utils/validation";
 
 const salesRouter = express.Router();
-
-async function enrichSalesWithInventory(sales: any[]) {
-  return Promise.all(
-    sales.map(async (sale) => {
-      const item = await inventoryRepository.findById(sale.inventory_id);
-      const customer = sale.customer_id
-        ? await customerRepository.findById(sale.customer_id)
-        : null;
-      return {
-        ...sale,
-        item_name: item?.item_name ?? "Unknown",
-        item_code: item?.item_code ?? "",
-        first_name: customer?.first_name ?? "N/A",
-        last_name: customer?.last_name ?? "",
-      };
-    })
-  );
-}
+const salesService = new SalesService(unitOfWork);
 
 salesRouter.get(
   "/show/",
@@ -38,15 +19,7 @@ salesRouter.get(
       const search = (request.query.search as string) || "";
       const customerId = (request.query.customerId as string) || "";
 
-      const result = await salesRepository.search({
-        page,
-        limit,
-        search,
-        fields: ["inventory_id"],
-        filter: customerId ? { customer_id: customerId } : {},
-      });
-
-      const enrichedData = await enrichSalesWithInventory(result.data);
+      const result = await salesService.search(page, limit, search, customerId);
 
       const admin = request.admin;
       await LogsRepository.logAction(
@@ -54,7 +27,7 @@ salesRouter.get(
         `${admin!.first_name} ${admin?.last_name} accessed sales list at ${new Date().toISOString()}`
       );
 
-      response.status(200).json({ ...result, data: enrichedData });
+      response.status(200).json(result);
     } catch (error) {
       console.error(error);
       response.status(500).json({ message: "Error fetching sales" });
@@ -67,11 +40,8 @@ salesRouter.get(
   authMiddleware,
   async (request: RequestWithUser, response) => {
     try {
-      const sales = await salesRepository.findAll();
-      const enriched = await enrichSalesWithInventory(
-        sales.map((s) => (s.toObject ? s.toObject() : s))
-      );
-      return response.status(200).json(enriched);
+      const sales = await salesService.getAll();
+      return response.status(200).json(sales);
     } catch (error) {
       return response.status(500).json({ message: "Sales not retrieved!" });
     }
@@ -89,12 +59,9 @@ salesRouter.get(
       }
 
       const limit = parseInt(request.query.limit as string) || 10;
-      const sales = await salesRepository.findByCustomerId(customerId, limit);
-      const enriched = await enrichSalesWithInventory(
-        sales.map((s) => (s.toObject ? s.toObject() : s))
-      );
+      const sales = await salesService.getByCustomerId(customerId, limit);
 
-      return response.status(200).json(enriched);
+      return response.status(200).json(sales);
     } catch (error) {
       return response.status(500).json({ message: "Error fetching customer sales" });
     }
@@ -111,18 +78,10 @@ salesRouter.get(
         return response.status(400).json({ message: "Sale id is required" });
       }
 
-      const sale = await salesRepository.findById(id);
+      const sale = await salesService.getById(id);
       if (!sale) {
         return response.status(404).json({ message: "Sale not found" });
       }
-
-      const item = await inventoryRepository.findById(sale.inventory_id);
-      const enriched = {
-        ...(sale.toObject ? sale.toObject() : sale),
-        item_name: item?.item_name ?? "Unknown",
-        item_code: item?.item_code ?? "",
-        unit_price: item?.unit_price ?? 0,
-      };
 
       const admin = request.admin;
       await LogsRepository.logAction(
@@ -130,7 +89,7 @@ salesRouter.get(
         `${admin!.first_name} ${admin?.last_name} accessed sale record at ${new Date().toISOString()}`
       );
 
-      return response.status(200).json(enriched);
+      return response.status(200).json(sale);
     } catch (error) {
       return response.status(500).json({ message: "Sale not retrieved!" });
     }

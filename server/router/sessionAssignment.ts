@@ -1,13 +1,13 @@
 import express, { Response } from "express";
-import sessionAssignmentRepository from "../repository/sessionAssignmentRepository";
-import sessionRepository from "../repository/sessionRepository";
-import programRepository from "../repository/programRepository";
+import unitOfWork from "../repository/unitOfWork";
+import { SessionAssignmentService } from "../repository/services/sessionAssignmentService";
 import LogsRepository from "../repository/logsRepository";
 import { RequestWithUser } from "../middleware/types/express";
 import { authMiddleware } from "../middleware/middleware";
 import { validate, createSessionAssignmentValidation } from "../utils/validation";
 
 const sessionAssignmentRouter = express.Router();
+const sessionAssignmentService = new SessionAssignmentService(unitOfWork);
 
 // ASSIGN A PROGRAM TO A CUSTOMER'S SESSION (deducts one session, records history)
 sessionAssignmentRouter.post(
@@ -19,30 +19,21 @@ sessionAssignmentRouter.post(
     try {
       const { customer_id, program_id } = request.body;
 
-      const program = await programRepository.findById(program_id);
-      if (!program) return response.status(404).json({ message: "Program not found" });
-
-      const deducted = await sessionRepository.deductSession(customer_id, 1);
-      if (!deducted) {
+      const result = await sessionAssignmentService.assignProgram(customer_id, program_id);
+      if (result.status === "program_not_found") {
+        return response.status(404).json({ message: "Program not found" });
+      }
+      if (result.status === "no_sessions") {
         return response.status(400).json({ message: "Customer has no remaining sessions" });
       }
-
-      const session_balance_after = await sessionRepository.getTotalBalance(customer_id);
-
-      const record = await sessionAssignmentRepository.create({
-        customer_id,
-        program_id,
-        session_balance_after,
-        assigned_at: new Date(),
-      });
 
       const admin = request.admin;
       await LogsRepository.logAction(
         admin!._id.toString(),
-        `${admin!.first_name} ${admin?.last_name} assigned program ${program.program_name} to customer ${customer_id}'s session at ${new Date().toISOString()}`
+        `${admin!.first_name} ${admin?.last_name} assigned program ${result.programName} to customer ${customer_id}'s session at ${new Date().toISOString()}`
       );
 
-      response.status(201).json({ success: true, session_balance: session_balance_after, assignment: record });
+      response.status(201).json({ success: true, session_balance: result.sessionBalance, assignment: result.assignment });
     } catch (error) {
       console.error(error);
       response.status(500).json({ message: "Error assigning program to session" });
@@ -60,52 +51,7 @@ sessionAssignmentRouter.get(
       const page = parseInt(request.query.page as string) || 1;
       const search = (request.query.search as string) || "";
 
-      const pipeline = [
-        {
-          $addFields: {
-            customerObjectId: { $toObjectId: "$customer_id" },
-            programObjectId: { $toObjectId: "$program_id" },
-          },
-        },
-        {
-          $lookup: {
-            from: "Customer",
-            localField: "customerObjectId",
-            foreignField: "_id",
-            as: "customer",
-          },
-        },
-        { $unwind: { path: "$customer", preserveNullAndEmptyArrays: true } },
-        {
-          $lookup: {
-            from: "Program",
-            localField: "programObjectId",
-            foreignField: "_id",
-            as: "program",
-          },
-        },
-        { $unwind: { path: "$program", preserveNullAndEmptyArrays: true } },
-        { $sort: { assigned_at: -1 as const } },
-        {
-          $project: {
-            _id: 1,
-            first_name: "$customer.first_name",
-            last_name: "$customer.last_name",
-            program_name: "$program.program_name",
-            session_balance_after: 1,
-            assigned_at: 1,
-            createdAt: 1,
-          },
-        },
-      ];
-
-      const result = await sessionAssignmentRepository.paginateWithLookup({
-        page,
-        limit,
-        pipeline,
-        search,
-        fields: ["first_name", "last_name", "program_name"],
-      });
+      const result = await sessionAssignmentService.getHistory(page, limit, search);
 
       const admin = request.admin;
       await LogsRepository.logAction(

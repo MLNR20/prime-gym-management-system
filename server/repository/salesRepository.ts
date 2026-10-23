@@ -8,6 +8,7 @@ export class SalesRepository
   async findByCustomerId(customerId: string, limit: number = 10) {
     return this.model
       .find({ customer_id: customerId })
+      .session(this.dbSession)
       .sort({ createdAt: -1 })
       .limit(limit);
   }
