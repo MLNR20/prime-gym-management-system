@@ -1,6 +1,5 @@
-import axios from "axios";
+import api from "./api";
 import { handleAuthError } from "./authErrorHandler";
-import { API_URL } from "../config/api";
 
 interface Token {
   url: string;
@@ -11,21 +10,8 @@ export default async function softDeleteData({
   url,
   id,
 }: Token) {
-  const retrieveToken = localStorage.getItem("token");
-
-  console.log(retrieveToken);
   try {
-    const response = await axios.patch(
-      `${API_URL}/${url}/${id}`,
-       {},
-      {
-        headers: {
-          Authorization: `Bearer ${retrieveToken}`,
-        },
-      }
-    );
-
-    console.log(response)
+    const response = await api.patch(`/${url}/${id}`, {});
 
     return response.data;
   } catch (error) {

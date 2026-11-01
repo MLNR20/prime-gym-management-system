@@ -25,8 +25,8 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import useFetchData from "../data/fetchData";
 
-export default function Sidebar(): React.ReactElement {
-  const { isAuthenticated, logout } = useAuth();
+export default function Sidebar(): React.ReactElement | null {
+  const { isAuthenticated, isLoading, logout } = useAuth();
   const navigate = useNavigate();
 
   const adminProfile = useFetchData({ url: "admin/me" });
@@ -35,12 +35,16 @@ export default function Sidebar(): React.ReactElement {
     .join(" ");
   const adminEmail = adminProfile?.email;
 
+  if (isLoading) {
+    return null;
+  }
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate("/login");
   };
 

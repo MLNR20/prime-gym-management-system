@@ -5,6 +5,7 @@ import admin from "../models/admin"; // your admin/user model
 import { RequestWithUser } from "./types/express";
 import { AuthRepository } from "../repository/authRepository";
 import { JWT_SECRET } from "../config/env";
+import { ACCESS_COOKIE } from "../utils/authCookies";
 
 
 const authRepository = new AuthRepository();
@@ -12,10 +13,9 @@ const authRepository = new AuthRepository();
 export async function authMiddleware(req: RequestWithUser, res: Response, next: NextFunction) 
 {
   try {
-    const authHeader = req.header("Authorization");
-    if (!authHeader) return res.status(401).json({ message: "No token provided" });
+    const token = req.cookies?.[ACCESS_COOKIE];
+    if (!token) return res.status(401).json({ message: "No token provided" });
 
-    const token = authHeader.replace("Bearer ", "");
     const payload = jwt.verify(token, JWT_SECRET) as { id: string };
 
     const admin = await authRepository.findById(payload.id);

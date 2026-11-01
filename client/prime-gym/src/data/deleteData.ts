@@ -1,17 +1,10 @@
-import axios from "axios";
+import api from "./api";
 import { handleAuthError } from "./authErrorHandler";
-import { API_URL } from "../config/api";
 
 export default async function deleteData({ url, id,}: {url: string; id: string;})
 {
-  const token = localStorage.getItem("token");
-
   try {
-    const response = await axios.delete(`${API_URL}/${url}/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await api.delete(`/${url}/${id}`);
 
     return response.data;
   } catch (error) {

@@ -11,9 +11,13 @@ import {
   resetPasswordValidation,
 } from "../utils/validation";
 import { LoginRequestDto, toLoginResponseDto } from "../dto/auth.dto";
+import { RefreshTokenRepository } from "../repository/refreshTokenRepository";
+import { authMiddleware } from "../middleware/middleware";
+import { RequestWithUser } from "../middleware/types/express";
+import { REFRESH_COOKIE, setAuthCookies, clearAuthCookies } from "../utils/authCookies";
 
 const authRouter = express.Router();
-const authService = new AuthService(new AuthRepository());
+const authService = new AuthService(new AuthRepository(), new RefreshTokenRepository());
 
 // Register
 authRouter.post("/register", registerValidation, validate, async (req: Request, res: Response) => {
@@ -31,11 +35,47 @@ authRouter.post("/login", loginValidation, validate, async (req: Request<{}, {},
   try {
     const { username, password } = req.body;
     const result = await authService.login(username, password);
+    if (result.status === "success") {
+      setAuthCookies(res, result.accessToken, result.refreshToken);
+    }
     const { statusCode, body } = toLoginResponseDto(result);
     return res.status(statusCode).json(body);
   } catch (err) {
     res.status(500).json({ error: "Login failed" });
   }
+});
+
+// Rotate the refresh token and issue a fresh access token
+authRouter.post("/refresh", async (req: Request, res: Response) => {
+  try {
+    const refreshToken = req.cookies?.[REFRESH_COOKIE];
+    const session = refreshToken ? await authService.refresh(refreshToken) : null;
+    if (!session) {
+      clearAuthCookies(res);
+      return res.status(401).json({ error: "Session expired" });
+    }
+    setAuthCookies(res, session.accessToken, session.refreshToken);
+    res.status(200).json(session.admin);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to refresh session" });
+  }
+});
+
+// Logout: revoke the refresh token and clear both cookies
+authRouter.post("/logout", async (req: Request, res: Response) => {
+  try {
+    await authService.logout(req.cookies?.[REFRESH_COOKIE]);
+  } catch (err) {
+    console.error(err);
+  }
+  clearAuthCookies(res);
+  res.status(204).end();
+});
+
+// Who is logged in? Lets the client restore its session from the cookie
+authRouter.get("/me", authMiddleware, (req: RequestWithUser, res: Response) => {
+  const { first_name, last_name } = req.admin!;
+  res.status(200).json({ first_name, last_name });
 });
 
 // Verify OTP

@@ -7,6 +7,8 @@ import "./config/env";
 import express, { Request, Response, Application } from "express";
 import mongoose from "mongoose";
 import cors from "cors";
+import cookieParser from "cookie-parser";
+import { csrfGuard } from "./middleware/csrfGuard";
 import databaseConnectionString from "./config/config";
 
 import customerRouter from "./router/customer"
@@ -33,18 +35,23 @@ const CLIENT_URL = process.env.CLIENT_URL ?? "http://localhost:5180";
 const isProduction = process.env.NODE_ENV === "production";
 const localOriginPattern = /^https?:\/\/(localhost|127\.0\.0\.1):\d+$/;
 
+const isAllowedOrigin = (origin: string) =>
+  origin === CLIENT_URL || (!isProduction && localOriginPattern.test(origin));
+
 app.use(
   cors({
-    origin: isProduction
-      ? CLIENT_URL
-      : (origin, callback) => {
-          if (!origin || origin === CLIENT_URL || localOriginPattern.test(origin)) {
-            return callback(null, true);
-          }
-          callback(new Error(`Origin ${origin} not allowed by CORS`));
-        },
+    // Auth lives in httpOnly cookies, so the browser must be allowed to send them.
+    credentials: true,
+    origin: (origin, callback) => {
+      if (!origin || isAllowedOrigin(origin)) {
+        return callback(null, true);
+      }
+      callback(new Error(`Origin ${origin} not allowed by CORS`));
+    },
   })
 );
+app.use(cookieParser());
+app.use(csrfGuard(isAllowedOrigin));
 app.use(express.json());
 app.use("/customers",customerRouter);
 app.use("/auth", authRouter)

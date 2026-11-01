@@ -3,11 +3,10 @@ import Header from "../../components/Header";
 import Spinner from "../../components/Spinner";
 import { useForm } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 import { Eye, EyeOff } from "lucide-react";
 import primeImg from "../../assets/prime.jpg";
-import { API_URL } from "../../config/api";
+import api from "../../data/api";
 
 type FormData = {
   username: string;
@@ -33,12 +32,8 @@ export default function Login(): React.ReactElement {
     setOtpPending(false);
     setIsLoggingIn(true);
     try {
-      const loginRoute = await axios.post(
-        `${API_URL}/auth/login`,
-        data,
-      );
-      const token = loginRoute.data.token;
-      login(token);
+      const loginRoute = await api.post("/auth/login", data);
+      login(loginRoute.data);
       navigate("/");
     } catch (error: any) {
       const reason = error?.response?.data?.reason;

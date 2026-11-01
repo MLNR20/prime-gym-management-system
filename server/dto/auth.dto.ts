@@ -6,8 +6,10 @@ export interface LoginRequestDto {
   password: string;
 }
 
+// The tokens travel in httpOnly cookies, never in the response body.
 export interface LoginSuccessResponseDto {
-  token: string;
+  first_name: string;
+  last_name: string;
 }
 
 export interface LoginErrorResponseDto {
@@ -20,7 +22,7 @@ export type LoginResponseDto = LoginSuccessResponseDto | LoginErrorResponseDto;
 export function toLoginResponseDto(result: LoginResult): { statusCode: number; body: LoginResponseDto } {
   switch (result.status) {
     case "success":
-      return { statusCode: 200, body: { token: result.token } };
+      return { statusCode: 200, body: { first_name: result.admin.first_name, last_name: result.admin.last_name } };
     case "otp_pending":
       return {
         statusCode: 403,

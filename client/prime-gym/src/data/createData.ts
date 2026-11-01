@@ -1,6 +1,5 @@
-import axios from "axios";
+import api from "./api";
 import { handleAuthError } from "./authErrorHandler";
-import { API_URL } from "../config/api";
 
 interface RequestStructure<T = any> {
   url: string;
@@ -8,18 +7,8 @@ interface RequestStructure<T = any> {
 }
 
 export default async function createData({url, data}: RequestStructure) {
-  const token = localStorage.getItem("token");
-
   try {
-    const response = await axios.post(
-      `${API_URL}/${url}`,
-      data,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await api.post(`/${url}`, data);
 
     return response.data;
   } catch (error) {

@@ -3,7 +3,7 @@ import Sidebar from "../../components/Sidebar";
 import Header from "../../components/Header";
 import { useParams, useNavigate } from "react-router-dom";
 import useFetchData from "../../data/fetchData";
-import { API_URL } from "../../config/api";
+import { apiFetch } from "../../data/api";
 
 export default function Program_Manage(): React.ReactElement {
   const { id } = useParams();
@@ -23,24 +23,18 @@ export default function Program_Manage(): React.ReactElement {
   const [selectedTargetArea, setSelectedTargetArea] = useState("");
   const [assignedSearchTerm, setAssignedSearchTerm] = useState("");
 
-  const token = localStorage.getItem("token");
-
   useEffect(() => {
     if (!id) return;
 
     const load = async () => {
       try {
-        const res = await fetch(`${API_URL}/programs/${id}`, {
-          headers: { Authorization: token ? `Bearer ${token}` : "" },
-        });
+        const res = await apiFetch(`/programs/${id}`);
         if (res.ok) {
           const json = await res.json();
           setProgram(json);
         }
 
-        const a = await fetch(`${API_URL}/programs/${id}/exercises`, {
-          headers: { Authorization: token ? `Bearer ${token}` : "" },
-        });
+        const a = await apiFetch(`/programs/${id}/exercises`);
         if (a.ok) {
           const arr = await a.json();
           setAssigned(arr || []);
@@ -57,15 +51,13 @@ export default function Program_Manage(): React.ReactElement {
     if (!id) return;
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/programs/${id}/exercises`, {
+      const res = await apiFetch(`/programs/${id}/exercises`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: token ? `Bearer ${token}` : "" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ exercise_id: exId }),
       });
       if (res.ok) {
-        const assignedRes = await fetch(`${API_URL}/programs/${id}/exercises`, {
-          headers: { Authorization: token ? `Bearer ${token}` : "" },
-        });
+        const assignedRes = await apiFetch(`/programs/${id}/exercises`);
         const arr = await assignedRes.json();
         setAssigned(arr || []);
       } else {
@@ -82,14 +74,10 @@ export default function Program_Manage(): React.ReactElement {
     if (!id) return;
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/programs/${id}/exercises/${exId}`, {
-        method: "DELETE",
-        headers: { Authorization: token ? `Bearer ${token}` : "" },
-      });
+      const res = await apiFetch(`/programs/${id}/exercises/${exId}`, {
+        method: "DELETE", });
       if (res.ok) {
-        const assignedRes = await fetch(`${API_URL}/programs/${id}/exercises`, {
-          headers: { Authorization: token ? `Bearer ${token}` : "" },
-        });
+        const assignedRes = await apiFetch(`/programs/${id}/exercises`);
         const arr = await assignedRes.json();
         setAssigned(arr || []);
       }

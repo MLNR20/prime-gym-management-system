@@ -1,6 +1,5 @@
-import axios from "axios";
+import api from "./api";
 import { handleAuthError } from "./authErrorHandler";
-import { API_URL } from "../config/api";
 
 interface RequestStructure<T = any> {
   url: string;
@@ -13,18 +12,8 @@ export default async function patchUpdateData({
   id,
   updateData,
 }: RequestStructure) {
-  const token = localStorage.getItem("token");
-
   try {
-    const response = await axios.patch(
-      `${API_URL}/${url}/${id}`,
-      updateData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await api.patch(`/${url}/${id}`, updateData);
 
     return response.data;
   } catch (error) {

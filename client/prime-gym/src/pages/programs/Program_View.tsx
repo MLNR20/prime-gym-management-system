@@ -7,7 +7,7 @@ import useFetchData from "../../data/fetchData";
 import softDeleteData from "../../data/softDeleteData";
 import getWindowedPages from "../../utils/getWindowedPages";
 import { Trash2 } from "lucide-react";
-import { API_URL } from "../../config/api";
+import { apiFetch } from "../../data/api";
 import ConfirmModal from "../../components/ConfirmModal";
 import Alert from "../../components/Alert";
 import useCrudAlert from "../../utils/useCrudAlert";
@@ -32,16 +32,13 @@ export default function Program_View(): React.ReactElement {
   const exerciseDeleteModalRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
     if (!Array.isArray(programsList)) return;
 
     const missing = programsList.filter((p: any) => p && p._id && !assignedMap[p._id]);
     if (missing.length === 0) return;
 
     missing.forEach((p: any) => {
-      fetch(`${API_URL}/programs/${p._id}/exercises`, {
-        headers: { Authorization: token ? `Bearer ${token}` : "" },
-      })
+      apiFetch(`/programs/${p._id}/exercises`)
         .then((res) => (res.ok ? res.json() : []))
         .then((data) => {
           setAssignedMap((prev) => ({ ...prev, [p._id]: data || [] }));
@@ -87,12 +84,9 @@ export default function Program_View(): React.ReactElement {
     if (!pendingExerciseDelete) return;
     const { programId, exercise } = pendingExerciseDelete;
 
-    const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`${API_URL}/programs/${programId}/exercises/${exercise._id}`, {
-        method: "DELETE",
-        headers: { Authorization: token ? `Bearer ${token}` : "" },
-      });
+      const res = await apiFetch(`/programs/${programId}/exercises/${exercise._id}`, {
+        method: "DELETE", });
       if (!res.ok) throw new Error("Failed to delete exercise");
 
       setAssignedMap((prev) => ({

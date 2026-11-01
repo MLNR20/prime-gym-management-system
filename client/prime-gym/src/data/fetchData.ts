@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import api from "./api";
 import { handleAuthError } from "./authErrorHandler";
-import { API_URL } from "../config/api";
 
 interface FetchProps {
   url: string;
@@ -35,8 +35,6 @@ export default function useFetchData({
 }: FetchProps) {
   const [data, setData] = useState<any>({ data: [], meta: {} });
 
-  const retrieveToken = localStorage.getItem("token");
-
   useEffect(() => {
     let cancelled = false;
     let timeoutId: ReturnType<typeof setTimeout>;
@@ -45,17 +43,14 @@ export default function useFetchData({
     const retrieveData = async () => {
       const startedAt = performance.now();
       try {
-        const response = await axios.get(
-          `${API_URL}/${url}`,
+        const response = await api.get(
+          `/${url}`,
           {
             params: {
               page,
               limit,
               search,
               customerId,
-            },
-            headers: {
-              Authorization: `Bearer ${retrieveToken}`,
             },
             signal: controller.signal,
           }
@@ -98,8 +93,6 @@ export function useFetchDataWithStatus({
   const [loading, setLoading] = useState(enabled);
   const isFirstFetch = useRef(true);
 
-  const retrieveToken = localStorage.getItem("token");
-
   useEffect(() => {
     if (!enabled) {
       setLoading(false);
@@ -115,17 +108,14 @@ export function useFetchDataWithStatus({
       if (isFirstFetch.current) setLoading(true);
       const startedAt = performance.now();
       try {
-        const response = await axios.get(
-          `${API_URL}/${url}`,
+        const response = await api.get(
+          `/${url}`,
           {
             params: {
               page,
               limit,
               search,
               customerId,
-            },
-            headers: {
-              Authorization: `Bearer ${retrieveToken}`,
             },
             signal: controller.signal,
           }

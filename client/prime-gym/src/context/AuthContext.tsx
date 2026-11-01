@@ -1,68 +1,63 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import api from "../data/api";
+
+interface AuthAdmin {
+  first_name: string;
+  last_name: string;
+}
 
 interface AuthContextType {
-  token: string | null;
+  admin: AuthAdmin | null;
   isAuthenticated: boolean;
-  login: (token: string) => void;
-  logout: () => void;
+  isLoading: boolean;
+  login: (admin: AuthAdmin) => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-function isTokenExpired(token: string): boolean {
-  try {
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    if (!payload.exp) return false;
-    return Date.now() >= payload.exp * 1000;
-  } catch {
-    return true;
-  }
-}
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const navigate = useNavigate();
-  const [token, setToken] = useState<string | null>(() => {
-    const stored = localStorage.getItem("token");
-    if (stored && isTokenExpired(stored)) {
-      localStorage.removeItem("token");
-      return null;
-    }
-    return stored;
-  });
-
-  const login = useCallback((newToken: string) => {
-    localStorage.setItem("token", newToken);
-    setToken(newToken);
-  }, []);
-
-  const logout = useCallback(() => {
-    localStorage.removeItem("token");
-    setToken(null);
-  }, []);
+  const [admin, setAdmin] = useState<AuthAdmin | null>(null);
+  // The tokens are httpOnly cookies the client can't read, so whether we're
+  // logged in is only known after asking the server.
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!token) return;
+    let cancelled = false;
 
-    if (isTokenExpired(token)) {
-      logout();
-      navigate("/login");
-      return;
+    api
+      .get<AuthAdmin>("/auth/me")
+      .then((res) => {
+        if (!cancelled) setAdmin(res.data);
+      })
+      .catch(() => {
+        if (!cancelled) setAdmin(null);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const login = useCallback((loggedInAdmin: AuthAdmin) => {
+    setAdmin(loggedInAdmin);
+  }, []);
+
+  const logout = useCallback(async () => {
+    try {
+      await api.post("/auth/logout");
+    } catch (error) {
+      console.error(error);
     }
-
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    const msUntilExpiry = payload.exp * 1000 - Date.now();
-    const timer = setTimeout(() => {
-      logout();
-      navigate("/login");
-    }, msUntilExpiry);
-
-    return () => clearTimeout(timer);
-  }, [token, logout, navigate]);
+    setAdmin(null);
+  }, []);
 
   return (
     <AuthContext.Provider
-      value={{ token, isAuthenticated: !!token, login, logout }}
+      value={{ admin, isAuthenticated: !!admin, isLoading, login, logout }}
     >
       {children}
     </AuthContext.Provider>

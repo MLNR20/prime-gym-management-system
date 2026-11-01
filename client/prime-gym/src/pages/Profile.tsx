@@ -3,29 +3,11 @@ import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import Tables from "../components/Tables";
 import useFetchData from "../data/fetchData";
+import { useAuth } from "../context/AuthContext";
 import formatIsoDate from "../utils/dateFormat";
 
-interface DecodedToken {
-  id: string;
-  first_name: string;
-  last_name: string;
-}
-
-function decodeToken(token: string | null): DecodedToken | null {
-  if (!token) return null;
-  try {
-    const payload = token.split(".")[1];
-    const decoded = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
-    return JSON.parse(decoded);
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-}
-
 export default function Profile(): React.ReactElement {
-  const token = localStorage.getItem("token");
-  const admin = decodeToken(token);
+  const { admin } = useAuth();
   const adminProfile = useFetchData({ url: "admin/me" });
 
   const formatTimestamp = (timeStr: string) => {

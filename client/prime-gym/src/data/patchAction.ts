@@ -1,6 +1,5 @@
-import axios from "axios";
+import api from "./api";
 import { handleAuthError } from "./authErrorHandler";
-import { API_URL } from "../config/api";
 
 interface Params {
   url: string;
@@ -9,18 +8,8 @@ interface Params {
 }
 
 export default async function patchAction({ url, id, action }: Params) {
-  const retrieveToken = localStorage.getItem("token");
-
   try {
-    const response = await axios.patch(
-      `${API_URL}/${url}/${id}/${action}`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${retrieveToken}`,
-        },
-      }
-    );
+    const response = await api.patch(`/${url}/${id}/${action}`, {});
 
     return response.data;
   } catch (error) {
