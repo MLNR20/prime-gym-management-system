@@ -8,12 +8,18 @@ export const REFRESH_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 const isProduction = process.env.NODE_ENV === "production";
 
-// Use COOKIE_SAMESITE=none when the client and API live on different sites
-// (e.g. Vercel + a separate API host). Browsers only accept SameSite=None
-// cookies over HTTPS, so it forces `secure` on.
+// In production the client and API are normally on different sites (e.g. a
+// static host + Render), and browsers drop SameSite=Lax cookies set by a
+// cross-site response, so production defaults to "none" (HTTPS only, which
+// `secure` below guarantees). Set COOKIE_SAMESITE=lax|strict to override
+// when both are served from one site.
 const requestedSameSite = process.env.COOKIE_SAMESITE;
 const sameSite: CookieOptions["sameSite"] =
-  requestedSameSite === "none" || requestedSameSite === "strict" ? requestedSameSite : "lax";
+  requestedSameSite === "none" || requestedSameSite === "strict" || requestedSameSite === "lax"
+    ? requestedSameSite
+    : isProduction
+      ? "none"
+      : "lax";
 const secure = isProduction || sameSite === "none";
 
 function baseOptions(maxAge: number, path: string): CookieOptions {
