@@ -51,6 +51,10 @@ app.use(
   })
 );
 app.use(cookieParser());
+// Lightweight liveness probe for uptime pingers (keeps the Render free tier awake).
+app.get("/health", (_req, res) => {
+  res.status(200).json({ status: "ok" });
+});
 app.use(csrfGuard(isAllowedOrigin));
 app.use(express.json());
 app.use("/customers",customerRouter);
@@ -71,12 +75,31 @@ app.use("/sessions", sessionRouter);
 app.use("/session-assignments", sessionAssignmentRouter);
 
 
-mongoose.connect(databaseConnectionString).then(()=>{
-    console.log('App connected to database');
-}).catch((error) =>{
-    console.log(error);
-});
+// A process that is up but has no database is a "zombie": the platform sees it
+// as healthy and never restarts it, while every DB-backed request fails.
+// Mongoose does not retry a failed initial connection, so exit and let the
+// platform (Render) restart us instead of serving without a database.
+const exitOnFatal = (reason: string, error?: unknown) => {
+  console.error(`Fatal: ${reason}`, error ?? "");
+  process.exit(1);
+};
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
-});
+mongoose.connection.on("error", (error) => exitOnFatal("MongoDB connection error", error));
+mongoose.connection.on("disconnected", () => exitOnFatal("MongoDB disconnected"));
+process.on("unhandledRejection", (error) => exitOnFatal("Unhandled promise rejection", error));
+process.on("uncaughtException", (error) => exitOnFatal("Uncaught exception", error));
+
+async function start() {
+  try {
+    await mongoose.connect(databaseConnectionString, { serverSelectionTimeoutMS: 15000 });
+  } catch (error) {
+    return exitOnFatal("Could not connect to MongoDB", error);
+  }
+  console.log("App connected to database");
+
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running at http://localhost:${PORT}`);
+  });
+}
+
+start();

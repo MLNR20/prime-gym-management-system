@@ -41,6 +41,7 @@ authRouter.post("/login", loginValidation, validate, async (req: Request<{}, {},
     const { statusCode, body } = toLoginResponseDto(result);
     return res.status(statusCode).json(body);
   } catch (err) {
+    console.error("Login failed:", err);
     res.status(500).json({ error: "Login failed" });
   }
 });
@@ -57,6 +58,7 @@ authRouter.post("/refresh", async (req: Request, res: Response) => {
     setAuthCookies(res, session.accessToken, session.refreshToken);
     res.status(200).json(session.admin);
   } catch (err) {
+    console.error("Session refresh failed:", err);
     res.status(500).json({ error: "Failed to refresh session" });
   }
 });
