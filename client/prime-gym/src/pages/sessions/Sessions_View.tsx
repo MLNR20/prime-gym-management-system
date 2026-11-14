@@ -18,6 +18,7 @@ export default function Sessions_View(): React.ReactElement {
     {
       header: "Customer",
       accessorFn: (row: any) => `${row.first_name ?? "N/A"} ${row.last_name ?? ""}`.trim(),
+      meta: { sortField: "first_name" },
     },
     { header: "Session Balance", accessorKey: "session_balance" },
     {

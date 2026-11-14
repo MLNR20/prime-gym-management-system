@@ -6,6 +6,7 @@ import { RequestWithUser } from "../middleware/types/express";
 
 import exerciseRepository from "../repository/exerciseRepository";
 import { validate, createExerciseValidation, updateExerciseValidation } from "../utils/validation";
+import { parseSort } from "../repository/genericRepository";
 
 const exerciseRouter = express.Router();
 //const customerService = new CustomerService(CustomerRepository);
@@ -53,6 +54,7 @@ exerciseRouter.get("/show/", authMiddleware, async (request: RequestWithUser, re
       page,
       limit,
       search,
+      ...parseSort(request.query),
       fields: ["exercise_name", "target_area"],
     });
 

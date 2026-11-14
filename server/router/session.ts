@@ -5,6 +5,7 @@ import LogsRepository from "../repository/logsRepository";
 import { RequestWithUser } from "../middleware/types/express";
 import { authMiddleware } from "../middleware/middleware";
 import { validate, assignSessionValidation } from "../utils/validation";
+import { parseSort } from "../repository/genericRepository";
 
 const sessionRouter = express.Router();
 const sessionService = new SessionService(unitOfWork);
@@ -20,7 +21,7 @@ sessionRouter.get(
       const search = (request.query.search as string) || "";
       const customerId = (request.query.customerId as string) || "";
 
-      const result = await sessionService.search(page, limit, search, customerId);
+      const result = await sessionService.search(page, limit, search, customerId, parseSort(request.query));
 
       const admin = request.admin;
       await LogsRepository.logAction(

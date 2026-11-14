@@ -4,6 +4,7 @@ import LogsRepository from "../repository/logsRepository";
 import { authMiddleware } from "../middleware/middleware";
 import { RequestWithUser } from "../middleware/types/express";
 import { validate, createContactValidation } from "../utils/validation";
+import { parseSort } from "../repository/genericRepository";
 
 const contactRouter = express.Router();
 
@@ -50,6 +51,7 @@ contactRouter.get(
         page,
         limit,
         search,
+        ...parseSort(request.query),
         fields: ["first_name", "last_name", "role", "contact_number", "status"],
       });
 

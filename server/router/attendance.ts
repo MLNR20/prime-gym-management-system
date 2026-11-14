@@ -8,6 +8,7 @@ import logsRepository from "../repository/logsRepository";
 import { AttendanceService } from "../repository/services/attendanceService";
 import { CustomerService } from "../repository/services/customerService";
 import { LockerService } from "../repository/services/lockerService";
+import { parseSort } from "../repository/genericRepository";
 
 
 const attendanceRouter = express.Router();
@@ -176,6 +177,7 @@ attendanceRouter.get(
         pipeline,
         search,
         fields: ["first_name", "last_name", "locker_number", "status"],
+        ...parseSort(req.query),
       });
 
       const admin = req.admin;

@@ -12,6 +12,8 @@ import softDeleteData from "../data/softDeleteData";
 import { TableRowsSkeleton } from "./Skeleton";
 import EmptyState from "./EmptyState";
 import DeleteModal from "./DeleteModal";
+import SortableHeader, { getAriaSort } from "./SortableHeader";
+import useTableSort, { getSortField } from "../utils/useTableSort";
 
 const DELETE_ALERT_ENTITY: Record<string, string> = {
   customers: "Customer",
@@ -79,12 +81,19 @@ export default function CRUDTables({
   const [page, setPage] = useState(1);
   //This line of code is responsible for search functionality...
   const [globalFilter, setGlobalFilter] = useState("");
+  const { sort, toggleSort } = useTableSort();
+
+  const handleSort = (field: string) => {
+    toggleSort(field);
+    setPage(1);
+  };
 
   const { data: changeDataLimits, loading } = useFetchDataWithStatus({
     url: `${url}/show`,
     page,
     limit,
     search: globalFilter,
+    ...sort,
   });
 
   const tableData = changeDataLimits.data ?? [];
@@ -175,19 +184,30 @@ export default function CRUDTables({
             <thead className="bg-gray-200 p-2">
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <th
-                      key={header.id}
-                      className="text-black text-[0.950rem] p-5 bg-gray-100"
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
+                  {headerGroup.headers.map((header) => {
+                    const sortField = getSortField(header.column.columnDef);
+                    return (
+                      <th
+                        key={header.id}
+                        aria-sort={getAriaSort(sortField, sort.sortBy, sort.sortOrder)}
+                        className="text-black text-[0.950rem] p-5 bg-gray-100"
+                      >
+                        {header.isPlaceholder ? null : (
+                          <SortableHeader
+                            field={sortField}
+                            activeField={sort.sortBy}
+                            order={sort.sortOrder}
+                            onSort={handleSort}
+                          >
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
+                          </SortableHeader>
                         )}
-                    </th>
-                  ))}
+                      </th>
+                    );
+                  })}
                   {hasActions && (
                     <th className="text-black text-[0.950rem] p-5 bg-gray-100">
                       Actions

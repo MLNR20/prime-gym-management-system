@@ -1,5 +1,6 @@
 import { IEquipmentDocument } from "../../models/equipment";
 import { IUnitOfWork } from "../unitOfWork";
+import { SortOptions } from "../genericRepository";
 
 const SEARCH_FIELDS = ["equipment_name"];
 
@@ -14,8 +15,8 @@ export class EquipmentService {
     return this.unitOfWork.equipment.findAll();
   }
 
-  async search(page: number, limit: number, search: string) {
-    return this.unitOfWork.equipment.search({ page, limit, search, fields: SEARCH_FIELDS });
+  async search(page: number, limit: number, search: string, sort: SortOptions = {}) {
+    return this.unitOfWork.equipment.search({ page, limit, search, fields: SEARCH_FIELDS, ...sort });
   }
 
   async getById(id: string) {

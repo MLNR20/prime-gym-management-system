@@ -13,6 +13,7 @@ import {
     toLockerPageResponseDto,
 } from "../dto/locker.dto";
 import { validate, createLockerValidation, updateLockerValidation } from "../utils/validation";
+import { parseSort } from "../repository/genericRepository";
 
 const lockerRouter = express.Router();
 const lockerService = new LockerService(unitOfWork);
@@ -65,7 +66,7 @@ lockerRouter.get(
       const page = parseInt(request.query.page as string) || 1;
       const search = (request.query.search as string)   || "";
 
-      const result = await lockerService.search(page, limit, search);
+      const result = await lockerService.search(page, limit, search, parseSort(request.query));
       const admin = request.admin;
       await LogsRepository.logAction(
         admin!._id.toString(),

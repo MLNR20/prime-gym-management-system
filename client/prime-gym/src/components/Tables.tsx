@@ -9,6 +9,8 @@ import { useFetchDataWithStatus } from "../data/fetchData";
 import getWindowedPages from "../utils/getWindowedPages";
 import { TableRowsSkeleton } from "./Skeleton";
 import EmptyState from "./EmptyState";
+import SortableHeader, { getAriaSort } from "./SortableHeader";
+import useTableSort, { getSortField } from "../utils/useTableSort";
 interface TableProps {
   data: any[];
   columns: any[];
@@ -37,12 +39,19 @@ export default function Tables({
   const [globalFilter, setGlobalFilter] = useState("");
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
+  const { sort, toggleSort } = useTableSort();
+
+  const handleSort = (field: string) => {
+    toggleSort(field);
+    setPage(1);
+  };
 
  const { data: changeDataLimits, loading } = useFetchDataWithStatus({
     url: `${url}/show`,
     page,
     limit,
     search: globalFilter,
+    ...sort,
     enabled: !disableFetch,
     customerId,
   });
@@ -111,19 +120,31 @@ export default function Tables({
           <thead className="bg-slate-300 text-md">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr className="bg-slate-300" key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    className="text-black font-bold text-[0.950rem] p-5 bg-gray-100"
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                  </th>
-                ))}
+                {headerGroup.headers.map((header) => {
+                  // Sorting happens on the server, so it is unavailable when the rows are supplied locally.
+                  const sortField = disableFetch ? undefined : getSortField(header.column.columnDef);
+                  return (
+                    <th
+                      key={header.id}
+                      aria-sort={getAriaSort(sortField, sort.sortBy, sort.sortOrder)}
+                      className="text-black font-bold text-[0.950rem] p-5 bg-gray-100"
+                    >
+                      {header.isPlaceholder ? null : (
+                        <SortableHeader
+                          field={sortField}
+                          activeField={sort.sortBy}
+                          order={sort.sortOrder}
+                          onSort={handleSort}
+                        >
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                        </SortableHeader>
+                      )}
+                    </th>
+                  );
+                })}
 
                 {url === "admin" && (
                   <th className="text-black text-[0.950rem] p-5 bg-gray-100" >

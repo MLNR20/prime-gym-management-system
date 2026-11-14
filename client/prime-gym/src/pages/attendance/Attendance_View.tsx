@@ -71,6 +71,7 @@ export default function Attendance_View(): React.ReactElement {
     {
       header: "Full Name",
       accessorFn: (row: any) => `${row.first_name} ${row.last_name}`,
+      meta: { sortField: "first_name" },
     },
     {
       header: "Locker Number",

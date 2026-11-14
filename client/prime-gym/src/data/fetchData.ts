@@ -8,6 +8,8 @@ interface FetchProps {
   page?: number;
   limit?: number;
   search?: string;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
   enabled?: boolean;
   customerId?: string;
 }
@@ -86,6 +88,8 @@ export function useFetchDataWithStatus({
   page,
   limit,
   search,
+  sortBy,
+  sortOrder,
   enabled = true,
   customerId,
 }: FetchProps) {
@@ -115,6 +119,8 @@ export function useFetchDataWithStatus({
               page,
               limit,
               search,
+              sortBy,
+              sortOrder,
               customerId,
             },
             signal: controller.signal,
@@ -146,7 +152,7 @@ export function useFetchDataWithStatus({
       controller.abort();
       clearTimeout(timeoutId);
     };
-  }, [url, page, limit, search, enabled, customerId]);
+  }, [url, page, limit, search, sortBy, sortOrder, enabled, customerId]);
 
   return { data, loading };
 }

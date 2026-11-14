@@ -5,6 +5,7 @@ import LogsRepository from "../repository/logsRepository";
 import { RequestWithUser } from "../middleware/types/express";
 import { authMiddleware } from "../middleware/middleware";
 import { validate, createSalesValidation, updateSalesValidation } from "../utils/validation";
+import { parseSort } from "../repository/genericRepository";
 
 const salesRouter = express.Router();
 const salesService = new SalesService(unitOfWork);
@@ -19,7 +20,7 @@ salesRouter.get(
       const search = (request.query.search as string) || "";
       const customerId = (request.query.customerId as string) || "";
 
-      const result = await salesService.search(page, limit, search, customerId);
+      const result = await salesService.search(page, limit, search, customerId, parseSort(request.query));
 
       const admin = request.admin;
       await LogsRepository.logAction(

@@ -388,6 +388,7 @@ export default function Analytics_View(): React.ReactElement {
     {
       header: "Full Name",
       accessorFn: (row: any) => `${fmtStr(row.first_name)} ${fmtStr(row.last_name)}`,
+      meta: { sortField: "first_name" },
     },
     {
       header: "Subscription Type",

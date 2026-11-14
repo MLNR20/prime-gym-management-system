@@ -123,6 +123,7 @@ export default function Customer_Details(): React.ReactElement {
     {
       header: "Item Name",
       accessorKey: "item_name",
+      meta: { sortable: false },
     },
     {
       header: "Quantity",

@@ -1,5 +1,6 @@
 import { ILockerDocument } from "../../models/locker";
 import { IUnitOfWork } from "../unitOfWork";
+import { SortOptions } from "../genericRepository";
 
 const SEARCH_FIELDS = ["locker_number"];
 
@@ -22,8 +23,8 @@ export class LockerService {
     return this.unitOfWork.lockers.findAvailableLockers();
   }
 
-  async search(page: number, limit: number, search: string) {
-    return this.unitOfWork.lockers.search({ page, limit, search, fields: SEARCH_FIELDS });
+  async search(page: number, limit: number, search: string, sort: SortOptions = {}) {
+    return this.unitOfWork.lockers.search({ page, limit, search, fields: SEARCH_FIELDS, ...sort });
   }
 
   async getById(id: string) {

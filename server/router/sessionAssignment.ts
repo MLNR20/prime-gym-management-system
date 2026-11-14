@@ -5,6 +5,7 @@ import LogsRepository from "../repository/logsRepository";
 import { RequestWithUser } from "../middleware/types/express";
 import { authMiddleware } from "../middleware/middleware";
 import { validate, createSessionAssignmentValidation } from "../utils/validation";
+import { parseSort } from "../repository/genericRepository";
 
 const sessionAssignmentRouter = express.Router();
 const sessionAssignmentService = new SessionAssignmentService(unitOfWork);
@@ -51,7 +52,7 @@ sessionAssignmentRouter.get(
       const page = parseInt(request.query.page as string) || 1;
       const search = (request.query.search as string) || "";
 
-      const result = await sessionAssignmentService.getHistory(page, limit, search);
+      const result = await sessionAssignmentService.getHistory(page, limit, search, parseSort(request.query));
 
       const admin = request.admin;
       await LogsRepository.logAction(

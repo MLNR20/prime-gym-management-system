@@ -1,5 +1,6 @@
 import { ICustomer, ICustomerDocument } from "../../models/customer";
 import { IUnitOfWork, Repositories } from "../unitOfWork";
+import { SortOptions } from "../genericRepository";
 
 const COACHING_SUBSCRIPTION_TYPES = ["Coaching Subscription", "Monthly with Coaching"];
 const COACHING_SESSION_BALANCE = 10;
@@ -33,8 +34,8 @@ export class CustomerService {
     return this.unitOfWork.customers.findAll();
   }
 
-  async search(page: number, limit: number, search: string) {
-    return this.unitOfWork.customers.search({ page, limit, search, fields: SEARCH_FIELDS });
+  async search(page: number, limit: number, search: string, sort: SortOptions = {}) {
+    return this.unitOfWork.customers.search({ page, limit, search, fields: SEARCH_FIELDS, ...sort });
   }
 
   async getById(id: string) {

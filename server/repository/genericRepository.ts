@@ -32,6 +32,32 @@ export function buildSearchClauses(search: string, fields: string[]): Record<str
   });
 }
 
+export interface SortOptions {
+  sortBy?: string | undefined;
+  sortOrder?: "asc" | "desc" | undefined;
+}
+
+// Only plain field names are accepted, so a request can never smuggle operators
+// or dotted paths into a sort stage.
+const SORTABLE_FIELD = /^[A-Za-z_][A-Za-z0-9_]{0,63}$/;
+
+// Case-insensitive ordering so "apple" does not sort after "Zebra".
+const SORT_COLLATION = { locale: "en", strength: 2 } as const;
+
+/** Reads `sortBy` / `sortOrder` from a request query; invalid input means "no sort". */
+export function parseSort(query: Record<string, any>): SortOptions {
+  const sortBy = typeof query.sortBy === "string" ? query.sortBy : "";
+  if (!SORTABLE_FIELD.test(sortBy)) return {};
+  return { sortBy, sortOrder: query.sortOrder === "desc" ? "desc" : "asc" };
+}
+
+// _id is the tiebreaker so rows with equal values keep a stable order across pages.
+function buildSortStage({ sortBy, sortOrder }: SortOptions): Record<string, 1 | -1> | null {
+  if (!sortBy) return null;
+  const direction = sortOrder === "desc" ? -1 : 1;
+  return { [sortBy]: direction, _id: direction };
+}
+
 class GenericRepository<T> {
   protected model: Model<T>;
   protected hiddenFields: string[] = [];
@@ -105,13 +131,15 @@ class GenericRepository<T> {
     pipeline = [],
     search = "",
     fields = [],
+    sortBy,
+    sortOrder,
   }: {
     page?: number;
     limit?: number;
     pipeline?: any[];
     search?: string;
     fields?: string[];
-  }) {
+  } & SortOptions) {
     const skip = (page - 1) * limit;
 
     let query: any = {};
@@ -128,17 +156,23 @@ class GenericRepository<T> {
 
     const matchStage = Object.keys(query).length > 0 ? [{ $match: query }] : [];
 
+    const sortStage = buildSortStage({ sortBy, sortOrder });
+
     const dataPipeline = [
       ...pipeline,
       ...matchStage,
+      ...(sortStage ? [{ $sort: sortStage }] : []),
       { $skip: skip },
       { $limit: limit },
     ];
 
     const countPipeline = [...pipeline, ...matchStage, { $count: "total" }];
 
+    const dataAggregate = this.model.aggregate(dataPipeline);
+    if (sortStage) dataAggregate.collation(SORT_COLLATION);
+
     const [data, countResult] = await Promise.all([
-      this.model.aggregate(dataPipeline),
+      dataAggregate,
       this.model.aggregate(countPipeline),
     ]);
 
@@ -176,6 +210,8 @@ class GenericRepository<T> {
     fields = [],
     filter = {},
     includeDeleted = false,
+    sortBy,
+    sortOrder,
   }: {
     page?: number;
     limit?: number;
@@ -183,7 +219,7 @@ class GenericRepository<T> {
     fields?: string[];
     filter?: Record<string, any>;
     includeDeleted?: boolean;
-  }) {
+  } & SortOptions) {
     const skip = (page - 1) * limit;
 
     let query: any = { ...filter };
@@ -198,11 +234,10 @@ class GenericRepository<T> {
     const searchClauses = buildSearchClauses(search, fields);
     if (searchClauses.length > 0) query.$and = [...(query.$and ?? []), ...searchClauses];
 
-    const data = await this.model
-      .find(query)
-      .session(this.dbSession)
-      .skip(skip)
-      .limit(limit);
+    const sortStage = buildSortStage({ sortBy, sortOrder });
+    const dataQuery = this.model.find(query).session(this.dbSession);
+    if (sortStage) dataQuery.sort(sortStage).collation(SORT_COLLATION);
+    const data = await dataQuery.skip(skip).limit(limit);
 
     const total = await this.model
       .countDocuments(query)

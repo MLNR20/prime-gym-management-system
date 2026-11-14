@@ -14,6 +14,7 @@ import {
   toEquipmentListResponseDto,
   toEquipmentPageResponseDto,
 } from "../dto/equipment.dto";
+import { parseSort } from "../repository/genericRepository";
 
 const equipmentRouter = express.Router();
 const equipmentService = new EquipmentService(unitOfWork);
@@ -47,7 +48,7 @@ equipmentRouter.get(
       const page = parseInt(request.query.page as string) || 1;
       const search = (request.query.search as string) || "";
 
-      const result = await equipmentService.search(page, limit, search);
+      const result = await equipmentService.search(page, limit, search, parseSort(request.query));
 
       const admin = request.admin;
       await LogsRepository.logAction(

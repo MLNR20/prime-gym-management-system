@@ -3,6 +3,7 @@ import LogsRepository from "../repository/logsRepository";
 import { authMiddleware } from "../middleware/middleware";
 import { RequestWithUser } from "../middleware/types/express";
 import logsRepository from "../repository/logsRepository";
+import { parseSort } from "../repository/genericRepository";
 
 const logsRouter = express.Router();
 
@@ -26,6 +27,7 @@ logsRouter.get("/show/", authMiddleware, async (request: RequestWithUser, respon
         page,
         limit,
         search,
+        ...parseSort(request.query),
         fields: ["logs"],
         filter: {
           admin_id: admin!._id.toString(),

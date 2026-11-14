@@ -3,6 +3,7 @@ import LogsRepository from "../repository/logsRepository";
 import adminRepository from "../repository/adminRepository";
 import { authMiddleware } from "../middleware/middleware";
 import { RequestWithUser } from "../middleware/types/express";
+import { parseSort } from "../repository/genericRepository";
 
 const adminRouter = express.Router();
 
@@ -56,6 +57,7 @@ adminRouter.get(
         page,
         limit,
         search,
+        ...parseSort(req.query),
         fields: ["first_name", "last_name", "email"],
         // Deactivated admins must stay visible here (unlike other entities)
         // so an admin can be renewed instead of only ever deactivated.

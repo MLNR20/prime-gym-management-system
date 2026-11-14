@@ -27,10 +27,12 @@ export default function Sales_View(): React.ReactElement {
     {
       header: "Item Code",
       accessorKey: "item_code",
+      meta: { sortable: false },
     },
     {
       header: "Item Name",
       accessorKey: "item_name",
+      meta: { sortable: false },
     },
     {
       header: "Qty Sold",

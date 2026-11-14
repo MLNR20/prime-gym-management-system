@@ -3,6 +3,7 @@ import { authMiddleware } from "../middleware/middleware";
 import { RequestWithUser } from "../middleware/types/express";
 import LogsRepository from "../repository/logsRepository";
 import SubscriptionHistoryRepository from "../repository/subscriptionhistoryRepository";
+import { parseSort } from "../repository/genericRepository";
 
 const SubscriptionHistoryRepositoryRouter = express.Router();
 
@@ -68,7 +69,8 @@ SubscriptionHistoryRepositoryRouter.get(
         limit,
         pipeline,
         search,
-        fields: ["first_name", "last_name", "dateRenewed",  "amount","subscription_type"]
+        fields: ["first_name", "last_name", "dateRenewed",  "amount","subscription_type"],
+        ...parseSort(request.query),
       });
 
       const admin = request.admin;

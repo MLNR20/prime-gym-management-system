@@ -1,5 +1,6 @@
 import { ISessionAssignmentDocument } from "../../models/sessionAssignment";
 import { IUnitOfWork } from "../unitOfWork";
+import { SortOptions } from "../genericRepository";
 
 export type AssignProgramResult =
   | { status: "success"; sessionBalance: number; assignment: ISessionAssignmentDocument; programName: string }
@@ -35,7 +36,7 @@ export class SessionAssignmentService {
     });
   }
 
-  async getHistory(page: number, limit: number, search: string) {
+  async getHistory(page: number, limit: number, search: string, sort: SortOptions = {}) {
     const pipeline = [
       {
         $addFields: {
@@ -81,6 +82,7 @@ export class SessionAssignmentService {
       pipeline,
       search,
       fields: ["first_name", "last_name", "program_name"],
+      ...sort,
     });
   }
 }

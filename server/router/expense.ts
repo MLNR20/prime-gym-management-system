@@ -4,6 +4,7 @@ import LogsRepository from "../repository/logsRepository";
 import { authMiddleware } from "../middleware/middleware";
 import { RequestWithUser } from "../middleware/types/express";
 import { validate, createExpenseValidation, updateExpenseValidation } from "../utils/validation";
+import { parseSort } from "../repository/genericRepository";
 
 const expenseRouter = express.Router();
 
@@ -51,6 +52,7 @@ expenseRouter.get("/show/", authMiddleware, async (request: RequestWithUser, res
       page,
       limit,
       search,
+      ...parseSort(request.query),
       fields: ["expense_title", "categories"],
     });
 

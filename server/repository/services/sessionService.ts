@@ -1,4 +1,5 @@
 import { IUnitOfWork } from "../unitOfWork";
+import { SortOptions } from "../genericRepository";
 
 export class SessionService {
   private unitOfWork: IUnitOfWork;
@@ -7,7 +8,7 @@ export class SessionService {
     this.unitOfWork = unitOfWork;
   }
 
-  async search(page: number, limit: number, search: string, customerId: string) {
+  async search(page: number, limit: number, search: string, customerId: string, sort: SortOptions = {}) {
     const pipeline = [
       ...(customerId ? [{ $match: { customer_id: customerId } }] : []),
       {
@@ -47,6 +48,7 @@ export class SessionService {
       pipeline,
       search,
       fields: ["first_name", "last_name"],
+      ...sort,
     });
   }
 

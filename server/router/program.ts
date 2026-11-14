@@ -12,6 +12,7 @@ import {
   assignExerciseToProgramValidation,
   assignCustomerToProgramValidation,
 } from "../utils/validation";
+import { parseSort } from "../repository/genericRepository";
 
 const programRouter = express.Router();
 
@@ -68,6 +69,7 @@ programRouter.get("/show/", authMiddleware, async (request: RequestWithUser, res
       page,
       limit,
       search,
+      ...parseSort(request.query),
       fields: ["program_name", "description"],
     });
 

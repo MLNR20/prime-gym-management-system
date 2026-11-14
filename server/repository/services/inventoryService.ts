@@ -1,5 +1,6 @@
 import { IInventoryDocument } from "../../models/inventory";
 import { IUnitOfWork } from "../unitOfWork";
+import { SortOptions } from "../genericRepository";
 
 const SEARCH_FIELDS = ["item_name", "item_code", "category"];
 const DUPLICATE_KEY_ERROR_CODE = 11000;
@@ -30,8 +31,8 @@ export class InventoryService {
     return items.filter((item) => item.is_for_sale && item.quantity > 0);
   }
 
-  async search(page: number, limit: number, search: string) {
-    return this.unitOfWork.inventory.search({ page, limit, search, fields: SEARCH_FIELDS });
+  async search(page: number, limit: number, search: string, sort: SortOptions = {}) {
+    return this.unitOfWork.inventory.search({ page, limit, search, fields: SEARCH_FIELDS, ...sort });
   }
 
   async getById(id: string) {

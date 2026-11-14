@@ -1,6 +1,7 @@
 import { ISalesDocument } from "../../models/sales";
 import { IInventoryDocument } from "../../models/inventory";
 import { IUnitOfWork, Repositories } from "../unitOfWork";
+import { SortOptions } from "../genericRepository";
 
 export class SalesService {
   private unitOfWork: IUnitOfWork;
@@ -52,13 +53,14 @@ export class SalesService {
     return sale.toObject ? sale.toObject() : sale;
   }
 
-  async search(page: number, limit: number, search: string, customerId: string) {
+  async search(page: number, limit: number, search: string, customerId: string, sort: SortOptions = {}) {
     const result = await this.unitOfWork.sales.search({
       page,
       limit,
       search,
       fields: ["inventory_id"],
       filter: customerId ? { customer_id: customerId } : {},
+      ...sort,
     });
     return { ...result, data: await this.enrich(result.data) };
   }
